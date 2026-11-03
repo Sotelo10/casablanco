@@ -15,203 +15,205 @@
  */
 
 :root {
-  color-scheme: light;
+   color-scheme: light;
 
-  /* ═══ CANALES BASE ════════════════════════════════════════════════════ */
-  /* Velos, sombras y degradados se componen desde estos valores: cambiarlos
+   /* ═══ CANALES BASE ════════════════════════════════════════════════════ */
+   /* Velos, sombras y degradados se componen desde estos valores: cambiarlos
      recalcula toda la profundidad del sitio. */
-  --sky-rgb: 40 95 125;
-  --deep-rgb: 21 59 86;
-  --white-rgb: 255 255 255;
-  --accent-rgb: 233 224 211;
-  /* Velo nocturno de las fotografías (= --color-surface-deep). */
-  --veil-rgb: 16 47 69;
+   --sky-rgb: 40 95 125;
+   --deep-rgb: 21 59 86;
+   --white-rgb: 255 255 255;
+   --accent-rgb: 233 224 211;
+   /* Velo nocturno de las fotografías (= --color-surface-deep). */
+   --veil-rgb: 16 47 69;
 
-  /* ═══ ESCALA DE AZUL ══════════════════════════════════════════════════ */
-  /* Construida alrededor de los dos azules de marca: 600 = #285F7D
+   /* ═══ ESCALA DE AZUL ══════════════════════════════════════════════════ */
+   /* Construida alrededor de los dos azules de marca: 600 = #285F7D
      (secundario) y 800 = #153B56 (profundo). */
-  --sky-50: #f4f7f9;
-  --sky-100: #e8eef2;
-  --sky-200: #cfdce5;
-  --sky-300: #a9c0cf;
-  --sky-400: #6f93aa;
-  --sky-500: #3e7192;
-  --sky-600: #285f7d;
-  --sky-700: #1e4d69;
-  --sky-800: #153b56;
-  --sky-900: #0e2a3e;
+   --sky-50: #f4f7f9;
+   --sky-100: #e8eef2;
+   --sky-200: #cfdce5;
+   --sky-300: #a9c0cf;
+   --sky-400: #6f93aa;
+   --sky-500: #3e7192;
+   --sky-600: #285f7d;
+   --sky-700: #1e4d69;
+   --sky-800: #153b56;
+   --sky-900: #0e2a3e;
 
-  /* ═══ COLOR SEMÁNTICO ═════════════════════════════════════════════════ */
+   /* ═══ COLOR SEMÁNTICO ═════════════════════════════════════════════════ */
 
-  /* Superficies: blanco cálido, blanco y arena */
-  --color-background: #fafaf7;
-  --color-surface: #ffffff;
-  --color-surface-elevated: #ffffff;
-  --color-surface-soft: #f3efe8;
-  --color-surface-mist: #f6f4ef;
-  --color-surface-sand: #f3eee6;
-  --color-surface-sand-deep: #e9e0d3;
+   /* Superficies: blanco cálido, blanco y arena */
+   --color-background: #fafaf7;
+   --color-surface: #ffffff;
+   --color-surface-elevated: #ffffff;
+   --color-surface-soft: #f3efe8;
+   --color-surface-mist: #f6f4ef;
+   --color-surface-sand: #f3eee6;
+   --color-surface-sand-deep: #e9e0d3;
 
-  /* Anclaje profundo: pie de página y bandas de cierre */
-  --color-surface-deep: #102f45;
-  --color-surface-deep-soft: #153b56;
-  --color-surface-deep-raised: #1e4d69;
+   /* Anclaje profundo: pie de página y bandas de cierre */
+   --color-surface-deep: #00509D;
+   --color-surface-deep-soft: #153b56;
+   --color-surface-deep-raised: #1e4d69;
 
-  /* Texto */
-  --color-text: #153b56;
-  --color-text-soft: #2b4a60;
-  --color-text-muted: #5b6b7f; /* #64748B oscurecido lo justo para AA sobre arena */
-  --color-text-inverse: #ffffff;
-  --color-text-inverse-muted: #c9d6e0;
+   /* Texto */
+   --color-text: #153b56;
+   --color-text-soft: #2b4a60;
+   --color-text-muted: #5b6b7f;
+   /* #64748B oscurecido lo justo para AA sobre arena */
+   --color-text-inverse: #ffffff;
+   --color-text-inverse-muted: #c9d6e0;
 
-  /* Acción principal: azul profundo sobre claro, blanco sobre foto */
-  --color-primary: #153b56;
-  --color-primary-dark: #0e2a3e;
-  --color-primary-light: var(--sky-400);
-  --color-primary-soft: var(--sky-100);
-  --color-primary-hover: #285f7d;
-  --color-primary-contrast: #ffffff;
+   /* Acción principal: azul profundo sobre claro, blanco sobre foto */
+   --color-primary: #153b56;
+   --color-primary-dark: #0e2a3e;
+   --color-primary-light: var(--sky-400);
+   --color-primary-soft: var(--sky-100);
+   --color-primary-hover: #285f7d;
+   --color-primary-contrast: #ffffff;
 
-  /* Acento: el azul secundario y la arena. Sin dorados. `accent-strong` cumple
+   /* Acento: el azul secundario y la arena. Sin dorados. `accent-strong` cumple
      AA sobre claro; `accent-light` sobre fondo profundo. */
-  --color-accent: #c8b9a3;
-  --color-accent-strong: #285f7d;
-  --color-accent-light: #e9e0d3;
-  --color-accent-hover: #1e4d69;
-  --color-accent-soft: #f3eee6;
+   --color-accent: #c8b9a3;
+   --color-accent-strong: #285f7d;
+   --color-accent-light: #e9e0d3;
+   --color-accent-hover: #1e4d69;
+   --color-accent-soft: #f3eee6;
 
-  /* Bordes y separadores */
-  --color-border: #e6e1d8;
-  --color-border-strong: #d2c9bb;
-  --color-border-input: #7a8798; /* controles: contraste ≥ 3:1 (WCAG 1.4.11) */
-  --color-border-inverse: rgb(var(--white-rgb) / 20%);
-  --color-border-inverse-strong: rgb(var(--white-rgb) / 45%);
+   /* Bordes y separadores */
+   --color-border: #e6e1d8;
+   --color-border-strong: #d2c9bb;
+   --color-border-input: #7a8798;
+   /* controles: contraste ≥ 3:1 (WCAG 1.4.11) */
+   --color-border-inverse: rgb(var(--white-rgb) / 20%);
+   --color-border-inverse-strong: rgb(var(--white-rgb) / 45%);
 
-  /* Velos */
-  --color-overlay: rgb(var(--deep-rgb) / 45%);
-  --color-overlay-soft: rgb(var(--deep-rgb) / 12%);
-  --color-veil: rgb(var(--white-rgb) / 10%);
-  --color-veil-strong: rgb(var(--white-rgb) / 18%);
-  --glass-bg: rgb(var(--white-rgb) / 12%);
-  --glass-bg-strong: rgb(var(--white-rgb) / 92%);
-  --glass-border: rgb(var(--white-rgb) / 32%);
-  --glass-blur: 14px;
+   /* Velos */
+   --color-overlay: rgb(var(--deep-rgb) / 45%);
+   --color-overlay-soft: rgb(var(--deep-rgb) / 12%);
+   --color-veil: rgb(var(--white-rgb) / 10%);
+   --color-veil-strong: rgb(var(--white-rgb) / 18%);
+   --glass-bg: rgb(var(--white-rgb) / 12%);
+   --glass-bg-strong: rgb(var(--white-rgb) / 92%);
+   --glass-border: rgb(var(--white-rgb) / 32%);
+   --glass-blur: 14px;
 
-  --color-focus: #285f7d;
-  --color-danger: #a8402f;
-  --color-success: #1f6f55;
+   --color-focus: #285f7d;
+   --color-danger: #a8402f;
+   --color-success: #1f6f55;
 
-  /* ═══ TIPOGRAFÍA ══════════════════════════════════════════════════════ */
-  /* Las variables --font-* de familias las inyecta la API de fuentes de Astro
+   /* ═══ TIPOGRAFÍA ══════════════════════════════════════════════════════ */
+   /* Las variables --font-* de familias las inyecta la API de fuentes de Astro
      con sus fallbacks métricamente ajustados. */
-  --font-body: var(--font-manrope, ui-sans-serif, system-ui, -apple-system, sans-serif);
-  --font-heading: var(--font-cormorant, Georgia, "Times New Roman", serif);
-  /* Los acentos "manuscritos" pasan a la cursiva de la serif editorial. */
-  --font-script: var(--font-cormorant, Georgia, serif);
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+   --font-body: var(--font-manrope, ui-sans-serif, system-ui, -apple-system, sans-serif);
+   --font-heading: var(--font-cormorant, Georgia, "Times New Roman", serif);
+   /* Los acentos "manuscritos" pasan a la cursiva de la serif editorial. */
+   --font-script: var(--font-cormorant, Georgia, serif);
+   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  --tracking-tighter: -0.025em;
-  --tracking-tight: -0.01em;
-  --tracking-normal: 0;
-  --tracking-wide: 0.08em;
-  --tracking-wider: 0.18em;
-  --tracking-widest: 0.28em;
+   --tracking-tighter: -0.025em;
+   --tracking-tight: -0.01em;
+   --tracking-normal: 0;
+   --tracking-wide: 0.08em;
+   --tracking-wider: 0.18em;
+   --tracking-widest: 0.28em;
 
-  --leading-none: 1;
-  --leading-tight: 1.04;
-  --leading-snug: 1.22;
-  --leading-normal: 1.65;
-  --leading-relaxed: 1.8;
+   --leading-none: 1;
+   --leading-tight: 1.04;
+   --leading-snug: 1.22;
+   --leading-normal: 1.65;
+   --leading-relaxed: 1.8;
 
-  --weight-regular: 400;
-  --weight-medium: 500;
-  --weight-semibold: 600;
-  --weight-bold: 700;
-  /* Peso de los titulares en Cormorant: 500 lee mejor que 400 en pantalla. */
-  --weight-heading: 500;
+   --weight-regular: 400;
+   --weight-medium: 500;
+   --weight-semibold: 600;
+   --weight-bold: 700;
+   /* Peso de los titulares en Cormorant: 500 lee mejor que 400 en pantalla. */
+   --weight-heading: 500;
 
-  /* Escala fluida. Cormorant tiene un ojo pequeño: los titulares van un
+   /* Escala fluida. Cormorant tiene un ojo pequeño: los titulares van un
      escalón por encima de lo habitual para compensarlo. */
-  --text-3xs: 0.625rem;
-  --text-2xs: 0.6875rem;
-  --text-xs: 0.75rem;
-  --text-sm: 0.8125rem;
-  --text-body-sm: 0.9375rem;
-  --text-body: clamp(1rem, 0.97rem + 0.14vw, 1.0625rem);
-  --text-lead: clamp(1.0625rem, 0.98rem + 0.42vw, 1.3125rem);
-  --text-h4: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
-  --text-h3: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
-  --text-h2: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
-  --text-h1: clamp(2.75rem, 1.9rem + 3.6vw, 5rem);
-  --text-display: clamp(3.5rem, 2rem + 7vw, 8.5rem);
+   --text-3xs: 0.625rem;
+   --text-2xs: 0.6875rem;
+   --text-xs: 0.75rem;
+   --text-sm: 0.8125rem;
+   --text-body-sm: 0.9375rem;
+   --text-body: clamp(1rem, 0.97rem + 0.14vw, 1.0625rem);
+   --text-lead: clamp(1.0625rem, 0.98rem + 0.42vw, 1.3125rem);
+   --text-h4: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+   --text-h3: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+   --text-h2: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
+   --text-h1: clamp(2.75rem, 1.9rem + 3.6vw, 5rem);
+   --text-display: clamp(3.5rem, 2rem + 7vw, 8.5rem);
 
-  /* ═══ ESPACIADO ═══════════════════════════════════════════════════════ */
-  --space-3xs: 0.125rem;
-  --space-2xs: 0.25rem;
-  --space-xs: 0.5rem;
-  --space-sm: 0.75rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-2xl: 3rem;
-  --space-3xl: 4rem;
-  --space-4xl: 6rem;
-  --space-5xl: 8rem;
+   /* ═══ ESPACIADO ═══════════════════════════════════════════════════════ */
+   --space-3xs: 0.125rem;
+   --space-2xs: 0.25rem;
+   --space-xs: 0.5rem;
+   --space-sm: 0.75rem;
+   --space-md: 1rem;
+   --space-lg: 1.5rem;
+   --space-xl: 2rem;
+   --space-2xl: 3rem;
+   --space-3xl: 4rem;
+   --space-4xl: 6rem;
+   --space-5xl: 8rem;
 
-  --section-space: clamp(3.75rem, 2.4rem + 5.2vw, 7rem);
-  --section-space-sm: clamp(2.5rem, 1.8rem + 2.8vw, 4.25rem);
+   --section-space: clamp(3.75rem, 2.4rem + 5.2vw, 7rem);
+   --section-space-sm: clamp(2.5rem, 1.8rem + 2.8vw, 4.25rem);
 
-  /* ═══ LAYOUT ══════════════════════════════════════════════════════════ */
-  --gutter: clamp(1.25rem, 0.85rem + 2vw, 3rem);
-  --container-narrow: 46rem;
-  --container-default: 75rem;
-  --container-wide: 88rem;
-  --container-full: 100rem;
+   /* ═══ LAYOUT ══════════════════════════════════════════════════════════ */
+   --gutter: clamp(1.25rem, 0.85rem + 2vw, 3rem);
+   --container-narrow: 46rem;
+   --container-default: 75rem;
+   --container-wide: 88rem;
+   --container-full: 100rem;
 
-  --header-height: 4.25rem;
-  --mobile-bar-height: 4.5rem;
+   --header-height: 4.25rem;
+   --mobile-bar-height: 4.5rem;
 
-  /* ═══ FORMA Y ELEVACIÓN ═══════════════════════════════════════════════ */
-  /* Esquinas casi rectas: lenguaje arquitectónico, no de aplicación. */
-  --radius-xs: 2px;
-  --radius-sm: 2px;
-  --radius-md: 3px;
-  --radius-lg: 4px;
-  --radius-xl: 6px;
-  --radius-2xl: 8px;
-  --radius-pill: 999px;
-  --radius-button: 2px;
+   /* ═══ FORMA Y ELEVACIÓN ═══════════════════════════════════════════════ */
+   /* Esquinas casi rectas: lenguaje arquitectónico, no de aplicación. */
+   --radius-xs: 2px;
+   --radius-sm: 2px;
+   --radius-md: 3px;
+   --radius-lg: 4px;
+   --radius-xl: 6px;
+   --radius-2xl: 8px;
+   --radius-pill: 999px;
+   --radius-button: 2px;
 
-  /* Sombras mínimas: la profundidad la dan la fotografía y el color. */
-  --shadow-xs: 0 1px 2px rgb(var(--deep-rgb) / 5%);
-  --shadow-sm: 0 1px 2px rgb(var(--deep-rgb) / 4%), 0 4px 12px -8px rgb(var(--deep-rgb) / 12%);
-  --shadow-md: 0 10px 30px -18px rgb(var(--deep-rgb) / 22%);
-  --shadow-lg: 0 24px 60px -36px rgb(var(--deep-rgb) / 30%);
-  --shadow-glass: 0 10px 30px -18px rgb(var(--deep-rgb) / 30%);
-  --shadow-ring: inset 0 0 0 1px rgb(var(--deep-rgb) / 6%);
+   /* Sombras mínimas: la profundidad la dan la fotografía y el color. */
+   --shadow-xs: 0 1px 2px rgb(var(--deep-rgb) / 5%);
+   --shadow-sm: 0 1px 2px rgb(var(--deep-rgb) / 4%), 0 4px 12px -8px rgb(var(--deep-rgb) / 12%);
+   --shadow-md: 0 10px 30px -18px rgb(var(--deep-rgb) / 22%);
+   --shadow-lg: 0 24px 60px -36px rgb(var(--deep-rgb) / 30%);
+   --shadow-glass: 0 10px 30px -18px rgb(var(--deep-rgb) / 30%);
+   --shadow-ring: inset 0 0 0 1px rgb(var(--deep-rgb) / 6%);
 
-  /* ═══ MOVIMIENTO ══════════════════════════════════════════════════════ */
-  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --duration-fast: 160ms;
-  --duration: 280ms;
-  --duration-slow: 560ms;
-  --transition-fast: var(--duration-fast) var(--ease-out);
-  --transition-base: var(--duration) var(--ease-out);
-  --transition-emphasis: var(--duration) var(--ease-emphasis);
-  --transition-slow: var(--duration-slow) var(--ease-emphasis);
+   /* ═══ MOVIMIENTO ══════════════════════════════════════════════════════ */
+   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+   --ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
+   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+   --duration-fast: 160ms;
+   --duration: 280ms;
+   --duration-slow: 560ms;
+   --transition-fast: var(--duration-fast) var(--ease-out);
+   --transition-base: var(--duration) var(--ease-out);
+   --transition-emphasis: var(--duration) var(--ease-emphasis);
+   --transition-slow: var(--duration-slow) var(--ease-emphasis);
 
-  /* ═══ CAPAS ═══════════════════════════════════════════════════════════ */
-  --z-base: 1;
-  --z-raised: 10;
-  --z-sticky: 40;
-  --z-header: 50;
-  --z-overlay: 60;
+   /* ═══ CAPAS ═══════════════════════════════════════════════════════════ */
+   --z-base: 1;
+   --z-raised: 10;
+   --z-sticky: 40;
+   --z-header: 50;
+   --z-overlay: 60;
 }
 
 @media (min-width: 64rem) {
-  :root {
-    --header-height: 5.5rem;
-  }
+   :root {
+      --header-height: 5.5rem;
+   }
 }

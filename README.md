@@ -438,7 +438,7 @@ color; la interfaz se mantiene sobria.
 | `--color-surface`           | `#ffffff`  | blanco                                   |
 | `--color-surface-sand-deep` | `#e9e0d3`  | arena                                    |
 | `--color-text-muted`        | `#5b6b7f`  | gris elegante (#64748B ajustado a AA)    |
-| `--color-surface-deep`      | `#102f45`  | bandas profundas, hero y pie             |
+| `--color-surface-deep`      | `#00509D`  | bandas profundas, hero y pie             |
 
 Los velos sobre fotografía usan `--veil-rgb` y los demás canales base
 (`--deep-rgb`, `--sky-rgb`, `--accent-rgb`).
