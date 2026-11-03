@@ -1,0 +1,114 @@
+---
+/**
+ * MOSAICO EDITORIAL DE LA GALERÍA
+ * =============================================================================
+ * En lugar de una retícula de cuadrados iguales, las piezas alternan anchos y
+ * proporciones sobre doce columnas (8+4, 4+8, 6+6) para dar ritmo de
+ * publicación impresa. La última fila siempre se completa, de modo que el
+ * mosaico no queda abierto sea cual sea el número de fotografías.
+ *
+ * En móvil todo pasa a una sola columna respetando el orden del DOM.
+ */
+import GalleryItem from './GalleryItem.astro';
+import type { GalleryImage } from '../../types/content.js';
+
+interface Props {
+  images: GalleryImage[];
+  /** Las primeras imágenes de la página se cargan con prioridad. */
+  priorityCount?: number;
+  class?: string;
+}
+
+const { images, priorityCount = 0, class: className, ...rest } = Astro.props;
+
+interface Cell {
+  span: number;
+  ratio: string;
+}
+
+/** Patrón que se repite cada seis piezas; cada fila suma doce columnas. */
+const pattern: Cell[] = [
+  { span: 8, ratio: '3 / 2' },
+  { span: 4, ratio: '4 / 5' },
+  { span: 4, ratio: '4 / 5' },
+  { span: 8, ratio: '3 / 2' },
+  { span: 6, ratio: '5 / 4' },
+  { span: 6, ratio: '5 / 4' },
+];
+
+const ratioBySpan: Record<number, string> = {
+  4: '4 / 5',
+  6: '5 / 4',
+  8: '3 / 2',
+  12: '2 / 1',
+};
+
+function buildLayout(count: number): Cell[] {
+  const cells = Array.from({ length: count }, (_, index) => ({
+    ...pattern[index % pattern.length]!,
+  }));
+
+  const remainder = cells.reduce((total, cell) => (total + cell.span) % 12, 0);
+
+  if (remainder !== 0 && cells.length > 0) {
+    const last = cells[cells.length - 1]!;
+    last.span += 12 - remainder;
+    last.ratio = ratioBySpan[last.span] ?? last.ratio;
+  }
+
+  return cells;
+}
+
+const layout = buildLayout(images.length);
+---
+
+<div class:list={['grid', className]} {...rest}>
+  {
+    images.map((image, index) => {
+      const cell = layout[index]!;
+      return (
+        <div class="grid__cell" style={`--span:${cell.span}`}>
+          <GalleryItem
+            image={image}
+            index={index}
+            ratio={cell.ratio}
+            priority={index < priorityCount}
+            sizes={
+              cell.span >= 8
+                ? '(min-width: 64rem) 66vw, 100vw'
+                : '(min-width: 64rem) 33vw, (min-width: 48rem) 50vw, 100vw'
+            }
+          />
+        </div>
+      );
+    })
+  }
+</div>
+
+<style>
+  .grid {
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .grid__cell {
+    display: flex;
+  }
+
+  @media (min-width: 48rem) {
+    .grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: var(--space-md);
+    }
+
+    .grid__cell {
+      grid-column: span var(--span);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      gap: var(--space-lg);
+    }
+  }
+</style>

@@ -1,0 +1,273 @@
+---
+/**
+ * LA CASA — presentación detallada de la propiedad.
+ */
+import AmenityGrid from '../components/amenities/AmenityGrid.astro';
+import PropertyImage from '../components/media/PropertyImage.astro';
+import FactsRail from '../components/property/FactsRail.astro';
+import GallerySection from '../components/sections/GallerySection.astro';
+import Card from '../components/ui/Card.astro';
+import Chapter from '../components/ui/Chapter.astro';
+import Container from '../components/ui/Container.astro';
+import Icon from '../components/ui/Icon.astro';
+import PlaceholderNotice from '../components/ui/PlaceholderNotice.astro';
+import PlaceholderValue from '../components/ui/PlaceholderValue.astro';
+import Section from '../components/ui/Section.astro';
+import { site } from '../config/site.js';
+import { gallery, introImage } from '../data/gallery.js';
+import { propertyIntro, spaces } from '../data/property.js';
+import PageLayout from '../layouts/PageLayout.astro';
+import { getAmenities } from '../lib/services/content.service.js';
+
+const amenities = await getAmenities();
+const showcase = gallery.filter((image) => image.featured).slice(0, 4);
+
+const conditions = [
+  { label: 'Check-in', value: site.booking.checkIn, fallback: 'Por confirmar' },
+  { label: 'Check-out', value: site.booking.checkOut, fallback: 'Por confirmar' },
+  { label: 'Estancia mínima', value: site.booking.minNights, fallback: 'Por confirmar' },
+  { label: 'Tarifa', value: site.booking.priceRange, fallback: 'Según fechas' },
+];
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'La casa', href: '/casa' },
+];
+---
+
+<PageLayout
+  title="La casa: espacios y capacidad"
+  description="Espacios, capacidad y equipamiento de Casa Blanco, casa vacacional en Ica: habitaciones, baños, zonas comunes y servicios previstos para la estancia."
+  heading="La casa por dentro"
+  eyebrow={propertyIntro.eyebrow}
+  intro="Distribución, capacidad y equipamiento. Todo lo que necesitas saber antes de escribirnos."
+  breadcrumbs={breadcrumbs}
+  ctaTopWave="deep"
+>
+  <FactsRail overlap={false} showArea class="casa__rail" />
+
+  <Section tone="default" container="none" aria-labelledby="descripcion-title">
+    <Container size="wide">
+      <div class="overview">
+        <div class="overview__text">
+          <Chapter
+            index="01"
+            eyebrow="La propiedad"
+            title={propertyIntro.title}
+            id="descripcion-title"
+            titleWidth="18ch"
+          />
+          <div class="prose">
+            {propertyIntro.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+          </div>
+
+          <Card tone="muted" padding="lg" class="overview__conditions">
+            <h3 class="overview__conditions-title">Condiciones de la estancia</h3>
+            <dl class="conditions">
+              {
+                conditions.map((item) => (
+                  <div class="conditions__item">
+                    <dt>{item.label}</dt>
+                    <dd>
+                      <PlaceholderValue value={item.value} fallback={item.fallback} />
+                    </dd>
+                  </div>
+                ))
+              }
+            </dl>
+            <PlaceholderNotice
+              text="Estos valores se completan desde src/config/site.ts."
+              class="overview__notice"
+            />
+          </Card>
+        </div>
+
+        <div class="overview__media">
+          <PropertyImage
+            image={introImage}
+            ratio="4 / 5"
+            sizes="(min-width: 64rem) 38vw, 92vw"
+            class="overview__image"
+          />
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <Section tone="surface" container="none" aria-labelledby="espacios-title">
+    <Container size="wide">
+      <Chapter
+        index="02"
+        eyebrow="Distribución"
+        title="Los espacios de la casa"
+        description="Cada ambiente se describe con su configuración definitiva de camas cuando esté confirmada."
+        id="espacios-title"
+        titleWidth="16ch"
+      />
+
+      <ul class="spaces" role="list">
+        {
+          spaces.map((space, index) => (
+            <li class="spaces__item">
+              <Card tone="outline" padding="lg" class="space">
+                <span class="numeral space__index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="space__icon">
+                  <Icon name={space.icon} size={18} />
+                </span>
+                <h3 class="space__name">{space.name}</h3>
+                <p class="space__description">{space.description}</p>
+                <p class="space__beds">
+                  <PlaceholderValue value={space.beds} fallback="Camas por confirmar" />
+                </p>
+              </Card>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </Section>
+
+  <Section tone="default" container="none" aria-labelledby="amenities-title">
+    <Container size="wide">
+      <Chapter
+        index="03"
+        eyebrow="Equipamiento"
+        title="Todo lo necesario para instalarse"
+        description="Listado completo de servicios previstos. Los marcados como pendientes se confirman con la información real de la propiedad."
+        id="amenities-title"
+        titleWidth="18ch"
+      />
+      <AmenityGrid amenities={amenities} grouped columns={2} />
+    </Container>
+  </Section>
+
+  <GallerySection
+    images={showcase}
+    index="04"
+    title="Un vistazo a los ambientes"
+    description="Una selección de la galería completa de Casa Blanco."
+  />
+</PageLayout>
+
+<style>
+  .casa__rail {
+    margin-block-start: var(--space-2xl);
+  }
+
+  .overview {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .overview__conditions {
+    margin-block-start: var(--space-2xl);
+  }
+
+  .overview__conditions-title {
+    font-family: var(--font-body);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .conditions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-lg);
+    margin-block-start: var(--space-md);
+  }
+
+  .conditions dt {
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .conditions dd {
+    margin: 0.3rem 0 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+  }
+
+  .overview__notice {
+    margin-block-start: var(--space-lg);
+  }
+
+  .overview__image :global(.frame__media) {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .spaces {
+    display: grid;
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .spaces__item {
+    display: flex;
+  }
+
+  .space {
+    width: 100%;
+    gap: var(--space-2xs);
+  }
+
+  .space__index {
+    color: var(--color-primary);
+  }
+
+  .space__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-block: var(--space-sm) var(--space-xs);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+  }
+
+  .space__name {
+    font-size: var(--text-h3);
+  }
+
+  .space__description {
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .space__beds {
+    margin-block-start: var(--space-md);
+    padding-block-start: var(--space-sm);
+    border-block-start: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+  }
+
+  @media (min-width: 40rem) {
+    .spaces {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-lg);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .overview {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: var(--space-4xl);
+      align-items: start;
+    }
+
+    .spaces {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

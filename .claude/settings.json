@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f qa-shoot.mjs qa-crop.mjs qa-interact.mjs qa-debug.mjs qa-a11y.mjs qa-a11y2.mjs)",
+      "Bash(rm -f node_modules/puppeteer node_modules/puppeteer-core)",
+      "Bash(timeout 60 npx astro dev stop)",
+      "Bash(timeout 300 npm run build)",
+      "Bash(rm -f qa-shots.mjs qa-crop.mjs qa-interact.mjs qa-a11y.mjs qa-404.mjs)",
+      "Bash(timeout 600 npm run check)",
+      "Bash(rm -f qa-final.mjs qa-int2.mjs qa-tap.mjs qa-shots.mjs qa-crop.mjs)",
+      "Bash(rm -f qa-audit.mjs qa-int.mjs qa-shot.mjs qa-crop.mjs)",
+      "Bash(rm -f qa-audit.mjs)",
+      "Bash(npm run *)",
+      "Bash(rm -f .env)",
+      "Bash(docker run *)",
+      "Bash(break)",
+      "Bash(echo \"schema.sql → salida $?\")",
+      "Bash(echo \"segunda ejecución → salida $?\")",
+      "Bash(echo \"1ª ejecución, código psql: $?\")",
+      "Bash(echo \"2ª ejecución, código psql: $?\")",
+      "Bash(rm -f /tmp/out1.txt /tmp/out2.txt)"
+    ]
+  }
+}

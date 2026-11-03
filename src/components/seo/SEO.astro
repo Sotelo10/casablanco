@@ -1,0 +1,58 @@
+---
+/**
+ * Metadatos de la página: título, descripción, canonical, robots, Open Graph,
+ * Twitter Card y datos estructurados.
+ *
+ * Nada se inventa: si no hay imagen social configurada no se emiten las
+ * etiquetas de imagen, y el canonical siempre usa el dominio de `astro.config`.
+ */
+import { site } from '../../config/site.js';
+import { absoluteUrl, buildTitle, canonicalUrl } from '../../lib/seo/meta.js';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Marca la portada para componer el título completo. */
+  isHome?: boolean;
+  noindex?: boolean;
+  type?: 'website' | 'article';
+  /** JSON-LD ya serializado (ver `lib/seo/schema.ts`). */
+  jsonLd?: string;
+}
+
+const { title, description, isHome = false, noindex = false, type = 'website', jsonLd } =
+  Astro.props;
+
+const origin = Astro.site?.origin;
+const canonical = canonicalUrl(Astro.url.pathname, origin);
+const fullTitle = buildTitle(title, isHome);
+const ogImage = site.seo.ogImage ? absoluteUrl(site.seo.ogImage, origin) : '';
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta
+  name="robots"
+  content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}
+/>
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:locale" content={site.seo.ogLocale} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+{ogImage && <meta property="og:image" content={ogImage} />}
+{ogImage && <meta property="og:image:alt" content={site.seo.ogImageAlt || site.name} />}
+
+<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+{ogImage && <meta name="twitter:image" content={ogImage} />}
+{site.seo.twitterHandle && <meta name="twitter:site" content={site.seo.twitterHandle} />}
+
+<meta name="geo.region" content={`${site.location.countryCode}-${site.location.region}`} />
+<meta name="geo.placename" content={site.location.city} />
+
+{jsonLd && <script type="application/ld+json" is:inline set:html={jsonLd} />}

@@ -1,0 +1,20 @@
+---
+/**
+ * Galería completa: mosaico + lightbox. Es el único punto que combina ambos,
+ * de modo que cualquier página puede incluir la galería con una sola línea.
+ */
+import GalleryGrid from './GalleryGrid.astro';
+import GalleryLightbox from './GalleryLightbox.astro';
+import type { GalleryImage } from '../../types/content.js';
+
+interface Props {
+  images: GalleryImage[];
+  priorityCount?: number;
+  class?: string;
+}
+
+const { images, priorityCount = 1, class: className, ...rest } = Astro.props;
+---
+
+<GalleryGrid images={images} priorityCount={priorityCount} class={className} {...rest} />
+<GalleryLightbox />

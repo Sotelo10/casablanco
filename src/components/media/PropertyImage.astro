@@ -1,0 +1,126 @@
+---
+/**
+ * IMAGEN DE LA PROPIEDAD
+ * =============================================================================
+ * Único punto donde se decide entre fotografía real y mockup:
+ *
+ * - Si el archivo existe en `src/assets/property/`, se renderiza con
+ *   `astro:assets` (formatos modernos, `srcset` y dimensiones explícitas).
+ * - Si `src` es una URL absoluta (por ejemplo una imagen guardada en Supabase
+ *   Storage), se enlaza tal cual: ya está alojada y optimizada fuera del build.
+ * - Si no, se muestra el mockup con la proporción exacta de la futura foto.
+ *
+ * En ambos casos el marco fija la proporción, de modo que sustituir las
+ * imágenes no provoca ningún salto de layout (CLS).
+ */
+import { Image } from 'astro:assets';
+import ImagePlaceholder from './ImagePlaceholder.astro';
+import { aspectRatios, resolvePropertyImage } from '../../lib/images.js';
+import type { GalleryImage } from '../../types/content.js';
+
+interface Props {
+  image: GalleryImage;
+  /** Proporción CSS explícita; por defecto la de la orientación. */
+  ratio?: string;
+  /** Valor del atributo `sizes` para elegir la resolución adecuada. */
+  sizes?: string;
+  /** Imagen crítica (LCP): carga inmediata y alta prioridad. */
+  priority?: boolean;
+  tone?: 'sky' | 'sand' | 'deep' | 'light';
+  compact?: boolean;
+  class?: string;
+  /** Etiqueta alternativa para el mockup. */
+  placeholderLabel?: string;
+  /**
+   * Etiqueta del contenedor. Dentro de un `<button>` (galería) debe ser `div`:
+   * `<figure>` no es contenido válido dentro de un botón.
+   */
+  as?: 'figure' | 'div';
+}
+
+const {
+  image,
+  ratio,
+  sizes = '(min-width: 64rem) 50vw, 100vw',
+  priority = false,
+  tone = 'sky',
+  compact = false,
+  class: className,
+  placeholderLabel,
+  as: Tag = 'figure',
+  ...rest
+} = Astro.props;
+
+/** Las imágenes remotas no pasan por el pipeline: no están en el proyecto. */
+const isRemote = /^https?:\/\//.test(image.src);
+const resolved = isRemote ? null : resolvePropertyImage(image.src);
+const appliedRatio = ratio ?? aspectRatios[image.orientation];
+---
+
+<Tag class:list={['frame', className]} style={`--frame-ratio:${appliedRatio}`} {...rest}>
+  <div class="frame__media">
+    {
+      resolved ? (
+        <Image
+          src={resolved}
+          alt={image.alt}
+          widths={[480, 768, 1080, 1600]}
+          sizes={sizes}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding={priority ? 'sync' : 'async'}
+          fetchpriority={priority ? 'high' : 'auto'}
+          class="frame__img"
+        />
+      ) : isRemote ? (
+        <img
+          src={image.src}
+          alt={image.alt}
+          width={image.width || undefined}
+          height={image.height || undefined}
+          sizes={sizes}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding={priority ? 'sync' : 'async'}
+          fetchpriority={priority ? 'high' : 'auto'}
+          class="frame__img"
+        />
+      ) : (
+        <ImagePlaceholder
+          label={placeholderLabel ?? image.label}
+          orientation={image.orientation}
+          ratio={appliedRatio}
+          tone={tone}
+          compact={compact}
+        />
+      )
+    }
+  </div>
+  {Tag === 'figure' && image.caption && (
+    <figcaption class="frame__caption">{image.caption}</figcaption>
+  )}
+</Tag>
+
+<style>
+  .frame {
+    position: relative;
+  }
+
+  .frame__media {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface-soft);
+  }
+
+  .frame__img {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: var(--frame-ratio);
+    object-fit: cover;
+  }
+
+  .frame__caption {
+    margin-block-start: var(--space-xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+</style>

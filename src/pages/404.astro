@@ -1,0 +1,115 @@
+---
+/**
+ * Página 404, coherente con la identidad y fuera del índice.
+ */
+import Button from '../components/ui/Button.astro';
+import Container from '../components/ui/Container.astro';
+import { mainNav } from '../config/navigation.js';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Página no disponible"
+  description="La página que buscas no está disponible."
+  noindex
+  showMobileBar={false}
+>
+  <section class="notfound">
+    <svg class="notfound__motif" viewBox="0 0 200 160" aria-hidden="true" focusable="false">
+      <path d="M55 160V78a45 45 0 0 1 90 0v82" fill="none" stroke="currentColor" stroke-width="1" />
+      <path
+        d="M78 160V83a22 22 0 0 1 44 0v77"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1"
+        opacity="0.6"
+      />
+    </svg>
+
+    <Container size="narrow">
+      <p class="numeral notfound__code">Error 404</p>
+      <h1 class="notfound__title">Esta página no está disponible.</h1>
+      <p class="notfound__text">
+        Puede que el enlace haya cambiado o que la dirección esté mal escrita. Desde el inicio
+        encontrarás la casa, la galería y la solicitud de reserva.
+      </p>
+
+      <div class="notfound__actions">
+        <Button href="/" variant="primary" size="lg" icon="arrow-right">Volver al inicio</Button>
+        <Button href="/contacto" variant="outline" size="lg">Reservar estadía</Button>
+      </div>
+
+      <nav class="notfound__nav" aria-label="Páginas del sitio">
+        <ul role="list">
+          {mainNav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </nav>
+    </Container>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: min(72svh, 42rem);
+    padding-block: var(--section-space);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .notfound__motif {
+    position: absolute;
+    inset-block-end: -20%;
+    inset-inline-end: -5%;
+    z-index: -1;
+    width: min(45%, 28rem);
+    height: auto;
+    color: rgb(var(--deep-rgb) / 5%);
+  }
+
+  .notfound__code {
+    color: var(--color-primary);
+  }
+
+  .notfound__title {
+    margin-block-start: var(--space-md);
+    max-width: 16ch;
+  }
+
+  .notfound__text {
+    margin-block-start: var(--space-lg);
+    max-width: 52ch;
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+  }
+
+  .notfound__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-xl);
+  }
+
+  .notfound__nav {
+    margin-block-start: var(--space-2xl);
+    padding-block-start: var(--space-lg);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .notfound__nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: var(--text-body-sm);
+  }
+
+  .notfound__nav a {
+    display: inline-block;
+    padding-block: 0.65rem;
+  }
+</style>

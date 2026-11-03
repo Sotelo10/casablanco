@@ -1,0 +1,51 @@
+---
+/** Rejilla de lugares cercanos. */
+import type { NearbyPlace } from '../../types/content.js';
+import NearbyPlaceCard from './NearbyPlaceCard.astro';
+
+interface Props {
+  places: NearbyPlace[];
+  withImages?: boolean;
+  columns?: 2 | 3;
+  class?: string;
+}
+
+const { places, withImages = true, columns = 3, class: className, ...rest } = Astro.props;
+---
+
+<ul class:list={['places', className]} style={`--columns:${columns}`} role="list" {...rest}>
+  {
+    places.map((place) => (
+      <li class="places__item">
+        <NearbyPlaceCard place={place} withImage={withImages} />
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .places {
+    display: grid;
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .places__item {
+    display: flex;
+  }
+
+  @media (min-width: 40rem) {
+    .places {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .places {
+      grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+      gap: var(--space-lg);
+    }
+  }
+</style>

@@ -1,0 +1,27 @@
+---
+/**
+ * Google Analytics.
+ * Sólo se carga si `PUBLIC_GA_ID` tiene valor: sin configuración no se envía
+ * ninguna petición ni se instala ningún script de seguimiento.
+ */
+import { env, isAnalyticsEnabled } from '../../config/env.js';
+
+const enabled = isAnalyticsEnabled();
+const gaId = env.gaId;
+---
+
+{
+  enabled && (
+    <>
+      <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
+      <script is:inline define:vars={{ gaId }}>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+          window.dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', gaId, { anonymize_ip: true });
+      </script>
+    </>
+  )
+}

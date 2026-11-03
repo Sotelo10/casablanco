@@ -1,0 +1,344 @@
+---
+/**
+ * HERO
+ * =============================================================================
+ * Fotografía a sangre, velo en degradado que respeta el cielo y contenido
+ * alineado a la izquierda: antetítulo, nombre, promesa, descripción, dos
+ * acciones y una fila de beneficios.
+ *
+ * A la derecha flota una tarjeta de cristal con la nota de destino, y el
+ * bloque se cierra con la curva que enlaza con el resto de la página.
+ *
+ * La imagen es el LCP de la portada: carga con prioridad y con dimensiones
+ * fijadas para que no haya salto de maquetación.
+ */
+import { Image } from 'astro:assets';
+import { bookingHref, bookingLabelLong, exploreHref } from '../../config/navigation.js';
+import { site } from '../../config/site.js';
+import { resolvePropertyImage } from '../../lib/images.js';
+import { formatRating } from '../../lib/utils/format.js';
+import type { GalleryImage, ReviewSummary } from '../../types/content.js';
+import HeroBackdrop from './HeroBackdrop.astro';
+import StarRating from '../reviews/StarRating.astro';
+import Button from '../ui/Button.astro';
+import GlassCard from '../ui/GlassCard.astro';
+import Icon from '../ui/Icon.astro';
+import WaveDivider from '../ui/WaveDivider.astro';
+
+interface Props {
+  image: GalleryImage;
+  eyebrow?: string;
+  claim: string;
+  lead: string;
+  benefits: { icon: string; title: string; detail: string }[];
+  reviewSummary?: ReviewSummary;
+  /** Color del bloque siguiente, para que la curva enlace sin costura. */
+  waveTone?: 'background' | 'surface' | 'soft' | 'sand';
+}
+
+const {
+  image,
+  eyebrow = 'Naturaleza · Confort · Privacidad',
+  claim,
+  lead,
+  benefits,
+  reviewSummary,
+  waveTone = 'background',
+} = Astro.props;
+
+const resolved = resolvePropertyImage(image.src);
+const hasRating = Boolean(reviewSummary && reviewSummary.total > 0 && reviewSummary.average);
+---
+
+<section class="hero">
+  <div class="hero__media">
+    {
+      resolved ? (
+        <Image
+          src={resolved}
+          alt={image.alt}
+          widths={[640, 1024, 1440, 1920, 2560]}
+          sizes="100vw"
+          loading="eager"
+          decoding="sync"
+          fetchpriority="high"
+          class="hero__img"
+        />
+      ) : (
+        <HeroBackdrop label={`${image.label} · 2400 × 1600 px`} />
+      )
+    }
+    <div class="hero__scrim"></div>
+  </div>
+
+  <div class="hero__inner">
+    <div class="hero__content">
+      <p class="eyebrow hero__eyebrow">{eyebrow}</p>
+
+      <h1 class="hero__title">
+        <span class="hero__name">{site.name}</span>
+        <span class="hero__claim">{claim}</span>
+      </h1>
+
+      <p class="hero__lead">{lead}</p>
+
+      <div class="hero__actions">
+        <Button href={bookingHref} variant="light" size="lg" icon="arrow-right" leadingIcon="calendar">
+          {bookingLabelLong}
+        </Button>
+        {/* Flecha, no un ▶: el botón lleva a una página, no a un vídeo. */}
+        <Button href={exploreHref} variant="glass" size="lg" leadingIcon="arrow-right">
+          Conocer la casa
+        </Button>
+      </div>
+
+      <ul class="benefits" role="list">
+        {
+          benefits.map((benefit) => (
+            <li class="benefit">
+              <Icon name={benefit.icon} size={22} class="benefit__icon" />
+              <span class="benefit__body">
+                <span class="benefit__title">{benefit.title}</span>
+                <span class="benefit__detail">{benefit.detail}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      {
+        hasRating && reviewSummary && (
+          <p class="hero__rating">
+            <StarRating value={reviewSummary.average ?? 0} size={14} tone="inverse" />
+            <span class="hero__rating-value">{formatRating(reviewSummary.average ?? 0)}</span>
+            <span>
+              · {reviewSummary.total} {reviewSummary.total === 1 ? 'reseña' : 'reseñas'}
+            </span>
+            {reviewSummary.isDemo && <span class="hero__rating-demo">Contenido de ejemplo</span>}
+          </p>
+        )
+      }
+    </div>
+
+    <GlassCard as="aside" tone="light" class="hero__note">
+      <p class="script hero__note-place">{site.location.city}, {site.location.country}</p>
+      <p class="hero__note-text">Un destino único,<br />a tu propio ritmo.</p>
+      <span class="hero__note-rule" aria-hidden="true"></span>
+    </GlassCard>
+  </div>
+
+  <WaveDivider tone={waveTone} />
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: clamp(38rem, 92svh, 48rem);
+    padding-block: calc(var(--header-height) + var(--space-2xl)) var(--space-4xl);
+    overflow: hidden;
+    color: var(--color-text-inverse);
+    background-color: var(--sky-500);
+    isolation: isolate;
+  }
+
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Velo doble: horizontal para el texto y superior para la cabecera. Deja
+     respirar el cielo de la fotografía en lugar de oscurecerla entera. */
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        to right,
+        rgb(var(--deep-rgb) / 62%) 0%,
+        rgb(var(--deep-rgb) / 34%) 40%,
+        rgb(var(--deep-rgb) / 6%) 74%,
+        rgb(var(--deep-rgb) / 0%) 100%
+      ),
+      linear-gradient(to bottom, rgb(var(--deep-rgb) / 40%) 0%, transparent 24%);
+  }
+
+  .hero__inner {
+    display: grid;
+    gap: var(--space-2xl);
+    width: 100%;
+    max-width: var(--container-full);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .hero__content {
+    max-width: 46rem;
+  }
+
+  .hero__eyebrow {
+    color: var(--color-text-inverse);
+  }
+
+  .hero__title {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-lg);
+  }
+
+  .hero__name {
+    font-size: var(--text-display);
+    line-height: 0.92;
+    letter-spacing: var(--tracking-tighter);
+  }
+
+  .hero__claim {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 1rem + 2.2vw, 3rem);
+    font-weight: var(--weight-regular);
+    line-height: 1.15;
+    letter-spacing: var(--tracking-tight);
+    color: rgb(var(--white-rgb) / 92%);
+  }
+
+  .hero__lead {
+    margin-block-start: var(--space-lg);
+    max-width: 40ch;
+    font-size: var(--text-body);
+    line-height: var(--leading-relaxed);
+    color: rgb(var(--white-rgb) / 84%);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-xl);
+  }
+
+  .benefits {
+    display: grid;
+    gap: var(--space-md);
+    margin-block-start: var(--space-2xl);
+    padding: 0;
+    list-style: none;
+  }
+
+  .benefit {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .benefit__icon {
+    color: rgb(var(--white-rgb) / 88%);
+  }
+
+  .benefit__body {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+  }
+
+  .benefit__title {
+    font-size: var(--text-body-sm);
+    font-weight: var(--weight-medium);
+  }
+
+  .benefit__detail {
+    font-size: var(--text-sm);
+    color: rgb(var(--white-rgb) / 76%);
+  }
+
+  .hero__rating {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs) var(--space-xs);
+    margin-block-start: var(--space-xl);
+    font-size: var(--text-sm);
+    color: rgb(var(--white-rgb) / 82%);
+  }
+
+  .hero__rating-value {
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-inverse);
+  }
+
+  .hero__rating-demo {
+    padding: 0.35em 0.7em;
+    border: 1px solid var(--color-border-inverse);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-3xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  /* Nota de destino: en móvil acompaña al contenido; en pantallas amplias
+     flota sobre la fotografía, a la derecha. */
+  .hero__note {
+    width: 100%;
+    max-width: 26rem;
+  }
+
+  .hero__note-place {
+    font-size: 1.6rem;
+    color: var(--color-primary);
+  }
+
+  .hero__note-text {
+    margin-block-start: var(--space-2xs);
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    line-height: 1.3;
+    color: var(--color-text);
+  }
+
+  .hero__note-rule {
+    display: block;
+    width: 2.5rem;
+    height: 1px;
+    margin-block-start: var(--space-md);
+    background-color: var(--color-border-strong);
+  }
+
+  @media (min-width: 48rem) {
+    .benefits {
+      grid-auto-flow: column;
+      grid-auto-columns: max-content;
+      gap: var(--space-xl);
+    }
+
+    /* Filetes entre beneficios, como en la dirección de arte de referencia. */
+    .benefit + .benefit {
+      padding-inline-start: var(--space-xl);
+      border-inline-start: 1px solid rgb(var(--white-rgb) / 28%);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .hero {
+      min-height: min(94svh, 54rem);
+    }
+
+    .hero__inner {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: var(--space-4xl);
+    }
+
+    .hero__note {
+      justify-self: end;
+      max-width: 20rem;
+    }
+  }
+</style>

@@ -1,0 +1,274 @@
+---
+/**
+ * LIGHTBOX DE LA GALERÍA
+ * =============================================================================
+ * Construido sobre `<dialog>` nativo, que aporta gratis la capa superior, la
+ * trampa de foco y el cierre con ESC. El script añade lo que falta: navegación
+ * anterior/siguiente, flechas del teclado y gesto de deslizar en móvil.
+ *
+ * El contenido se clona del elemento pulsado, así que funciona igual con
+ * fotografías reales o con los mockups, sin duplicar marcado en el HTML.
+ */
+import Icon from '../ui/Icon.astro';
+---
+
+<dialog id="gallery-lightbox" class="lightbox" aria-label="Galería de fotografías">
+  <div class="lightbox__bar">
+    <p class="lightbox__counter">
+      <span data-lightbox-current>1</span>
+      <span aria-hidden="true">/</span>
+      <span data-lightbox-total>1</span>
+    </p>
+    <button type="button" class="lightbox__btn" data-lightbox-close aria-label="Cerrar galería">
+      <Icon name="close" size={22} />
+    </button>
+  </div>
+
+  <div class="lightbox__stage" data-lightbox-stage>
+    <div class="lightbox__media" data-lightbox-media></div>
+  </div>
+
+  <div class="lightbox__foot">
+    <button type="button" class="lightbox__btn" data-lightbox-prev aria-label="Imagen anterior">
+      <Icon name="arrow-left" size={20} />
+    </button>
+    <p class="lightbox__caption" data-lightbox-caption aria-live="polite"></p>
+    <button type="button" class="lightbox__btn" data-lightbox-next aria-label="Imagen siguiente">
+      <Icon name="arrow-right" size={20} />
+    </button>
+  </div>
+</dialog>
+
+<style>
+  .lightbox {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: rgb(var(--deep-rgb) / 97%);
+    color: var(--color-text-inverse);
+  }
+
+  .lightbox::backdrop {
+    background-color: rgb(var(--deep-rgb) / 94%);
+  }
+
+  .lightbox[open] {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100dvh;
+  }
+
+  .lightbox__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--gutter);
+  }
+
+  .lightbox__counter {
+    display: flex;
+    gap: 0.35em;
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .lightbox__btn {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid rgb(var(--white-rgb) / 18%);
+    border-radius: var(--radius-pill);
+    color: var(--color-text-inverse);
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .lightbox__btn:hover {
+    background-color: rgb(var(--white-rgb) / 12%);
+  }
+
+  .lightbox__stage {
+    display: grid;
+    place-items: center;
+    min-height: 0;
+    padding-inline: var(--space-sm);
+    overflow: hidden;
+  }
+
+  .lightbox__media {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    max-width: 78rem;
+  }
+
+  .lightbox__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--gutter) calc(var(--space-md) + env(safe-area-inset-bottom));
+  }
+
+  .lightbox__caption {
+    flex: 1;
+    font-size: var(--text-sm);
+    text-align: center;
+    color: var(--color-text-inverse-muted);
+  }
+
+  /* El nodo clonado ocupa el ancho útil del escenario; el límite por
+     orientación evita que el alto supere la pantalla. */
+  .lightbox__media > :global(*) {
+    width: 100%;
+  }
+
+  .lightbox__stage[data-orientation='landscape'] .lightbox__media > :global(*) {
+    max-width: calc(72svh * 1.5);
+  }
+
+  .lightbox__stage[data-orientation='portrait'] .lightbox__media > :global(*) {
+    max-width: calc(72svh * 0.8);
+  }
+
+  .lightbox__stage[data-orientation='square'] .lightbox__media > :global(*) {
+    max-width: 72svh;
+  }
+
+  .lightbox__media :global(.plate) {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Fotografía real: se ajusta al alto disponible sin deformarse. */
+  .lightbox__media :global(.frame__img) {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 72svh;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+
+  .lightbox__media :global(figcaption) {
+    display: none;
+  }
+</style>
+
+<script>
+  const dialog = document.getElementById('gallery-lightbox') as HTMLDialogElement | null;
+  const items = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('[data-gallery-item]'),
+  );
+
+  if (dialog && items.length > 0) {
+    const media = dialog.querySelector<HTMLElement>('[data-lightbox-media]');
+    const stage = dialog.querySelector<HTMLElement>('[data-lightbox-stage]');
+    const caption = dialog.querySelector<HTMLElement>('[data-lightbox-caption]');
+    const current = dialog.querySelector<HTMLElement>('[data-lightbox-current]');
+    const total = dialog.querySelector<HTMLElement>('[data-lightbox-total]');
+    const prevButton = dialog.querySelector<HTMLButtonElement>('[data-lightbox-prev]');
+    const nextButton = dialog.querySelector<HTMLButtonElement>('[data-lightbox-next]');
+    const closeButton = dialog.querySelector<HTMLButtonElement>('[data-lightbox-close]');
+
+    let index = 0;
+    let opener: HTMLElement | null = null;
+
+    if (total) total.textContent = String(items.length);
+
+    const render = () => {
+      const item = items[index];
+      if (!item || !media) return;
+
+      const source = item.querySelector('.frame__media');
+      media.replaceChildren();
+      if (source) media.append(source.cloneNode(true));
+
+      // Las imágenes clonadas deben cargarse de inmediato.
+      media.querySelectorAll('img').forEach((img) => {
+        img.loading = 'eager';
+        img.removeAttribute('fetchpriority');
+      });
+
+      if (stage) stage.dataset.orientation = item.dataset.orientation ?? 'landscape';
+      if (caption) {
+        const label = item.dataset.label ?? '';
+        const extra = item.dataset.caption ?? '';
+        caption.textContent = extra ? `${label} · ${extra}` : label;
+      }
+      if (current) current.textContent = String(index + 1);
+    };
+
+    const open = (startIndex: number, trigger: HTMLElement) => {
+      index = startIndex;
+      opener = trigger;
+      render();
+      dialog.showModal();
+      document.documentElement.style.overflow = 'hidden';
+    };
+
+    const move = (step: number) => {
+      index = (index + step + items.length) % items.length;
+      render();
+    };
+
+    items.forEach((item, itemIndex) => {
+      item.addEventListener('click', () => open(itemIndex, item));
+    });
+
+    prevButton?.addEventListener('click', () => move(-1));
+    nextButton?.addEventListener('click', () => move(1));
+    closeButton?.addEventListener('click', () => dialog.close());
+
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        move(-1);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        move(1);
+      }
+    });
+
+    // Deslizar horizontalmente en móvil.
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    dialog.addEventListener(
+      'touchstart',
+      (event) => {
+        const touch = event.changedTouches[0];
+        if (!touch) return;
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      },
+      { passive: true },
+    );
+
+    dialog.addEventListener(
+      'touchend',
+      (event) => {
+        const touch = event.changedTouches[0];
+        if (!touch) return;
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+        if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          move(deltaX < 0 ? 1 : -1);
+        }
+      },
+      { passive: true },
+    );
+
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+      media?.replaceChildren();
+      opener?.focus();
+      opener = null;
+    });
+  }
+</script>

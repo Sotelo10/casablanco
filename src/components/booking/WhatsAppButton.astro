@@ -1,0 +1,51 @@
+---
+/**
+ * CTA de WhatsApp.
+ * Si todavía no hay número configurado enlaza al formulario de contacto, para
+ * no dejar nunca un botón roto ni publicar un número inventado.
+ */
+import { bookingHref } from '../../config/navigation.js';
+import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import Button from '../ui/Button.astro';
+
+interface Props {
+  /** Si se omite, el texto se adapta a si hay WhatsApp configurado. */
+  label?: string;
+  variant?: 'primary' | 'outline' | 'ghost' | 'light' | 'outline-light';
+  size?: 'sm' | 'md' | 'lg';
+  block?: boolean;
+  class?: string;
+  message?: string;
+}
+
+const {
+  label,
+  variant = 'outline',
+  size = 'md',
+  block = false,
+  class: className,
+  message,
+  ...rest
+} = Astro.props;
+
+const url = whatsAppUrl(message ? { message } : {});
+
+// Sin número configurado, el botón lleva al formulario: el texto y el icono se
+// adaptan para no prometer un canal que todavía no existe.
+const finalLabel = label ?? (url ? 'Escribir por WhatsApp' : 'Escríbenos');
+const icon = url ? 'whatsapp' : 'mail';
+---
+
+<Button
+  href={url ?? bookingHref}
+  variant={variant}
+  size={size}
+  block={block}
+  icon={icon}
+  iconPosition="start"
+  external={Boolean(url)}
+  class={className}
+  {...rest}
+>
+  {finalLabel}
+</Button>

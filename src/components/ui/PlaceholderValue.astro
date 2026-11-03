@@ -1,0 +1,50 @@
+---
+/**
+ * Muestra un dato o, si todavía no existe, un marcador inequívoco.
+ * Evita que la interfaz invente valores cuando falta información real.
+ */
+import { site } from '../../config/site.js';
+
+interface Props {
+  value: string | number | null | undefined;
+  /** Texto mostrado cuando no hay valor. */
+  fallback?: string;
+  /** Sufijo aplicado sólo cuando hay valor real (p. ej. `m²`). */
+  suffix?: string;
+  class?: string;
+}
+
+const { value, fallback = site.content.placeholderLabel, suffix, class: className } = Astro.props;
+const hasValue = value !== null && value !== undefined && String(value).trim() !== '';
+---
+
+{
+  hasValue ? (
+    <span class={className}>
+      {value}
+      {suffix && <span class="suffix">{suffix}</span>}
+    </span>
+  ) : (
+    <span class:list={['placeholder', className]} title="Dato pendiente de confirmar">
+      {fallback}
+    </span>
+  )
+}
+
+<style>
+  /* El marcador hereda el color del contexto (claro u oscuro) y se distingue
+     por la cursiva y el tamaño, no sólo por el color. */
+  .placeholder {
+    color: inherit;
+    font-size: 0.82em;
+    font-style: italic;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .suffix {
+    margin-inline-start: 0.15em;
+    font-size: 0.7em;
+    color: var(--color-text-muted);
+  }
+</style>

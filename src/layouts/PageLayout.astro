@@ -1,0 +1,143 @@
+---
+/**
+ * LAYOUT DE PÁGINAS INTERIORES
+ * =============================================================================
+ * Cabecera editorial: migas, antetítulo, H1 y entradilla sobre fondo cal, con
+ * el arco de la marca como filigrana. Da identidad a cada página sin recurrir a
+ * un hero de imagen que competiría con la portada.
+ */
+import BookingCTA from '../components/booking/BookingCTA.astro';
+import Breadcrumbs from '../components/navigation/Breadcrumbs.astro';
+import Container from '../components/ui/Container.astro';
+import WaveDivider from '../components/ui/WaveDivider.astro';
+import type { BreadcrumbEntry, JsonObject } from '../lib/seo/schema.js';
+import type { ReviewSummary } from '../types/content.js';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Título visible (H1). Por defecto usa `title`. */
+  heading?: string;
+  eyebrow?: string;
+  intro?: string;
+  breadcrumbs?: BreadcrumbEntry[];
+  schemas?: (JsonObject | null)[];
+  reviewSummary?: ReviewSummary;
+  noindex?: boolean;
+  showCta?: boolean;
+  showMobileBar?: boolean;
+  /** Color del bloque que sigue a la banda de cierre. */
+  ctaTopWave?: 'background' | 'surface' | 'soft' | 'sand' | 'deep';
+}
+
+const {
+  title,
+  description,
+  heading,
+  eyebrow,
+  intro,
+  breadcrumbs = [],
+  schemas = [],
+  reviewSummary,
+  noindex = false,
+  showCta = true,
+  showMobileBar = true,
+  ctaTopWave = 'surface',
+} = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  breadcrumbs={breadcrumbs}
+  schemas={schemas}
+  reviewSummary={reviewSummary}
+  noindex={noindex}
+  showMobileBar={showMobileBar}
+>
+  <header class="page-header">
+    <svg class="page-header__motif" viewBox="0 0 200 160" aria-hidden="true" focusable="false">
+      <path d="M55 160V78a45 45 0 0 1 90 0v82" fill="none" stroke="currentColor" stroke-width="1" />
+      <path
+        d="M78 160V83a22 22 0 0 1 44 0v77"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1"
+        opacity="0.6"
+      />
+    </svg>
+
+    <Container size="wide">
+      {breadcrumbs.length > 1 && <Breadcrumbs items={breadcrumbs} class="page-header__crumbs" />}
+      <div class="page-header__body">
+        {eyebrow && <span class="eyebrow page-header__eyebrow">{eyebrow}</span>}
+        <h1 class="page-header__title">{heading ?? title}</h1>
+        {intro && <p class="lead page-header__intro">{intro}</p>}
+        <slot name="header-extra" />
+      </div>
+    </Container>
+
+    <WaveDivider tone="background" />
+  </header>
+
+  <slot />
+
+  {showCta && <BookingCTA topWaveTone={ctaTopWave} />}
+</BaseLayout>
+
+<style>
+  /* Cabecera interior: mismo cielo del hero en clave suave, cerrada con la
+     curva de la marca para que todas las páginas abran igual. */
+  .page-header {
+    position: relative;
+    padding-block: var(--space-xl) calc(var(--section-space-sm) + clamp(2rem, 4vw, 4rem));
+    overflow: hidden;
+    isolation: isolate;
+    background-image: linear-gradient(
+        170deg,
+        var(--sky-100) 0%,
+        var(--sky-50) 42%,
+        var(--color-background) 78%
+      ),
+      radial-gradient(60% 70% at 88% 0%, rgb(var(--sky-rgb) / 22%) 0%, transparent 60%);
+  }
+
+  .page-header__motif {
+    position: absolute;
+    inset-block-end: -18%;
+    inset-inline-end: -3%;
+    z-index: -1;
+    width: min(36%, 26rem);
+    height: auto;
+    color: rgb(var(--deep-rgb) / 7%);
+  }
+
+  .page-header :global(.page-header__crumbs) {
+    margin-block-end: var(--space-xl);
+  }
+
+  .page-header__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .page-header__title {
+    max-width: 18ch;
+  }
+
+  .page-header__intro {
+    max-width: 54ch;
+  }
+
+  @media (min-width: 64rem) {
+    .page-header {
+      padding-block: var(--space-2xl) var(--section-space-sm);
+    }
+
+    .page-header__body {
+      gap: var(--space-lg);
+    }
+  }
+</style>

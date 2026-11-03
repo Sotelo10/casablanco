@@ -1,0 +1,328 @@
+---
+/**
+ * CABECERA
+ * =============================================================================
+ * Sobre el hero es transparente, con un velo superior que garantiza la
+ * legibilidad sobre cualquier fotografía. Al hacer scroll pasa a sólida con
+ * desenfoque, filete y sombra, en una transición corta y contenida.
+ *
+ * En móvil el CTA vive en la barra inferior fija, así que aquí sólo quedan la
+ * marca y el botón de menú, ambos con área táctil amplia.
+ */
+import { bookingHref, bookingLabel, mainNav } from '../../config/navigation.js';
+import { isActivePath } from '../../lib/utils/url.js';
+import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import Brand from './Brand.astro';
+import MobileMenu from './MobileMenu.astro';
+
+interface Props {
+  variant?: 'transparent' | 'solid';
+  currentPath: string;
+}
+
+const { variant = 'solid', currentPath } = Astro.props;
+const isCurrent = (href: string) => isActivePath(href, currentPath);
+const whatsapp = whatsAppUrl();
+---
+
+<header class="header" data-variant={variant} data-scrolled="false" id="site-header">
+  <div class="header__inner">
+    <Brand />
+
+    <nav class="header__nav" aria-label="Navegación principal">
+      <ul class="header__list" role="list">
+        {
+          mainNav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="header__link"
+                aria-current={isCurrent(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="header__actions">
+      {
+        whatsapp && (
+          <a
+            class="header__whatsapp"
+            href={whatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Escribir por WhatsApp"
+          >
+            <Icon name="whatsapp" size={19} />
+          </a>
+        )
+      }
+
+      <Button
+        href={bookingHref}
+        variant="primary"
+        size="sm"
+        leadingIcon="calendar"
+        icon="arrow-right"
+        class="header__cta"
+      >
+        {bookingLabel}
+      </Button>
+
+      <button
+        type="button"
+        class="header__toggle"
+        data-menu-open
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        aria-label="Abrir menú de navegación"
+      >
+        <span class="header__toggle-bars" aria-hidden="true"><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<MobileMenu currentPath={currentPath} />
+
+<style>
+  .header {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: var(--z-header);
+    background-color: var(--color-background);
+    border-block-end: 1px solid var(--color-border);
+    transition: background-color var(--duration) var(--ease-out),
+      border-color var(--duration) var(--ease-out), box-shadow var(--duration) var(--ease-out),
+      backdrop-filter var(--duration) var(--ease-out);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    width: 100%;
+    max-width: var(--container-full);
+    min-height: var(--header-height);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .header__nav {
+    display: none;
+  }
+
+  .header__list {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.9rem, 1.8vw, 2rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .header__link {
+    position: relative;
+    display: inline-block;
+    padding-block: 0.5rem;
+    font-size: var(--text-body-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .header__link::after {
+    content: '';
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 0;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform var(--duration) var(--ease-emphasis);
+  }
+
+  .header__link:hover::after {
+    transform: scaleX(1);
+  }
+
+  /* La página actual se marca con un punto de acento, no sólo con color. */
+  .header__link[aria-current='page'] {
+    color: var(--color-primary);
+  }
+
+  .header__link[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    inset-block-start: -0.15rem;
+    inset-inline-start: 50%;
+    width: 3px;
+    height: 3px;
+    border-radius: var(--radius-pill);
+    background-color: currentColor;
+    transform: translateX(-50%);
+  }
+
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .header__whatsapp {
+    display: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    color: inherit;
+    transition: border-color var(--duration-fast) var(--ease-out),
+      background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .header__whatsapp:hover {
+    border-color: var(--color-border-input);
+    background-color: var(--color-surface);
+    color: inherit;
+  }
+
+  .header__cta {
+    display: none;
+  }
+
+  /* Botón de menú: dos trazos que se cruzan de forma sutil al pasar el cursor */
+  .header__toggle {
+    display: grid;
+    place-items: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    margin-inline-end: -0.4rem;
+    border-radius: var(--radius-pill);
+    color: inherit;
+  }
+
+  .header__toggle-bars {
+    display: grid;
+    gap: 5px;
+    width: 20px;
+  }
+
+  .header__toggle-bars span {
+    display: block;
+    height: 1.5px;
+    background-color: currentColor;
+    border-radius: 2px;
+    transition: transform var(--duration) var(--ease-emphasis);
+  }
+
+  .header__toggle-bars span:last-child {
+    width: 70%;
+    justify-self: end;
+  }
+
+  .header__toggle:hover .header__toggle-bars span:last-child {
+    transform: translateX(-30%);
+  }
+
+  /* ── Variante transparente sobre el hero ─────────────────────────────── */
+  .header[data-variant='transparent'][data-scrolled='false'] {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--color-text-inverse);
+    /* Velo superior: asegura contraste del menú sobre cualquier fotografía. */
+    background-image: linear-gradient(
+      to bottom,
+      rgb(var(--deep-rgb) / 48%) 0%,
+      rgb(var(--deep-rgb) / 18%) 58%,
+      transparent 100%
+    );
+  }
+
+  .header[data-variant='transparent'][data-scrolled='false'] :global(.brand__location) {
+    color: var(--color-text-inverse-muted);
+  }
+
+  .header[data-variant='transparent'][data-scrolled='false'] .header__link[aria-current='page'] {
+    color: var(--color-text-inverse);
+  }
+
+  .header[data-variant='transparent'][data-scrolled='false'] .header__whatsapp {
+    border-color: var(--color-border-inverse);
+  }
+
+  .header[data-variant='transparent'][data-scrolled='false'] .header__whatsapp:hover {
+    background-color: rgb(var(--white-rgb) / 12%);
+    border-color: rgb(var(--white-rgb) / 40%);
+  }
+
+  .header[data-variant='transparent'][data-scrolled='false'] :global(.header__cta) {
+    background-color: var(--color-text-inverse);
+    color: var(--color-text);
+  }
+
+  .header[data-variant='transparent'][data-scrolled='false'] :global(.header__cta:hover) {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .header[data-scrolled='true'] {
+    background-color: rgb(var(--white-rgb) / 88%);
+    backdrop-filter: saturate(150%) blur(14px);
+    border-block-end-color: var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  @media (min-width: 64rem) {
+    .header__nav {
+      display: block;
+    }
+
+    .header__cta {
+      display: inline-flex;
+    }
+
+    .header__whatsapp {
+      display: grid;
+    }
+
+    .header__toggle {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const header = document.getElementById('site-header');
+
+  if (header) {
+    let ticking = false;
+
+    const update = () => {
+      header.dataset.scrolled = String(window.scrollY > 16);
+      ticking = false;
+    };
+
+    update();
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(update);
+      },
+      { passive: true },
+    );
+  }
+</script>

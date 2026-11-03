@@ -1,0 +1,240 @@
+---
+/**
+ * BANDA DE CIERRE
+ * =============================================================================
+ * Último punto de conversión de cada página. Jerarquía explícita: una acción
+ * principal (reservar), una alternativa directa (WhatsApp) y los datos de
+ * contacto reales que existan.
+ */
+import { bookingHref, bookingLabelLong } from '../../config/navigation.js';
+import { site } from '../../config/site.js';
+import Card from '../ui/Card.astro';
+import Button from '../ui/Button.astro';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import WaveDivider from '../ui/WaveDivider.astro';
+import WhatsAppButton from './WhatsAppButton.astro';
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  /** Color del bloque anterior, para que la curva de entrada encaje. */
+  topWaveTone?: 'background' | 'surface' | 'soft' | 'sand' | 'deep';
+}
+
+const {
+  eyebrow = 'Disponibilidad',
+  title = '¿Tienes fechas en mente?',
+  description = 'Cuéntanos cuándo viajas y cuántas personas son. Te respondemos con la disponibilidad, la tarifa y las condiciones de la estancia.',
+  topWaveTone = 'surface',
+} = Astro.props;
+
+const steps = [
+  'Envías tus fechas y el tamaño del grupo.',
+  'Confirmamos disponibilidad, tarifa y condiciones.',
+  'Coordinamos el ingreso y la dirección exacta.',
+];
+---
+
+<section class="cta" aria-labelledby="cta-title">
+  <WaveDivider tone={topWaveTone} position="top" />
+  <svg class="cta__motif" viewBox="0 0 200 160" aria-hidden="true" focusable="false">
+    <path d="M55 160V78a45 45 0 0 1 90 0v82" fill="none" stroke="currentColor" stroke-width="1" />
+    <path
+      d="M78 160V83a22 22 0 0 1 44 0v77"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1"
+      opacity="0.6"
+    />
+  </svg>
+
+  <Container size="wide">
+    <div class="cta__inner">
+      <div class="cta__text">
+        <span class="eyebrow cta__eyebrow">{eyebrow}</span>
+        <h2 id="cta-title" class="cta__title">{title}</h2>
+        <p class="cta__description">{description}</p>
+
+        <ol class="cta__steps">
+          {steps.map((step) => <li>{step}</li>)}
+        </ol>
+      </div>
+
+      <Card tone="ink" padding="lg" class="cta__panel">
+        <p class="cta__panel-title">Reserva directa con el propietario</p>
+        <p class="cta__panel-text">
+          Sin intermediarios ni comisiones de plataforma: escribes y te responde quien administra la
+          casa.
+        </p>
+
+        <div class="cta__actions">
+          <Button href={bookingHref} variant="light" size="lg" block icon="arrow-right">
+            {bookingLabelLong}
+          </Button>
+          <WhatsAppButton variant="outline-light" size="lg" block />
+        </div>
+
+        <ul class="cta__contact" role="list">
+          {
+            site.contact.phone && (
+              <li>
+                <Icon name="phone" size={15} />
+                <a href={`tel:${site.contact.phone.replace(/\s/g, '')}`}>{site.contact.phone}</a>
+              </li>
+            )
+          }
+          {
+            site.contact.email && (
+              <li>
+                <Icon name="mail" size={15} />
+                <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+              </li>
+            )
+          }
+          {
+            site.contact.hours && (
+              <li>
+                <Icon name="clock" size={15} />
+                <span>{site.contact.hours}</span>
+              </li>
+            )
+          }
+        </ul>
+      </Card>
+    </div>
+  </Container>
+</section>
+
+<style>
+  .cta {
+    position: relative;
+    padding-block: calc(var(--section-space) + clamp(2rem, 4vw, 4rem)) var(--section-space);
+    background-color: var(--color-surface-deep-soft);
+    background-image: radial-gradient(
+      80% 70% at 85% 100%,
+      rgb(var(--sky-rgb) / 22%) 0%,
+      transparent 62%
+    );
+    color: var(--color-text-inverse);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /* Arco de la marca como filigrana: identidad sin ruido. */
+  .cta__motif {
+    position: absolute;
+    inset-block-end: -8%;
+    inset-inline-start: -6%;
+    z-index: -1;
+    width: min(52%, 34rem);
+    height: auto;
+    color: rgb(var(--white-rgb) / 5%);
+  }
+
+  .cta__inner {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .cta__eyebrow {
+    color: var(--color-primary-light);
+  }
+
+  .cta__title {
+    margin-block-start: var(--space-md);
+    max-width: 16ch;
+  }
+
+  .cta__description {
+    margin-block-start: var(--space-lg);
+    max-width: 46ch;
+    font-size: var(--text-lead);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .cta__steps {
+    display: grid;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-xl);
+    padding-inline-start: 0;
+    list-style: none;
+    counter-reset: step;
+    max-width: 44ch;
+  }
+
+  .cta__steps li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    font-size: var(--text-body-sm);
+    color: var(--color-text-inverse-muted);
+    counter-increment: step;
+  }
+
+  .cta__steps li::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-primary-light);
+  }
+
+  .cta__panel {
+    gap: var(--space-md);
+    background-color: rgb(var(--white-rgb) / 6%);
+    backdrop-filter: blur(2px);
+  }
+
+  .cta__panel-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+  }
+
+  .cta__panel-text {
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .cta__actions {
+    display: grid;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-xs);
+  }
+
+  .cta__contact {
+    display: grid;
+    gap: var(--space-xs);
+    margin-block-start: var(--space-md);
+    padding-block-start: var(--space-md);
+    border-block-start: 1px solid var(--color-border-inverse);
+    list-style: none;
+    padding-inline: 0;
+    font-size: var(--text-sm);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .cta__contact li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .cta__contact :global(svg) {
+    color: var(--color-primary-light);
+  }
+
+  .cta__contact a {
+    color: var(--color-text-inverse);
+  }
+
+  @media (min-width: 64rem) {
+    .cta__inner {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 25rem);
+      gap: var(--space-4xl);
+      align-items: center;
+    }
+  }
+</style>

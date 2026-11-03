@@ -1,0 +1,121 @@
+---
+/**
+ * CAPÍTULO DE SERVICIOS
+ * =============================================================================
+ * Composición en dos tiempos: a la izquierda el argumento y la acción; a la
+ * derecha el listado. Rompe el ritmo de "encabezado + rejilla" del resto de la
+ * página y deja el CTA a la altura de los ojos mientras se lee la lista.
+ */
+import type { Amenity } from '../../types/content.js';
+import AmenityGrid from '../amenities/AmenityGrid.astro';
+import Button from '../ui/Button.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  amenities: Amenity[];
+  index?: string;
+  tone?: 'default' | 'surface' | 'muted';
+}
+
+const { amenities, index = '02', tone = 'surface' } = Astro.props;
+---
+
+<Section tone={tone} container="none" aria-labelledby="servicios-title">
+  <Container size="wide">
+    <div class="amenities">
+      <div class="amenities__lead">
+        <Chapter
+          index={index}
+          eyebrow="Servicios"
+          title="Todo lo necesario para instalarse"
+          id="servicios-title"
+          titleWidth="15ch"
+          class="amenities__chapter"
+        />
+        <p class="amenities__text">
+          Este es el equipamiento previsto de la casa. Cada servicio se confirma uno a uno con la
+          información definitiva de la propiedad, así que aquí no verás nada dado por hecho.
+        </p>
+
+        <div class="amenities__note">
+          <span class="amenities__note-icon">
+            <Icon name="shield" size={17} />
+          </span>
+          <p>
+            Si algo aparece como <strong>por confirmar</strong>, es porque todavía no está
+            verificado. Pregúntanos y te lo decimos con certeza.
+          </p>
+        </div>
+
+        <div class="amenities__action">
+          <Button href="/casa" variant="outline" icon="arrow-right">Ver el equipamiento completo</Button>
+        </div>
+      </div>
+
+      <div class="amenities__list">
+        <AmenityGrid amenities={amenities} columns={2} />
+      </div>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .amenities {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .amenities__chapter {
+    margin-block-end: var(--space-lg);
+  }
+
+  .amenities__text {
+    max-width: 46ch;
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+  }
+
+  .amenities__note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-lg);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-soft);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-soft);
+  }
+
+  .amenities__note-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+  }
+
+  .amenities__action {
+    margin-block-start: var(--space-xl);
+  }
+
+  @media (min-width: 64rem) {
+    .amenities {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: var(--space-4xl);
+      align-items: start;
+    }
+
+    .amenities__lead {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-xl));
+    }
+  }
+</style>

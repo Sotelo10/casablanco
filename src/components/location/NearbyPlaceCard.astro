@@ -1,0 +1,141 @@
+---
+/**
+ * Tarjeta de lugar cercano.
+ * Cuando no hay distancia confirmada se muestra `[X min]`, nunca un tiempo
+ * inventado.
+ */
+import type { NearbyPlace } from '../../types/content.js';
+import PropertyImage from '../media/PropertyImage.astro';
+import Card from '../ui/Card.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  place: NearbyPlace;
+  /** Muestra la fotografía (o su placa) sobre la tarjeta. */
+  withImage?: boolean;
+  index?: number;
+  class?: string;
+}
+
+const { place, withImage = true, index, class: className, ...rest } = Astro.props;
+---
+
+<Card
+  as="article"
+  tone={withImage ? 'surface' : 'outline'}
+  padding="none"
+  interactive={withImage}
+  class:list={['place', !withImage && 'place--plain', className]}
+  {...rest}
+>
+  {
+    withImage && (
+      <PropertyImage
+        image={{
+          src: place.image,
+          alt: place.name,
+          category: 'exterior',
+          width: 0,
+          height: 0,
+          orientation: 'landscape',
+          label: place.name,
+        }}
+        ratio="4 / 3"
+        sizes="(min-width: 64rem) 30vw, (min-width: 48rem) 45vw, 88vw"
+        compact
+        as="div"
+        class="place__media"
+      />
+    )
+  }
+
+  <div class="place__body">
+    <div class="place__head">
+      {
+        index !== undefined && (
+          <span class="numeral place__index" aria-hidden="true">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+        )
+      }
+      <h3 class="place__name">
+        {!withImage && <Icon name={place.icon} size={17} class="place__icon" />}
+        {place.name}
+      </h3>
+    </div>
+    <p class="place__description">{place.description}</p>
+    <p class="place__distance">
+      <Icon name="clock" size={14} />
+      {place.distance ?? '[X min]'}
+      <span class="visually-hidden">desde la propiedad</span>
+    </p>
+  </div>
+</Card>
+
+<style>
+  .place {
+    height: 100%;
+  }
+
+  /* La imagen va a sangre dentro de la tarjeta: el redondeo lo aporta la
+     tarjeta, no la fotografía. */
+  .place__media :global(.frame__media) {
+    border-radius: 0;
+  }
+
+  .place__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+    padding: var(--space-lg);
+  }
+
+  .place--plain .place__body {
+    padding: var(--space-md) 0;
+  }
+
+  .place__head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+  }
+
+  .place__index {
+    color: var(--color-primary);
+  }
+
+  .place__name {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--text-h3);
+  }
+
+  .place__icon {
+    color: var(--color-primary);
+  }
+
+  .place__description {
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .place__distance {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-block-start: auto;
+    padding-block-start: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .place__distance :global(svg) {
+    color: var(--color-primary);
+  }
+</style>

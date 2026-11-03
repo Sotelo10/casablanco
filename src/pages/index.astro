@@ -1,0 +1,99 @@
+---
+/**
+ * PORTADA
+ * -----------------------------------------------------------------------------
+ * Recorrido en capítulos numerados. Cada uno responde una pregunta concreta del
+ * visitante y cambia de tono visual, de modo que el scroll tenga ritmo:
+ *
+ *   Hero → datos → 01 la casa → 02 servicios → 03 galería (tinta) →
+ *   04 entorno → 05 reseñas → 06 ubicación → 07 preguntas → cierre (tinta)
+ */
+import BookingCTA from '../components/booking/BookingCTA.astro';
+import Hero from '../components/hero/Hero.astro';
+import FeatureStrip from '../components/sections/FeatureStrip.astro';
+import AmenitiesSection from '../components/sections/AmenitiesSection.astro';
+import ExperienceSection from '../components/sections/ExperienceSection.astro';
+import FaqSection from '../components/sections/FaqSection.astro';
+import GallerySection from '../components/sections/GallerySection.astro';
+import IntroSection from '../components/sections/IntroSection.astro';
+import LocationSection from '../components/sections/LocationSection.astro';
+import ReviewsSection from '../components/sections/ReviewsSection.astro';
+import { heroImage, introImage, gallery } from '../data/gallery.js';
+import { homeIntroParagraphs, stayHighlights } from '../data/property.js';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import {
+  getFaqs,
+  getFeaturedAmenities,
+  getFeaturedGallery,
+  getNearbyPlaces,
+} from '../lib/services/content.service.js';
+import { getReviews, summarize } from '../lib/services/reviews.service.js';
+
+const [featuredImages, featuredAmenities, nearbyPlaces, reviews] = await Promise.all([
+  getFeaturedGallery(5),
+  getFeaturedAmenities(),
+  getNearbyPlaces(),
+  getReviews(),
+]);
+
+const reviewSummary = summarize(reviews);
+const highlightedPlaces = nearbyPlaces.slice(0, 3);
+const homeFaqs = getFaqs().slice(0, 4);
+
+/** Segunda imagen de la composición editorial: un ambiente interior distinto. */
+const secondaryIntroImage = gallery.find((image) => image.category === 'terraza') ?? gallery[1]!;
+
+/**
+ * Beneficios del hero. Son afirmaciones estructurales del alquiler (casa
+ * completa, trato directo) y del destino, no características del inmueble sin
+ * confirmar.
+ */
+const heroBenefits = [
+  { icon: 'users', title: 'Casa completa', detail: 'Sólo para tu grupo' },
+  { icon: 'palm', title: 'Desierto y viñedos', detail: 'El entorno de Ica' },
+  { icon: 'shield', title: 'Trato directo', detail: 'Con el propietario' },
+];
+
+const description =
+  'Casa Blanco es una casa vacacional en Ica, Perú: se alquila completa para un solo grupo, con espacios amplios y privacidad total. Consulta disponibilidad para tus fechas.';
+---
+
+<BaseLayout
+  title="Inicio"
+  description={description}
+  isHome
+  headerVariant="transparent"
+  reviewSummary={reviewSummary}
+>
+  <Hero
+    image={heroImage}
+    reviewSummary={reviewSummary}
+    claim="Tu escape perfecto en Ica"
+    lead="Una casa vacacional completa para descansar entre viñedos y dunas. Se reserva entera, para un solo grupo, con trato directo del propietario."
+    benefits={heroBenefits}
+  />
+
+  <FeatureStrip />
+
+  <IntroSection
+    primaryImage={introImage}
+    secondaryImage={secondaryIntroImage}
+    highlights={stayHighlights}
+    paragraphs={homeIntroParagraphs}
+    reviewSummary={reviewSummary}
+  />
+
+  <AmenitiesSection amenities={featuredAmenities} />
+
+  <GallerySection images={featuredImages} />
+
+  <ExperienceSection places={highlightedPlaces} />
+
+  <ReviewsSection reviews={reviews} summary={reviewSummary} />
+
+  <LocationSection />
+
+  <FaqSection faqs={homeFaqs} actionHref="/faq" actionLabel="Ver todas las preguntas" />
+
+  <BookingCTA />
+</BaseLayout>

@@ -1,0 +1,66 @@
+---
+/**
+ * Política de cookies.
+ * El sitio no instala cookies propias; sólo se cargan si se habilita Analytics.
+ */
+import LegalArticle from '../components/layout/LegalArticle.astro';
+import Section from '../components/ui/Section.astro';
+import { isAnalyticsEnabled } from '../config/env.js';
+import PageLayout from '../layouts/PageLayout.astro';
+
+const analytics = isAnalyticsEnabled();
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Política de cookies', href: '/politica-cookies' },
+];
+---
+
+<PageLayout
+  title="Política de cookies"
+  description="Qué cookies utiliza este sitio y cómo se gestionan."
+  heading="Política de cookies"
+  eyebrow="Información legal"
+  breadcrumbs={breadcrumbs}
+  showCta={false}
+>
+  <Section container="narrow">
+    <LegalArticle>
+      <h2>Cookies propias</h2>
+      <p>
+        Este sitio es estático y no instala cookies propias de seguimiento. Tampoco utiliza
+        almacenamiento local para perfilar a los visitantes.
+      </p>
+
+      <h2>Cookies de terceros</h2>
+      {
+        analytics ? (
+          <p>
+            Actualmente se utiliza Google Analytics para medir de forma agregada las visitas. Esta
+            herramienta instala cookies propias del dominio de Google con fines estadísticos.
+          </p>
+        ) : (
+          <p>
+            En este momento no hay herramientas de analítica activas. Si en el futuro se habilita
+            Google Analytics, este apartado detallará las cookies utilizadas y su finalidad.
+          </p>
+        )
+      }
+      <p>
+        El mapa de Google Maps, cuando está activado, se carga desde servidores de Google y puede
+        instalar cookies propias de ese servicio.
+      </p>
+
+      <h2>Cómo gestionarlas</h2>
+      <p>
+        Puedes bloquear o eliminar las cookies desde la configuración de tu navegador. Hacerlo no
+        afecta al funcionamiento de este sitio.
+      </p>
+
+      <h2>Actualizaciones</h2>
+      <p class="legal-todo">
+        Revisar esta página cada vez que se añada una herramienta de terceros al sitio.
+      </p>
+    </LegalArticle>
+  </Section>
+</PageLayout>

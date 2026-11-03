@@ -1,0 +1,52 @@
+---
+/**
+ * Aviso discreto de contenido de ejemplo.
+ * Sólo se renderiza mientras `site.content.isPlaceholder` sea `true`.
+ */
+import { site } from '../../config/site.js';
+import Icon from './Icon.astro';
+
+interface Props {
+  text: string;
+  tone?: 'default' | 'inverse';
+  class?: string;
+}
+
+const { text, tone = 'default', class: className, ...rest } = Astro.props;
+const visible = site.content.isPlaceholder;
+---
+
+{
+  visible && (
+    <p class:list={['notice', tone === 'inverse' && 'notice--inverse', className]} {...rest}>
+      <Icon name="info" size={15} class="notice__icon" />
+      <span>{text}</span>
+    </p>
+  )
+}
+
+<style>
+  .notice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    padding: 0.7rem 0.9rem;
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background-color: color-mix(in srgb, var(--color-surface-soft) 60%, transparent);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+  }
+
+  .notice__icon {
+    margin-block-start: 0.1em;
+    color: var(--color-primary);
+  }
+
+  .notice--inverse {
+    border-color: var(--color-border-inverse);
+    background-color: rgb(var(--white-rgb) / 6%);
+    color: var(--color-text-inverse-muted);
+  }
+</style>

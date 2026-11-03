@@ -1,0 +1,211 @@
+---
+/**
+ * CAPÍTULO EDITORIAL DE PRESENTACIÓN
+ * =============================================================================
+ * Composición asimétrica: una imagen vertical grande, una segunda imagen que la
+ * solapa en pantallas amplias y, al lado, el texto con la firma de la casa.
+ * La superposición es lo que da profundidad a la portada sin recargarla.
+ */
+import { exploreHref } from '../../config/navigation.js';
+import type { GalleryImage, ReviewSummary } from '../../types/content.js';
+import FactsRail from '../property/FactsRail.astro';
+import PropertyImage from '../media/PropertyImage.astro';
+import Button from '../ui/Button.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import PlaceholderNotice from '../ui/PlaceholderNotice.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  primaryImage: GalleryImage;
+  secondaryImage: GalleryImage;
+  highlights: { id: string; title: string; description: string; icon: string }[];
+  paragraphs: string[];
+  reviewSummary?: ReviewSummary;
+}
+
+const { primaryImage, secondaryImage, highlights, paragraphs, reviewSummary } = Astro.props;
+---
+
+<Section id="la-casa" tone="default" container="none" aria-labelledby="intro-title">
+  <Container size="wide">
+    <div class="intro">
+      <div class="intro__media">
+        <PropertyImage
+          image={primaryImage}
+          ratio="4 / 5"
+          sizes="(min-width: 64rem) 42vw, 92vw"
+          class="intro__image intro__image--primary"
+        />
+        <PropertyImage
+          image={secondaryImage}
+          ratio="4 / 3"
+          sizes="(min-width: 64rem) 22vw, 60vw"
+          compact
+          class="intro__image intro__image--secondary"
+        />
+      </div>
+
+      <div class="intro__text">
+        <Chapter
+          index="01"
+          eyebrow="La casa"
+          title="Una casa completa, reservada para un solo grupo"
+          id="intro-title"
+          titleWidth="17ch"
+        />
+
+        <div class="prose intro__prose">
+          {paragraphs.map((paragraph) => <p set:html={paragraph} />)}
+        </div>
+
+        <ul class="signature" role="list">
+          {
+            highlights.map((item) => (
+              <li class="signature__item">
+                <span class="signature__icon">
+                  <Icon name={item.icon} size={17} />
+                </span>
+                <div>
+                  <h3 class="signature__title">{item.title}</h3>
+                  <p class="signature__text">{item.description}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="intro__actions">
+          <Button href={exploreHref} variant="outline" icon="arrow-right">
+            Ver espacios y capacidad
+          </Button>
+        </div>
+
+        <PlaceholderNotice
+          text="Las fotografías definitivas ocuparán exactamente el lugar de estas placas, sin alterar la composición."
+          class="intro__notice"
+        />
+      </div>
+    </div>
+  </Container>
+
+  <FactsRail reviewSummary={reviewSummary} overlap={false} class="intro__rail" />
+</Section>
+
+<style>
+  .intro {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .intro__media {
+    position: relative;
+  }
+
+  .intro__image :global(.frame__media),
+  .intro__image :global(.plate) {
+    border-radius: var(--radius-lg);
+  }
+
+  .intro__image--primary :global(.frame__media) {
+    box-shadow: var(--shadow-md);
+  }
+
+  .intro__image--secondary {
+    width: 62%;
+    margin-block-start: calc(var(--space-2xl) * -1);
+    margin-inline-start: auto;
+    margin-inline-end: calc(var(--gutter) * -0.5);
+  }
+
+  .intro__image--secondary :global(.frame__media) {
+    border: 6px solid var(--color-background);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .intro__prose {
+    margin-block-start: calc(var(--space-lg) * -1);
+  }
+
+  .signature {
+    display: grid;
+    gap: var(--space-lg);
+    margin-block-start: var(--space-2xl);
+    padding-block-start: var(--space-xl);
+    border-block-start: 1px solid var(--color-border);
+    list-style: none;
+    padding-inline: 0;
+  }
+
+  .signature__item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .signature__icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    color: var(--color-primary);
+  }
+
+  .signature__title {
+    font-family: var(--font-body);
+    font-size: var(--text-h4);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-normal);
+  }
+
+  .signature__text {
+    margin-block-start: 0.2rem;
+    max-width: 48ch;
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .intro__actions {
+    margin-block-start: var(--space-xl);
+  }
+
+  .intro__notice {
+    margin-block-start: var(--space-xl);
+  }
+
+  .intro__rail {
+    margin-block-start: var(--section-space-sm);
+  }
+
+  @media (min-width: 48rem) and (max-width: 63.99rem) {
+    .intro__media {
+      max-width: 32rem;
+      margin-inline: auto;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .intro {
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+      gap: var(--space-4xl);
+      align-items: center;
+    }
+
+    .intro__media {
+      padding-block-end: var(--space-3xl);
+    }
+
+    .intro__image--secondary {
+      position: absolute;
+      inset-block-end: 0;
+      inset-inline-end: calc(var(--space-3xl) * -1);
+      width: 58%;
+      margin: 0;
+    }
+  }
+</style>

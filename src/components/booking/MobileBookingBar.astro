@@ -1,0 +1,95 @@
+---
+/**
+ * BARRA INFERIOR FIJA (SÓLO MÓVIL)
+ * =============================================================================
+ * Mantiene la acción principal siempre al alcance del pulgar sin tapar el
+ * contenido: el pie de página reserva espacio para ella.
+ *
+ * Se oculta en la página de contacto, donde el formulario ya es la acción.
+ */
+import { bookingHref, bookingLabel } from '../../config/navigation.js';
+import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import Icon from '../ui/Icon.astro';
+
+const whatsapp = whatsAppUrl();
+---
+
+<nav class="bar" aria-label="Acciones de reserva">
+  <a class="bar__cta" href={bookingHref}>
+    <span>{bookingLabel}</span>
+    <Icon name="arrow-right" size={16} />
+  </a>
+  {
+    whatsapp && (
+      <a
+        class="bar__icon"
+        href={whatsapp}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Escribir por WhatsApp"
+      >
+        <Icon name="whatsapp" size={21} />
+      </a>
+    )
+  }
+</nav>
+
+<style>
+  .bar {
+    position: fixed;
+    inset-block-end: 0;
+    inset-inline: 0;
+    z-index: var(--z-sticky);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 0.65rem var(--gutter) calc(0.65rem + env(safe-area-inset-bottom));
+    background-color: color-mix(in srgb, var(--color-background) 90%, transparent);
+    backdrop-filter: saturate(150%) blur(14px);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .bar__cta {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding-inline: 1.1rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+    font-size: var(--text-body-sm);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .bar__cta:hover {
+    background-color: var(--color-primary-hover);
+    color: var(--color-primary-contrast);
+  }
+
+  .bar__icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius-pill);
+    color: var(--color-text);
+  }
+
+  .bar__icon:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  @media (min-width: 64rem) {
+    .bar {
+      display: none;
+    }
+  }
+</style>

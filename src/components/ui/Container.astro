@@ -1,0 +1,19 @@
+---
+/** Contenedor de ancho máximo con gutters coherentes en todo el sitio. */
+export interface Props {
+  size?: 'narrow' | 'default' | 'wide' | 'full';
+  as?: 'div' | 'section' | 'article' | 'header' | 'footer' | 'nav';
+  class?: string;
+  id?: string;
+}
+
+const { size = 'default', as: Tag = 'div', class: className, id, ...rest } = Astro.props;
+---
+
+<Tag
+  class:list={['container', size !== 'default' && `container--${size}`, className]}
+  id={id}
+  {...rest}
+>
+  <slot />
+</Tag>

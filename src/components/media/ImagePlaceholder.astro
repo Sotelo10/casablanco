@@ -1,0 +1,267 @@
+---
+/**
+ * PLACA DE FOTOGRAFÍA
+ * =============================================================================
+ * Ocupa exactamente el espacio que tendrá la foto real, con su misma
+ * proporción, para que el diseño no cambie al sustituirla.
+ *
+ * No es una caja gris: usa la paleta de la marca, un degradado cálido, el arco
+ * como motivo de identidad, marcas de encuadre en las esquinas y la ficha
+ * técnica de la toma que corresponde a ese hueco.
+ */
+import { aspectRatios, orientationLabels, recommendedSizes } from '../../lib/images.js';
+import type { ImageOrientation } from '../../types/content.js';
+
+interface Props {
+  /** Qué fotografía va aquí. */
+  label: string;
+  orientation?: ImageOrientation;
+  /** Proporción CSS explícita, tiene prioridad sobre `orientation`. */
+  ratio?: string;
+  tone?: 'sky' | 'sand' | 'deep' | 'light';
+  /** Rellena el contenedor padre en lugar de generar su propia caja. */
+  fill?: boolean;
+  /** Oculta la ficha técnica (miniaturas y tarjetas pequeñas). */
+  compact?: boolean;
+  class?: string;
+}
+
+const {
+  label,
+  orientation = 'landscape',
+  ratio,
+  tone = 'sky',
+  fill = false,
+  compact = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const appliedRatio = ratio ?? aspectRatios[orientation];
+
+/**
+ * Cuando el mosaico impone una proporción distinta a la de la fotografía, la
+ * ficha describe el recorte real en lugar de la orientación original.
+ */
+const isCropped = Boolean(ratio) && ratio !== aspectRatios[orientation];
+const formatLabel = isCropped
+  ? `Recorte ${appliedRatio.replace(/\s*\/\s*/, ':')}`
+  : orientationLabels[orientation];
+const sizeLabel = isCropped ? 'mín. 2000 px' : recommendedSizes[orientation];
+---
+
+<div
+  class:list={['plate', `plate--${tone}`, fill && 'plate--fill', compact && 'plate--compact', className]}
+  style={fill ? undefined : `--plate-ratio:${appliedRatio}`}
+  aria-hidden="true"
+  {...rest}
+>
+  <svg class="plate__motif" viewBox="0 0 200 160" preserveAspectRatio="xMidYMax meet" focusable="false">
+    <path
+      d="M55 160V78a45 45 0 0 1 90 0v82"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.25"
+      vector-effect="non-scaling-stroke"
+    />
+    <path
+      d="M78 160V83a22 22 0 0 1 44 0v77"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.25"
+      vector-effect="non-scaling-stroke"
+      opacity="0.55"
+    />
+  </svg>
+
+  <span class="plate__corner plate__corner--tl"></span>
+  <span class="plate__corner plate__corner--tr"></span>
+  <span class="plate__corner plate__corner--bl"></span>
+  <span class="plate__corner plate__corner--br"></span>
+
+  <div class="plate__info">
+    <p class="plate__label">{label}</p>
+    {!compact && <p class="plate__spec">{formatLabel} · {sizeLabel}</p>}
+  </div>
+</div>
+
+<style>
+  .plate {
+    position: relative;
+    display: block;
+    aspect-ratio: var(--plate-ratio, 3 / 2);
+    overflow: hidden;
+    isolation: isolate;
+    background-color: var(--plate-bg);
+    background-image: var(--plate-gradient);
+    color: var(--plate-fg);
+  }
+
+  /* Textura muy tenue: da materialidad sin ensuciar la composición. */
+  .plate::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      var(--plate-line) 0 1px,
+      transparent 1px 14px
+    );
+    opacity: 0.75;
+  }
+
+  .plate::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--plate-border);
+    pointer-events: none;
+  }
+
+  .plate--fill {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+    height: 100%;
+  }
+
+  .plate--sky {
+    --plate-bg: var(--color-surface-soft);
+    --plate-gradient: radial-gradient(
+        120% 90% at 50% -10%,
+        rgb(var(--white-rgb) / 92%) 0%,
+        transparent 62%
+      ),
+      linear-gradient(165deg, var(--sky-100) 0%, var(--sky-200) 100%);
+    --plate-fg: var(--color-primary-dark);
+    --plate-line: rgb(var(--deep-rgb) / 4%);
+    --plate-border: var(--color-border);
+    --plate-motif: rgb(var(--deep-rgb) / 10%);
+  }
+
+  .plate--sand {
+    --plate-bg: var(--color-surface-sand);
+    --plate-gradient: radial-gradient(
+        110% 80% at 50% -5%,
+        rgb(var(--white-rgb) / 75%) 0%,
+        transparent 55%
+      ),
+      linear-gradient(165deg, var(--color-surface-sand) 0%, var(--color-surface-sand-deep) 100%);
+    --plate-fg: var(--color-text-muted);
+    --plate-line: rgb(var(--deep-rgb) / 4%);
+    --plate-border: var(--color-border);
+    --plate-motif: rgb(var(--deep-rgb) / 9%);
+  }
+
+  .plate--light {
+    --plate-bg: var(--color-surface);
+    --plate-gradient: linear-gradient(180deg, var(--color-surface) 0%, var(--sky-50) 100%);
+    --plate-fg: var(--color-text-muted);
+    --plate-line: rgb(var(--deep-rgb) / 3%);
+    --plate-border: var(--color-border);
+    --plate-motif: rgb(var(--deep-rgb) / 7%);
+  }
+
+  .plate--deep {
+    --plate-bg: var(--color-surface-deep);
+    --plate-gradient: radial-gradient(
+        120% 90% at 68% 8%,
+        rgb(var(--sky-rgb) / 30%) 0%,
+        transparent 60%
+      ),
+      linear-gradient(155deg, var(--color-surface-deep-raised) 0%, var(--color-surface-deep) 78%);
+    --plate-fg: var(--color-text-inverse-muted);
+    --plate-line: rgb(var(--white-rgb) / 4%);
+    --plate-border: rgb(var(--white-rgb) / 14%);
+    --plate-motif: rgb(var(--white-rgb) / 18%);
+  }
+
+  /* Arco: motivo de identidad tomado de la arquitectura de la casa. */
+  .plate__motif {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 0;
+    width: min(58%, 26rem);
+    height: auto;
+    margin-inline: auto;
+    color: var(--plate-motif);
+  }
+
+  .plate__corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 0 solid var(--plate-border);
+    opacity: 0.9;
+  }
+
+  .plate__corner--tl {
+    inset-block-start: 10px;
+    inset-inline-start: 10px;
+    border-block-start-width: 1px;
+    border-inline-start-width: 1px;
+  }
+
+  .plate__corner--tr {
+    inset-block-start: 10px;
+    inset-inline-end: 10px;
+    border-block-start-width: 1px;
+    border-inline-end-width: 1px;
+  }
+
+  .plate__corner--bl {
+    inset-block-end: 10px;
+    inset-inline-start: 10px;
+    border-block-end-width: 1px;
+    border-inline-start-width: 1px;
+  }
+
+  .plate__corner--br {
+    inset-block-end: 10px;
+    inset-inline-end: 10px;
+    border-block-end-width: 1px;
+    border-inline-end-width: 1px;
+  }
+
+  .plate__info {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2xs) var(--space-md);
+    padding: var(--space-lg) calc(var(--space-lg) + 2px);
+  }
+
+  .plate__label,
+  .plate__spec {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .plate__spec {
+    opacity: 0.7;
+  }
+
+  .plate--compact .plate__info {
+    padding: var(--space-md);
+  }
+
+  .plate--compact .plate__label {
+    font-size: var(--text-3xs);
+  }
+
+  @media (max-width: 30rem) {
+    .plate__spec {
+      display: none;
+    }
+
+    .plate__info {
+      padding: var(--space-md);
+    }
+  }
+</style>

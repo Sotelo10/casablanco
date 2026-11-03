@@ -1,0 +1,122 @@
+---
+/**
+ * CAPÍTULO DE ENTORNO
+ * =============================================================================
+ * En móvil las tarjetas se recorren en horizontal con anclaje de scroll (sin
+ * JavaScript); a partir de tablet pasan a rejilla. Es la forma más cómoda de
+ * hojear lugares con el pulgar.
+ */
+import type { NearbyPlace } from '../../types/content.js';
+import NearbyPlaceCard from '../location/NearbyPlaceCard.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  places: NearbyPlace[];
+  index?: string;
+  title?: string;
+  description?: string;
+  actionHref?: string;
+  actionLabel?: string;
+  tone?: 'default' | 'surface' | 'muted';
+}
+
+const {
+  places,
+  index = '04',
+  title = 'El desierto empieza a la salida',
+  description = 'El oasis, las dunas y las bodegas de la región están a un trayecto corto. Casa Blanco funciona como base para recorrer Ica con calma.',
+  actionHref = '/experiencia',
+  actionLabel = 'Descubrir el entorno',
+  tone = 'default',
+} = Astro.props;
+---
+
+<Section tone={tone} container="none" aria-labelledby="entorno-title">
+  <Container size="wide">
+    <Chapter
+      index={index}
+      eyebrow="Experiencia"
+      title={title}
+      description={description}
+      id="entorno-title"
+      actionHref={actionHref}
+      actionLabel={actionLabel}
+      titleWidth="18ch"
+    />
+  </Container>
+
+  <Container size="wide" class="experience__viewport">
+    {/* `tabindex` permite desplazar el carril con el teclado en móvil. */}
+    <ul class="experience__row" role="list" tabindex="0" aria-label="Lugares cercanos a la casa">
+      {
+        places.map((place, i) => (
+          <li class="experience__item">
+            <NearbyPlaceCard place={place} index={i} />
+          </li>
+        ))
+      }
+    </ul>
+  </Container>
+</Section>
+
+<style>
+  /* El carril sangra hasta el borde de la pantalla para invitar a deslizar. */
+  .experience__viewport {
+    padding-inline: 0;
+  }
+
+  .experience__row:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+    border-radius: var(--radius-md);
+  }
+
+  .experience__row {
+    display: flex;
+    gap: var(--space-md);
+    margin: 0;
+    padding: var(--space-2xs) var(--gutter) var(--space-md);
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline-start: var(--gutter);
+    scrollbar-width: thin;
+    overscroll-behavior-inline: contain;
+  }
+
+  .experience__item {
+    flex: 0 0 min(78%, 20rem);
+    scroll-snap-align: start;
+    display: flex;
+  }
+
+  .experience__item > :global(*) {
+    width: 100%;
+  }
+
+  @media (min-width: 48rem) {
+    .experience__viewport {
+      padding-inline: var(--gutter);
+    }
+
+    .experience__row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-lg);
+      padding: 0;
+      overflow: visible;
+    }
+
+    .experience__item {
+      flex: initial;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .experience__row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,170 @@
+---
+/**
+ * ENCABEZADO DE CAPÍTULO
+ * =============================================================================
+ * Pieza de ritmo editorial: numeral, antetítulo, titular, entradilla y, si hace
+ * falta, una acción alineada a la derecha en pantallas grandes.
+ *
+ * Sustituye a los encabezados sueltos para que todas las secciones compartan la
+ * misma estructura y jerarquía.
+ */
+import Button from './Button.astro';
+
+interface Props {
+  /** Numeral editorial, p. ej. "01". Se oculta a lectores de pantalla. */
+  index?: string;
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  level?: 'h1' | 'h2' | 'h3';
+  align?: 'start' | 'center';
+  tone?: 'default' | 'inverse';
+  /** Acción opcional (enlace de sección). */
+  actionHref?: string;
+  actionLabel?: string;
+  id?: string;
+  class?: string;
+  titleWidth?: string;
+}
+
+const {
+  index,
+  eyebrow,
+  title,
+  description,
+  level: Tag = 'h2',
+  align = 'start',
+  tone = 'default',
+  actionHref,
+  actionLabel,
+  id,
+  class: className,
+  titleWidth = '22ch',
+  ...rest
+} = Astro.props;
+---
+
+<header
+  class:list={[
+    'chapter',
+    `chapter--${align}`,
+    tone === 'inverse' && 'chapter--inverse',
+    className,
+  ]}
+  {...rest}
+>
+  <div class="chapter__lead">
+    {
+      (index || eyebrow) && (
+        <p class="chapter__meta">
+          {index && <span class="numeral chapter__index" aria-hidden="true">{index}</span>}
+          {eyebrow && <span class="eyebrow eyebrow--plain chapter__eyebrow">{eyebrow}</span>}
+        </p>
+      )
+    }
+    <Tag id={id} class="chapter__title" style={`--chapter-title-width:${titleWidth}`}>
+      {title}
+    </Tag>
+    {description && <p class="chapter__description">{description}</p>}
+    <slot />
+  </div>
+
+  {
+    actionHref && actionLabel && (
+      <div class="chapter__action">
+        <Button
+          href={actionHref}
+          variant={tone === 'inverse' ? 'outline-light' : 'outline'}
+          size="sm"
+          icon="arrow-right"
+        >
+          {actionLabel}
+        </Button>
+      </div>
+    )
+  }
+</header>
+
+<style>
+  .chapter {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    margin-block-end: var(--space-2xl);
+    padding-block-start: var(--space-lg);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .chapter__lead {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .chapter__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .chapter__index {
+    color: var(--color-primary);
+    font-weight: var(--weight-medium);
+  }
+
+  .chapter__title {
+    max-width: var(--chapter-title-width);
+    text-wrap: balance;
+  }
+
+  .chapter__description {
+    max-width: 58ch;
+    color: var(--color-text-muted);
+    font-size: var(--text-lead);
+    line-height: var(--leading-relaxed);
+  }
+
+  .chapter--center {
+    align-items: center;
+    text-align: center;
+  }
+
+  .chapter--center .chapter__lead {
+    align-items: center;
+  }
+
+  .chapter--inverse {
+    border-block-start-color: var(--color-border-inverse);
+  }
+
+  .chapter--inverse .chapter__index {
+    color: var(--color-primary-light);
+  }
+
+  .chapter--inverse .chapter__eyebrow {
+    color: var(--color-primary-light);
+  }
+
+  .chapter--inverse .chapter__description {
+    color: var(--color-text-inverse-muted);
+  }
+
+  @media (min-width: 64rem) {
+    .chapter {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-2xl);
+      margin-block-end: var(--space-3xl);
+    }
+
+    .chapter--center {
+      flex-direction: column;
+    }
+
+    .chapter__action {
+      flex-shrink: 0;
+      padding-block-end: var(--space-2xs);
+    }
+  }
+</style>

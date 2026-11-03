@@ -1,0 +1,277 @@
+---
+/**
+ * UBICACIÓN — mapa, accesos y qué hay alrededor.
+ */
+import LocationMap from '../components/location/LocationMap.astro';
+import NearbyPlaces from '../components/location/NearbyPlaces.astro';
+import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
+import Chapter from '../components/ui/Chapter.astro';
+import Container from '../components/ui/Container.astro';
+import Icon from '../components/ui/Icon.astro';
+import PlaceholderNotice from '../components/ui/PlaceholderNotice.astro';
+import PlaceholderValue from '../components/ui/PlaceholderValue.astro';
+import Section from '../components/ui/Section.astro';
+import { formattedAddress, formattedCity, site } from '../config/site.js';
+import PageLayout from '../layouts/PageLayout.astro';
+import { getNearbyPlaces } from '../lib/services/content.service.js';
+import { googleDirectionsLink, googleMapsLink } from '../lib/utils/maps.js';
+
+const places = await getNearbyPlaces();
+const directions = googleDirectionsLink();
+const mapsUrl = googleMapsLink();
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Ubicación', href: '/ubicacion' },
+];
+
+const details = [
+  {
+    label: 'Dirección',
+    value: site.location.address ? formattedAddress() : null,
+    fallback: 'Se comparte al confirmar la reserva',
+  },
+  { label: 'Zona', value: site.location.area, fallback: 'Por confirmar' },
+  { label: 'Referencia', value: site.location.reference, fallback: 'Por confirmar' },
+  { label: 'Ciudad', value: formattedCity(), fallback: 'Por confirmar' },
+];
+
+const arrivals = [
+  {
+    icon: 'car',
+    title: 'En auto',
+    text: 'Ica está conectada con Lima y el sur por la Panamericana Sur. Las indicaciones de acceso se comparten al confirmar la reserva.',
+  },
+  {
+    icon: 'compass',
+    title: 'En bus',
+    text: 'Los terminales interprovinciales de la ciudad concentran las llegadas desde Lima, Paracas y Nasca.',
+  },
+  {
+    icon: 'map-pin',
+    title: 'Última milla',
+    text: 'Compartimos la referencia exacta y el punto de encuentro por WhatsApp antes de tu llegada.',
+  },
+];
+---
+
+<PageLayout
+  title="Ubicación y cómo llegar"
+  description="Dónde está Casa Blanco en Ica, cómo llegar en auto o en bus y qué lugares de interés quedan cerca de la propiedad."
+  heading="Dónde está la casa"
+  eyebrow="Ubicación"
+  intro="Casa Blanco está en Ica, Perú. Aquí encontrarás la zona, cómo llegar y los puntos de interés más próximos."
+  breadcrumbs={breadcrumbs}
+  ctaTopWave="background"
+>
+  <Section tone="default" container="none" aria-labelledby="mapa-title">
+    <Container size="wide">
+      <Chapter
+        index="01"
+        eyebrow="La zona"
+        title="Entre la ciudad y el desierto"
+        id="mapa-title"
+        titleWidth="16ch"
+      />
+
+      <div class="location">
+        <LocationMap class="location__map" ratio="4 / 3" />
+
+        <Card tone="surface" padding="lg" class="location__card">
+          <dl class="details">
+            {
+              details.map((item) => (
+                <div class="details__item">
+                  <dt>{item.label}</dt>
+                  <dd>
+                    <PlaceholderValue value={item.value} fallback={item.fallback} />
+                  </dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <div class="location__actions">
+            {
+              directions && (
+                <Button href={directions} variant="primary" icon="arrow-up-right" external>
+                  Cómo llegar
+                </Button>
+              )
+            }
+            {
+              mapsUrl && (
+                <Button href={mapsUrl} variant="outline" icon="map-pin" iconPosition="start" external>
+                  Ver en Google Maps
+                </Button>
+              )
+            }
+            {
+              !directions && !mapsUrl && (
+                <Button href="/contacto" variant="primary" icon="arrow-right">
+                  Pedir indicaciones
+                </Button>
+              )
+            }
+          </div>
+
+          <PlaceholderNotice
+            text="Al completar la dirección (o la latitud y longitud) en src/config/site.ts aparecen los enlaces a Google Maps; con la clave PUBLIC_GOOGLE_MAPS_API_KEY el mapa se incrusta en la página."
+            class="location__notice"
+          />
+        </Card>
+      </div>
+    </Container>
+  </Section>
+
+  <Section tone="surface" container="none" aria-labelledby="llegar-title">
+    <Container size="wide">
+      <Chapter
+        index="02"
+        eyebrow="Accesos"
+        title="Cómo llegar"
+        id="llegar-title"
+        titleWidth="12ch"
+      />
+      <ul class="arrivals" role="list">
+        {
+          arrivals.map((item, index) => (
+            <li class="arrivals__item">
+              <Card tone="outline" padding="lg" class="arrival">
+                <span class="numeral arrival__index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="arrival__icon">
+                  <Icon name={item.icon} size={18} />
+                </span>
+                <h3 class="arrival__title">{item.title}</h3>
+                <p class="arrival__text">{item.text}</p>
+              </Card>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </Section>
+
+  <Section tone="default" container="none" aria-labelledby="cerca-title">
+    <Container size="wide">
+      <Chapter
+        index="03"
+        eyebrow="Alrededores"
+        title="Qué hay cerca"
+        description="Los tiempos se publican una vez medidos desde la dirección real de la propiedad."
+        id="cerca-title"
+        actionHref="/experiencia"
+        actionLabel="Ver la experiencia completa"
+        titleWidth="12ch"
+      />
+      <NearbyPlaces places={places} withImages={false} columns={3} />
+    </Container>
+  </Section>
+</PageLayout>
+
+<style>
+  .location {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  .location__map :global(.map) {
+    box-shadow: var(--shadow-md);
+  }
+
+  .details {
+    display: grid;
+    gap: var(--space-lg);
+    margin: 0;
+  }
+
+  .details dt {
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .details dd {
+    margin: 0.3rem 0 0;
+    font-size: var(--text-body);
+    line-height: var(--leading-normal);
+  }
+
+  .location__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-xl);
+  }
+
+  .location__notice {
+    margin-block-start: var(--space-lg);
+  }
+
+  .arrivals {
+    display: grid;
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .arrivals__item {
+    display: flex;
+  }
+
+  .arrival {
+    width: 100%;
+    gap: var(--space-2xs);
+  }
+
+  .arrival__index {
+    color: var(--color-primary);
+  }
+
+  .arrival__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-block: var(--space-sm) var(--space-xs);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+  }
+
+  .arrival__title {
+    font-size: var(--text-h3);
+  }
+
+  .arrival__text {
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 40rem) {
+    .details {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .arrivals {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-lg);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .location {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: var(--space-2xl);
+      align-items: start;
+    }
+  }
+</style>

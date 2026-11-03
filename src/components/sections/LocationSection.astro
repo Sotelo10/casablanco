@@ -1,0 +1,186 @@
+---
+/**
+ * CAPÍTULO DE UBICACIÓN
+ * =============================================================================
+ * Mapa (o su marcador) junto a los datos de acceso. Refuerza la confianza:
+ * el visitante ve dónde está la casa y cómo llegar antes de escribir.
+ */
+import { formattedAddress } from '../../config/site.js';
+import { googleDirectionsLink } from '../../lib/utils/maps.js';
+import LocationMap from '../location/LocationMap.astro';
+import Button from '../ui/Button.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  index?: string;
+  tone?: 'default' | 'surface' | 'muted';
+}
+
+const { index = '06', tone = 'default' } = Astro.props;
+const directions = googleDirectionsLink();
+
+const points = [
+  {
+    icon: 'car',
+    title: 'Llegada en auto',
+    text: 'Ica conecta con Lima y el sur por la Panamericana Sur. Compartimos las indicaciones de acceso al confirmar la reserva.',
+  },
+  {
+    icon: 'map-pin',
+    title: 'Punto de encuentro',
+    text: 'Te enviamos la dirección exacta y una referencia visual antes de tu llegada, para que no tengas que buscar.',
+  },
+  {
+    icon: 'clock',
+    title: 'Coordinación del ingreso',
+    text: 'Acordamos contigo la hora de entrada y quién te recibe, sin recepción ni esperas.',
+  },
+];
+---
+
+<Section tone={tone} container="none" aria-labelledby="ubicacion-title">
+  <Container size="wide">
+    <Chapter
+      index={index}
+      eyebrow="Ubicación"
+      title="En Ica, con el oasis a un trayecto corto"
+      id="ubicacion-title"
+      actionHref="/ubicacion"
+      actionLabel="Ver ubicación y accesos"
+      titleWidth="18ch"
+    />
+
+    <div class="location">
+      <LocationMap class="location__map" ratio="4 / 3" />
+
+      <div class="location__body">
+        <p class="location__address">
+          <Icon name="map-pin" size={18} />
+          {formattedAddress()}
+        </p>
+        <p class="location__note">
+          La dirección exacta y las referencias para llegar se comparten al confirmar la reserva.
+        </p>
+
+        <ul class="location__points" role="list">
+          {
+            points.map((point) => (
+              <li class="location__point">
+                <span class="location__point-icon">
+                  <Icon name={point.icon} size={16} />
+                </span>
+                <div>
+                  <h3 class="location__point-title">{point.title}</h3>
+                  <p class="location__point-text">{point.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="location__actions">
+          <Button href="/ubicacion" variant="outline" icon="arrow-right">Cómo llegar</Button>
+          {
+            directions && (
+              <Button href={directions} variant="link" icon="arrow-up-right" external>
+                Abrir en Google Maps
+              </Button>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .location {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  .location__map :global(.map) {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .location__address {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+  }
+
+  .location__address :global(svg) {
+    color: var(--color-primary);
+  }
+
+  .location__note {
+    margin-block-start: var(--space-xs);
+    max-width: 44ch;
+    font-size: var(--text-body-sm);
+    color: var(--color-text-muted);
+  }
+
+  .location__points {
+    display: grid;
+    gap: var(--space-md);
+    margin-block-start: var(--space-xl);
+    padding-block-start: var(--space-lg);
+    border-block-start: 1px solid var(--color-border);
+    list-style: none;
+    padding-inline: 0;
+  }
+
+  .location__point {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .location__point-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+  }
+
+  .location__point-title {
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-normal);
+  }
+
+  .location__point-text {
+    margin-block-start: 0.15rem;
+    max-width: 46ch;
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .location__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-md);
+    margin-block-start: var(--space-xl);
+  }
+
+  @media (min-width: 64rem) {
+    .location {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      gap: var(--space-3xl);
+      align-items: center;
+    }
+  }
+</style>

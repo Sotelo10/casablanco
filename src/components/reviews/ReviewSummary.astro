@@ -1,0 +1,152 @@
+---
+/**
+ * Resumen de valoraciones: promedio, total y distribución por estrellas.
+ * Recibe el resumen ya calculado por el servicio: sin lógica propia, listo para
+ * datos dinámicos.
+ */
+import { formatRating } from '../../lib/utils/format.js';
+import type { ReviewSummary } from '../../types/content.js';
+import Card from '../ui/Card.astro';
+import StarRating from './StarRating.astro';
+
+interface Props {
+  summary: ReviewSummary;
+  class?: string;
+}
+
+const { summary, class: className, ...rest } = Astro.props;
+const levels = [5, 4, 3, 2, 1] as const;
+---
+
+<Card tone="surface" padding="lg" class:list={['summary', className]} {...rest}>
+  <div class="summary__score">
+    <p class="summary__value">
+      {summary.average === null ? '—' : formatRating(summary.average)}
+      <span class="summary__max">/ 5</span>
+    </p>
+    <StarRating value={summary.average ?? 0} size={17} />
+    <p class="summary__total">
+      {summary.total} {summary.total === 1 ? 'reseña' : 'reseñas'}
+      {summary.isDemo && <span class="summary__demo">de ejemplo</span>}
+    </p>
+  </div>
+
+  <dl class="summary__distribution">
+    {
+      levels.map((level) => {
+        const count = summary.distribution[level];
+        const percentage = summary.total > 0 ? Math.round((count / summary.total) * 100) : 0;
+        return (
+          <div class="summary__row">
+            <dt class="summary__level">
+              {level}
+              <span class="visually-hidden">estrellas</span>
+            </dt>
+            <dd class="summary__bar-cell">
+              <span class="summary__bar" style={`--fill:${percentage}%`} aria-hidden="true" />
+              <span class="summary__count">{count}</span>
+            </dd>
+          </div>
+        );
+      })
+    }
+  </dl>
+</Card>
+
+<style>
+  .summary {
+    gap: var(--space-xl);
+  }
+
+  .summary__score {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    align-items: flex-start;
+  }
+
+  .summary__value {
+    font-family: var(--font-heading);
+    font-size: clamp(2.75rem, 2.2rem + 2vw, 3.75rem);
+    line-height: 1;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .summary__max {
+    font-family: var(--font-body);
+    font-size: 1.15rem;
+    color: var(--color-text-muted);
+  }
+
+  .summary__total {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .summary__demo {
+    margin-inline-start: 0.35em;
+    font-style: italic;
+  }
+
+  .summary__distribution {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin: 0;
+  }
+
+  .summary__row {
+    display: grid;
+    grid-template-columns: 1.75rem 1fr;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .summary__level {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .summary__bar-cell {
+    display: grid;
+    grid-template-columns: 1fr 1.75rem;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: 0;
+  }
+
+  .summary__bar {
+    position: relative;
+    height: 5px;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-surface-soft);
+    overflow: hidden;
+  }
+
+  .summary__bar::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: var(--fill);
+    border-radius: inherit;
+    background-color: var(--color-primary);
+  }
+
+  .summary__count {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    text-align: end;
+  }
+
+  @media (min-width: 48rem) {
+    .summary {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: var(--space-2xl);
+    }
+  }
+</style>

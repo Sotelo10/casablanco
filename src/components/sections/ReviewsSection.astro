@@ -1,0 +1,106 @@
+---
+/**
+ * CAPÍTULO DE RESEÑAS
+ * =============================================================================
+ * Una reseña destacada a gran tamaño, el resumen de valoraciones al lado y el
+ * resto en rejilla. La jerarquía evita el muro de tarjetas idénticas.
+ */
+import type { Review, ReviewSummary } from '../../types/content.js';
+import ReviewCard from '../reviews/ReviewCard.astro';
+import ReviewSummaryCard from '../reviews/ReviewSummary.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import PlaceholderNotice from '../ui/PlaceholderNotice.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  reviews: Review[];
+  summary: ReviewSummary;
+  index?: string;
+  actionHref?: string;
+  actionLabel?: string;
+  tone?: 'default' | 'surface' | 'muted';
+}
+
+const {
+  reviews,
+  summary,
+  index = '05',
+  actionHref = '/resenas',
+  actionLabel = 'Ver todas las reseñas',
+  tone = 'surface',
+} = Astro.props;
+
+const [featured, ...rest] = reviews;
+const secondary = rest.slice(0, 2);
+---
+
+<Section tone={tone} container="none" aria-labelledby="resenas-title">
+  <Container size="wide">
+    <Chapter
+      index={index}
+      eyebrow="Reseñas"
+      title="Lo que cuentan los huéspedes"
+      id="resenas-title"
+      actionHref={actionHref}
+      actionLabel={actionLabel}
+      titleWidth="16ch"
+    />
+
+    {
+      summary.isDemo && (
+        <PlaceholderNotice
+          text="Las reseñas mostradas son contenido de demostración: se sustituyen por opiniones verificadas de huéspedes reales."
+          class="reviews__notice"
+        />
+      )
+    }
+
+    <div class="reviews">
+      {featured && <ReviewCard review={featured} variant="feature" class="reviews__feature" />}
+      <ReviewSummaryCard summary={summary} class="reviews__summary" />
+      {secondary.map((review) => <ReviewCard review={review} class="reviews__item" />)}
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .reviews__notice {
+    margin-block-end: var(--space-lg);
+  }
+
+  .reviews {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 48rem) {
+    .reviews {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-lg);
+    }
+
+    .reviews__feature,
+    .reviews__summary {
+      grid-column: span 2;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .reviews {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .reviews__feature {
+      grid-column: span 7;
+    }
+
+    .reviews__summary {
+      grid-column: span 5;
+    }
+
+    .reviews__item {
+      grid-column: span 6;
+    }
+  }
+</style>

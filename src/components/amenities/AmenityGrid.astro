@@ -1,0 +1,188 @@
+---
+/**
+ * SERVICIOS Y EQUIPAMIENTO
+ * =============================================================================
+ * Cada servicio se presenta como una fila con icono en círculo y filete
+ * inferior: se lee rápido y aguanta bien listas largas.
+ *
+ * Los elementos sin verificar se muestran atenuados y con la etiqueta "Por
+ * confirmar": la web nunca afirma que la propiedad tiene algo no comprobado.
+ * Al poner `confirmed: true` en `src/data/amenities.ts` pasan a servicio
+ * disponible.
+ */
+import { amenityGroups } from '../../data/amenities.js';
+import type { Amenity } from '../../types/content.js';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  amenities: Amenity[];
+  /** Agrupa por categoría con subtítulos (vista completa de "La casa"). */
+  grouped?: boolean;
+  columns?: 2 | 3;
+  class?: string;
+}
+
+const { amenities, grouped = false, columns = 3, class: className, ...rest } = Astro.props;
+
+const groups = grouped
+  ? amenityGroups
+      .map((group) => ({ ...group, items: amenities.filter((a) => a.group === group.id) }))
+      .filter((group) => group.items.length > 0)
+  : [];
+---
+
+{
+  grouped ? (
+    <div class:list={['groups', className]} {...rest}>
+      {groups.map((group, index) => (
+        <section class="group">
+          <div class="group__head">
+            <span class="numeral group__index" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <h3 class="group__title">{group.title}</h3>
+            <p class="group__description">{group.description}</p>
+          </div>
+          <ul class="list" style={`--columns:${columns}`} role="list">
+            {group.items.map((amenity) => (
+              <li class:list={['amenity', !amenity.confirmed && 'amenity--pending']}>
+                <span class="amenity__badge">
+                  <Icon name={amenity.icon} size={17} />
+                </span>
+                <span class="amenity__body">
+                  <span class="amenity__name">{amenity.name}</span>
+                  {amenity.detail && <span class="amenity__detail">{amenity.detail}</span>}
+                </span>
+                {!amenity.confirmed && <span class="amenity__pending">Por confirmar</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  ) : (
+    <ul class:list={['list', className]} style={`--columns:${columns}`} role="list" {...rest}>
+      {amenities.map((amenity) => (
+        <li class:list={['amenity', !amenity.confirmed && 'amenity--pending']}>
+          <span class="amenity__badge">
+            <Icon name={amenity.icon} size={17} />
+          </span>
+          <span class="amenity__body">
+            <span class="amenity__name">{amenity.name}</span>
+            {amenity.detail && <span class="amenity__detail">{amenity.detail}</span>}
+          </span>
+          {!amenity.confirmed && <span class="amenity__pending">Por confirmar</span>}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .groups {
+    display: grid;
+    gap: var(--space-3xl);
+  }
+
+  .group__head {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    gap: 0.35rem var(--space-md);
+    margin-block-end: var(--space-lg);
+    padding-block-end: var(--space-sm);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .group__index {
+    color: var(--color-primary);
+  }
+
+  .group__title {
+    font-size: var(--text-h3);
+  }
+
+  .group__description {
+    grid-column: 2;
+    max-width: 52ch;
+    font-size: var(--text-body-sm);
+    color: var(--color-text-muted);
+  }
+
+  .list {
+    display: grid;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .amenity {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding-block: var(--space-md);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .amenity__badge {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+  }
+
+  .amenity__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .amenity__name {
+    font-size: var(--text-body-sm);
+    font-weight: var(--weight-medium);
+  }
+
+  .amenity__detail {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .amenity__pending {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-3xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .amenity--pending .amenity__badge {
+    background-color: var(--color-surface-soft);
+    color: var(--color-text-muted);
+  }
+
+  .amenity--pending .amenity__name {
+    color: var(--color-text-muted);
+    font-weight: var(--weight-regular);
+  }
+
+  @media (min-width: 34rem) {
+    .list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-2xl);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .list {
+      grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,122 @@
+---
+/**
+ * Elemento de la galería.
+ * Es un `<button>` real: funciona con teclado, con lector de pantalla y sin
+ * ratón. Al pulsarlo, el lightbox clona su contenido.
+ */
+import PropertyImage from '../media/PropertyImage.astro';
+import type { GalleryImage } from '../../types/content.js';
+
+interface Props {
+  image: GalleryImage;
+  index: number;
+  sizes?: string;
+  ratio?: string;
+  priority?: boolean;
+  class?: string;
+}
+
+const { image, index, sizes, ratio, priority = false, class: className, ...rest } = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={['item', className]}
+  data-gallery-item
+  data-index={index}
+  data-label={image.label}
+  data-alt={image.alt}
+  data-caption={image.caption ?? ''}
+  data-orientation={image.orientation}
+  aria-label={`Ampliar imagen: ${image.label}`}
+  {...rest}
+>
+  <PropertyImage
+    image={image}
+    sizes={sizes}
+    ratio={ratio}
+    priority={priority}
+    as="div"
+    class="item__media"
+  />
+  <span class="item__label">{image.label}</span>
+</button>
+
+<style>
+  .item {
+    position: relative;
+    display: block;
+    flex: 1;
+    width: 100%;
+    border-radius: var(--radius-lg);
+    /* Cada pieza rellena su celda: las filas del mosaico quedan a ras, sin
+       huecos, tanto con mockups como con fotografías reales. */
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--color-surface-soft);
+    text-align: start;
+  }
+
+  .item :global(.frame),
+  .item :global(.frame__media),
+  .item :global(.plate) {
+    height: 100%;
+  }
+
+  .item :global(.frame__img) {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgb(var(--deep-rgb) / 62%) 0%,
+      rgb(var(--deep-rgb) / 0%) 48%
+    );
+    opacity: 0;
+    transition: opacity var(--duration) var(--ease-out);
+    pointer-events: none;
+  }
+
+  .item__label {
+    position: absolute;
+    inset-block-end: var(--space-md);
+    inset-inline-start: var(--space-md);
+    z-index: 1;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-inverse);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity var(--duration) var(--ease-out), transform var(--duration) var(--ease-out);
+    pointer-events: none;
+  }
+
+  .item:hover::after,
+  .item:focus-visible::after,
+  .item:hover .item__label,
+  .item:focus-visible .item__label {
+    opacity: 1;
+  }
+
+  .item:hover .item__label,
+  .item:focus-visible .item__label {
+    transform: none;
+  }
+
+  .item :global(.item__media) {
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .item:hover :global(.item__media) {
+      transform: scale(1.02);
+    }
+  }
+</style>

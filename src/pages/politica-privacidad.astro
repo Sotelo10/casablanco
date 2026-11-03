@@ -1,0 +1,80 @@
+---
+/**
+ * Política de privacidad — plantilla base.
+ * Los apartados marcados deben completarse con los datos reales del responsable
+ * del tratamiento antes de publicar el sitio.
+ */
+import LegalArticle from '../components/layout/LegalArticle.astro';
+import Section from '../components/ui/Section.astro';
+import { site } from '../config/site.js';
+import PageLayout from '../layouts/PageLayout.astro';
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Política de privacidad', href: '/politica-privacidad' },
+];
+---
+
+<PageLayout
+  title="Política de privacidad"
+  description="Cómo se tratan los datos personales enviados a través del formulario de consulta de disponibilidad."
+  heading="Política de privacidad"
+  eyebrow="Información legal"
+  breadcrumbs={breadcrumbs}
+  showCta={false}
+>
+  <Section container="narrow">
+    <LegalArticle>
+      <h2>Responsable del tratamiento</h2>
+      <p>
+        Los datos personales facilitados a través de este sitio son tratados por el titular de la
+        propiedad {site.name}, ubicada en {site.location.city}, {site.location.country}.
+      </p>
+      <p class="legal-todo">
+        Completar con la razón social o el nombre del titular, el número de documento y el domicilio
+        fiscal antes de publicar el sitio.
+      </p>
+
+      <h2>Datos que se recogen</h2>
+      <p>
+        A través del formulario de consulta de disponibilidad se recogen únicamente los datos
+        necesarios para responder a la solicitud:
+      </p>
+      <ul>
+        <li>Nombre y apellido.</li>
+        <li>Teléfono o número de WhatsApp.</li>
+        <li>Correo electrónico, cuando se facilita.</li>
+        <li>Fechas de estancia y número de huéspedes.</li>
+        <li>El mensaje que decidas escribir.</li>
+      </ul>
+
+      <h2>Finalidad</h2>
+      <p>
+        Los datos se utilizan exclusivamente para responder a la consulta, confirmar disponibilidad
+        y coordinar la estancia. No se emplean para envíos comerciales no solicitados.
+      </p>
+
+      <h2>Conservación</h2>
+      <p class="legal-todo">
+        Indicar durante cuánto tiempo se conservan las consultas recibidas.
+      </p>
+
+      <h2>Destinatarios</h2>
+      <p class="legal-todo">
+        Enumerar los proveedores que tratan datos por cuenta del titular (por ejemplo, el proveedor
+        de alojamiento web o la base de datos utilizada para almacenar las consultas).
+      </p>
+
+      <h2>Derechos</h2>
+      <p>
+        Puedes solicitar el acceso, la rectificación o la eliminación de tus datos escribiendo a los
+        canales de contacto publicados en este sitio.
+      </p>
+
+      <h2>Contacto</h2>
+      <p class="legal-todo">
+        Añadir el correo electrónico de contacto para ejercer los derechos sobre los datos.
+      </p>
+    </LegalArticle>
+  </Section>
+</PageLayout>

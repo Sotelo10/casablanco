@@ -1,0 +1,72 @@
+---
+/**
+ * Puntuación en estrellas.
+ * Accesible: el valor se comunica por texto, no sólo por color o forma.
+ */
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  /** Valor de 0 a 5; admite decimales. */
+  value: number;
+  size?: number;
+  /** Texto accesible alternativo. */
+  label?: string;
+  tone?: 'accent' | 'inverse';
+  class?: string;
+}
+
+const { value, size = 16, label, tone = 'accent', class: className, ...rest } = Astro.props;
+const clamped = Math.max(0, Math.min(5, value));
+const percentage = (clamped / 5) * 100;
+const stars = [0, 1, 2, 3, 4];
+---
+
+<span
+  class:list={['stars', `stars--${tone}`, className]}
+  style={`--stars-fill:${percentage}%;--stars-size:${size}px`}
+  role="img"
+  aria-label={label ?? `Puntuación de ${clamped.toFixed(1)} sobre 5`}
+  {...rest}
+>
+  <span class="stars__track" aria-hidden="true">
+    {stars.map(() => <Icon name="star" size={size} class="stars__star" />)}
+  </span>
+  <span class="stars__fill" aria-hidden="true">
+    {stars.map(() => <Icon name="star" size={size} class="stars__star" />)}
+  </span>
+</span>
+
+<style>
+  .stars {
+    position: relative;
+    display: inline-flex;
+    line-height: 0;
+  }
+
+  .stars__track,
+  .stars__fill {
+    display: inline-flex;
+    gap: 0.12em;
+  }
+
+  .stars__track {
+    color: var(--color-border-strong);
+  }
+
+  .stars__fill {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: var(--stars-fill);
+    overflow: hidden;
+    color: var(--color-accent);
+  }
+
+  .stars--inverse .stars__track {
+    color: rgb(var(--white-rgb) / 28%);
+  }
+
+  .stars--inverse .stars__fill {
+    color: var(--color-accent);
+  }
+</style>

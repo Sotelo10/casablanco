@@ -1,0 +1,68 @@
+---
+/** Bloque de sección con ritmo vertical y fondo coherentes. */
+import Container from './Container.astro';
+
+export interface Props {
+  id?: string;
+  /** Fondo de la sección. */
+  tone?: 'default' | 'surface' | 'muted' | 'sand' | 'deep';
+  size?: 'default' | 'compact';
+  container?: 'narrow' | 'default' | 'wide' | 'full' | 'none';
+  class?: string;
+  as?: 'section' | 'div' | 'article';
+  'aria-labelledby'?: string;
+}
+
+const {
+  id,
+  tone = 'default',
+  size = 'default',
+  container = 'default',
+  class: className,
+  as: Tag = 'section',
+  ...rest
+} = Astro.props;
+---
+
+<Tag
+  id={id}
+  class:list={['section', `section--${tone}`, size === 'compact' && 'section--compact', className]}
+  {...rest}
+>
+  {
+    container === 'none' ? (
+      <slot />
+    ) : (
+      <Container size={container}>
+        <slot />
+      </Container>
+    )
+  }
+</Tag>
+
+<style>
+  .section {
+    padding-block: var(--section-space);
+  }
+
+  .section--compact {
+    padding-block: var(--section-space-sm);
+  }
+
+  .section--surface {
+    background-color: var(--color-surface);
+  }
+
+  .section--muted {
+    background-color: var(--color-surface-soft);
+  }
+
+  .section--sand {
+    background-color: var(--color-surface-sand);
+  }
+
+  .section--deep {
+    background-color: var(--color-surface-deep);
+    color: var(--color-text-inverse);
+  }
+</style>

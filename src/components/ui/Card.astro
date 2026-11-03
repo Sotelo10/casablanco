@@ -1,0 +1,114 @@
+---
+/**
+ * Tarjeta base del sistema. Unifica fondo, borde, radio y elevación para que
+ * ningún componente vuelva a definirlos por su cuenta.
+ */
+export interface Props {
+  /** `surface` blanca · `muted` arena · `ink` oscura · `outline` sin relleno. */
+  tone?: 'surface' | 'muted' | 'ink' | 'outline';
+  padding?: 'none' | 'sm' | 'md' | 'lg';
+  /** Añade elevación y desplazamiento al pasar el cursor. */
+  interactive?: boolean;
+  as?: 'div' | 'article' | 'section' | 'li' | 'figure';
+  class?: string;
+}
+
+const {
+  tone = 'surface',
+  padding = 'md',
+  interactive = false,
+  as: Tag = 'div',
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<Tag
+  class:list={[
+    'card',
+    `card--${tone}`,
+    `card--pad-${padding}`,
+    interactive && 'card--interactive',
+    className,
+  ]}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform var(--duration) var(--ease-emphasis),
+      box-shadow var(--duration) var(--ease-emphasis),
+      border-color var(--duration) var(--ease-out);
+  }
+
+  .card--surface {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card--muted {
+    background-color: var(--color-surface-soft);
+    border: 1px solid transparent;
+  }
+
+  .card--ink {
+    background-color: var(--color-surface-deep-soft);
+    border: 1px solid var(--color-border-inverse);
+    color: var(--color-text-inverse);
+  }
+
+  .card--outline {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+  }
+
+  .card--pad-none {
+    padding: 0;
+  }
+
+  .card--pad-sm {
+    padding: var(--space-md);
+  }
+
+  .card--pad-md {
+    padding: var(--space-lg);
+  }
+
+  .card--pad-lg {
+    padding: var(--space-xl);
+  }
+
+  @media (min-width: 48rem) {
+    .card--pad-lg {
+      padding: var(--space-2xl);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card--interactive:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+
+  .card--interactive:hover {
+    border-color: var(--color-border-strong);
+  }
+
+  .card--ink.card--interactive:hover {
+    border-color: rgb(var(--white-rgb) / 34%);
+  }
+
+  /* Cuando la tarjeta contiene un enlace principal, el foco se ve en la caja. */
+  .card:focus-within {
+    box-shadow: var(--shadow-md);
+  }
+</style>

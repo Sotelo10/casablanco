@@ -1,0 +1,47 @@
+---
+/**
+ * PREGUNTAS FRECUENTES
+ * Sólo las respuestas definitivas se publican como datos estructurados
+ * (FAQPage); las pendientes se muestran en la página pero no se envían a los
+ * buscadores.
+ */
+import FaqSection from '../components/sections/FaqSection.astro';
+import Container from '../components/ui/Container.astro';
+import PlaceholderNotice from '../components/ui/PlaceholderNotice.astro';
+import Section from '../components/ui/Section.astro';
+import PageLayout from '../layouts/PageLayout.astro';
+import { faqSchema } from '../lib/seo/schema.js';
+import { getFaqs, getPublishableFaqs } from '../lib/services/content.service.js';
+
+const faqs = getFaqs();
+const schema = faqSchema(getPublishableFaqs());
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Preguntas frecuentes', href: '/faq' },
+];
+---
+
+<PageLayout
+  title="Preguntas frecuentes"
+  description="Respuestas sobre la reserva, la capacidad, los horarios y las condiciones de Casa Blanco, casa vacacional en Ica."
+  heading="Preguntas frecuentes"
+  eyebrow="Antes de reservar"
+  intro="Las dudas más habituales antes de solicitar una reserva. Si falta alguna, escríbenos y te respondemos."
+  breadcrumbs={breadcrumbs}
+  schemas={[schema]}
+>
+  <FaqSection
+    faqs={faqs}
+    index="01"
+    title="Todo lo que suelen preguntarnos"
+    description="Las respuestas pendientes se marcan como tales: preferimos decirte que aún no está confirmado antes que darte un dato inexacto."
+    tone="default"
+  />
+
+  <Section tone="surface" container="none" size="compact">
+    <Container size="default">
+      <PlaceholderNotice text="Edita las preguntas en src/data/faq.ts. Sólo las marcadas como definitivas se publican en los datos estructurados." />
+    </Container>
+  </Section>
+</PageLayout>

@@ -1,0 +1,207 @@
+/**
+ * DESIGN TOKENS — CASA BLANCO
+ * =============================================================================
+ * Única fuente de verdad del sistema visual: color, tipografía, espaciado,
+ * radios, sombras, transiciones, contenedores y capas.
+ *
+ * Toda la identidad del sitio se cambia desde aquí. Ningún componente define un
+ * color, una sombra, un radio o una familia tipográfica por su cuenta.
+ *
+ * La dirección de arte parte de tres materiales: el CIELO de Ica (azules
+ * luminosos), el BLANCO de la arquitectura y un ORO ARENA cálido que aparece
+ * sólo en detalles. Todos los pares texto/fondo cumplen WCAG AA.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ═══ CANALES BASE ════════════════════════════════════════════════════ */
+  /* Velos, sombras y degradados se componen desde estos valores: cambiarlos
+     recalcula toda la profundidad del sitio. */
+  --sky-rgb: 111 182 228;
+  --deep-rgb: 18 49 74;
+  --white-rgb: 255 255 255;
+  --accent-rgb: 201 154 91;
+
+  /* ═══ ESCALA DE CIELO ═════════════════════════════════════════════════ */
+  --sky-50: #f4fafe;
+  --sky-100: #e9f4fc;
+  --sky-200: #cfe7f7;
+  --sky-300: #a6d4f1;
+  --sky-400: #6fb6e4;
+  --sky-500: #4a9bd4;
+  --sky-600: #2e7fb5;
+  --sky-700: #26719f;
+  --sky-800: #1b5a82;
+  --sky-900: #12314a;
+
+  /* ═══ COLOR SEMÁNTICO ═════════════════════════════════════════════════ */
+
+  /* Superficies: del marfil azulado al blanco puro */
+  --color-background: #f7fbfe;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-surface-soft: var(--sky-100);
+  --color-surface-mist: var(--sky-50);
+  --color-surface-sand: #f7f3ec; /* neutro cálido, para variar el ritmo */
+  --color-surface-sand-deep: #ece2d2;
+
+  /* Anclaje profundo: pie de página y bandas de cierre */
+  --color-surface-deep: #10293f;
+  --color-surface-deep-soft: #16384f;
+  --color-surface-deep-raised: #1d4560;
+
+  /* Texto */
+  --color-text: #12314a;
+  --color-text-soft: #2c4c68;
+  --color-text-muted: #56697c;
+  --color-text-inverse: #ffffff;
+  --color-text-inverse-muted: #c6ddee;
+
+  /* Acción principal: azul cielo profundo sobre claro, blanco sobre foto */
+  --color-primary: var(--sky-700);
+  --color-primary-dark: var(--sky-800);
+  --color-primary-light: var(--sky-400);
+  --color-primary-soft: var(--sky-100);
+  --color-primary-hover: var(--sky-800);
+  --color-primary-contrast: #ffffff;
+
+  /* Acento oro arena. Tres intensidades para mantener el contraste AA:
+     `accent` para gráficos, `accent-strong` sobre claro, `accent-light`
+     sobre fondo profundo. */
+  --color-accent: #c99a5b;
+  --color-accent-strong: #96692b;
+  --color-accent-light: #e7c08a;
+  --color-accent-hover: #8a5f26;
+  --color-accent-soft: #f6efe4;
+
+  /* Bordes y separadores */
+  --color-border: #dceaf4;
+  --color-border-strong: #bfd8e8;
+  --color-border-input: #6e8ca3; /* controles: contraste ≥ 3:1 (WCAG 1.4.11) */
+  --color-border-inverse: rgb(var(--white-rgb) / 22%);
+  --color-border-inverse-strong: rgb(var(--white-rgb) / 45%);
+
+  /* Velos y cristal */
+  --color-overlay: rgb(var(--deep-rgb) / 45%);
+  --color-overlay-soft: rgb(var(--deep-rgb) / 12%);
+  --color-veil: rgb(var(--white-rgb) / 10%);
+  --color-veil-strong: rgb(var(--white-rgb) / 18%);
+  --glass-bg: rgb(var(--white-rgb) / 16%);
+  --glass-bg-strong: rgb(var(--white-rgb) / 82%);
+  --glass-border: rgb(var(--white-rgb) / 38%);
+  --glass-blur: 16px;
+
+  --color-focus: var(--sky-700);
+  --color-danger: #b3402f;
+  --color-success: #1f7a5a;
+
+  /* ═══ TIPOGRAFÍA ══════════════════════════════════════════════════════ */
+  /* Las variables --font-* de familias las inyecta la API de fuentes de Astro
+     con sus fallbacks métricamente ajustados. */
+  --font-body: var(--font-general-sans, ui-sans-serif, system-ui, -apple-system, sans-serif);
+  --font-heading: var(--font-boska, Georgia, "Times New Roman", serif);
+  --font-script: var(--font-petit-script, "Segoe Script", cursive);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --tracking-tighter: -0.03em;
+  --tracking-tight: -0.015em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.06em;
+  --tracking-wider: 0.14em;
+  --tracking-widest: 0.24em;
+
+  --leading-none: 1;
+  --leading-tight: 1.05;
+  --leading-snug: 1.25;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* Escala fluida con fuerte contraste entre titular y texto */
+  --text-3xs: 0.625rem;
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-body-sm: 0.9375rem;
+  --text-body: clamp(1rem, 0.97rem + 0.16vw, 1.0938rem);
+  --text-lead: clamp(1.0938rem, 1rem + 0.5vw, 1.375rem);
+  --text-h4: clamp(1.0625rem, 1rem + 0.32vw, 1.25rem);
+  --text-h3: clamp(1.35rem, 1.2rem + 0.7vw, 1.75rem);
+  --text-h2: clamp(2rem, 1.5rem + 2.3vw, 3.4rem);
+  --text-h1: clamp(2.5rem, 1.75rem + 3.4vw, 4.5rem);
+  --text-display: clamp(3.25rem, 1.7rem + 6.6vw, 7.5rem);
+
+  /* ═══ ESPACIADO ═══════════════════════════════════════════════════════ */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 6rem;
+  --space-5xl: 8rem;
+
+  --section-space: clamp(3.75rem, 2.4rem + 5.2vw, 7rem);
+  --section-space-sm: clamp(2.5rem, 1.8rem + 2.8vw, 4.25rem);
+
+  /* ═══ LAYOUT ══════════════════════════════════════════════════════════ */
+  --gutter: clamp(1.25rem, 0.85rem + 2vw, 3rem);
+  --container-narrow: 46rem;
+  --container-default: 75rem;
+  --container-wide: 88rem;
+  --container-full: 100rem;
+
+  --header-height: 4.25rem;
+  --mobile-bar-height: 4.5rem;
+
+  /* ═══ FORMA Y ELEVACIÓN ═══════════════════════════════════════════════ */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --radius-2xl: 44px;
+  --radius-pill: 999px;
+
+  /* Sombras teñidas de azul profundo: luz natural, no gris fotográfico */
+  --shadow-xs: 0 1px 2px rgb(var(--deep-rgb) / 6%);
+  --shadow-sm: 0 1px 2px rgb(var(--deep-rgb) / 5%), 0 6px 16px -10px rgb(var(--deep-rgb) / 16%);
+  --shadow-md: 0 8px 20px -12px rgb(var(--deep-rgb) / 20%),
+    0 20px 44px -28px rgb(var(--deep-rgb) / 24%);
+  --shadow-lg: 0 16px 40px -20px rgb(var(--deep-rgb) / 24%),
+    0 44px 90px -50px rgb(var(--deep-rgb) / 32%);
+  --shadow-glass: 0 10px 34px -14px rgb(var(--deep-rgb) / 28%);
+  --shadow-ring: inset 0 0 0 1px rgb(var(--deep-rgb) / 6%);
+
+  /* ═══ MOVIMIENTO ══════════════════════════════════════════════════════ */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 160ms;
+  --duration: 280ms;
+  --duration-slow: 560ms;
+  --transition-fast: var(--duration-fast) var(--ease-out);
+  --transition-base: var(--duration) var(--ease-out);
+  --transition-emphasis: var(--duration) var(--ease-emphasis);
+  --transition-slow: var(--duration-slow) var(--ease-emphasis);
+
+  /* ═══ CAPAS ═══════════════════════════════════════════════════════════ */
+  --z-base: 1;
+  --z-raised: 10;
+  --z-sticky: 40;
+  --z-header: 50;
+  --z-overlay: 60;
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --header-height: 5.5rem;
+  }
+}

@@ -1,0 +1,89 @@
+---
+/**
+ * CAPÍTULO DE GALERÍA
+ * =============================================================================
+ * Se presenta sobre tinta: el fondo oscuro aísla las imágenes del resto de la
+ * página y hace que la fotografía sea lo único que compite por la atención.
+ */
+import Gallery from '../gallery/Gallery.astro';
+import Button from '../ui/Button.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import Section from '../ui/Section.astro';
+import type { GalleryImage } from '../../types/content.js';
+
+interface Props {
+  images: GalleryImage[];
+  index?: string;
+  title?: string;
+  description?: string;
+  /** Sin acción, la sección se muestra sin enlaces (página de galería). */
+  actionHref?: string | null;
+  actionLabel?: string | null;
+  priorityCount?: number;
+}
+
+const {
+  images,
+  index = '03',
+  title = 'La casa, ambiente por ambiente',
+  description = 'Una selección de los espacios principales. Pulsa cualquier imagen para verla a pantalla completa.',
+  actionHref = '/galeria',
+  actionLabel = 'Ver galería completa',
+  priorityCount = 0,
+} = Astro.props;
+
+const hasAction = Boolean(actionHref && actionLabel);
+---
+
+<Section tone="deep" container="none" aria-labelledby="galeria-title" class="gallery-chapter">
+  <Container size="wide">
+    <Chapter
+      index={index}
+      eyebrow="Galería"
+      title={title}
+      description={description}
+      id="galeria-title"
+      tone="inverse"
+      actionHref={hasAction ? actionHref! : undefined}
+      actionLabel={hasAction ? actionLabel! : undefined}
+      titleWidth="20ch"
+    />
+
+    <Gallery images={images} priorityCount={priorityCount} />
+
+    {
+      hasAction && (
+        <div class="gallery-chapter__action">
+          <Button href={actionHref!} variant="outline-light" icon="arrow-right">
+            {actionLabel}
+          </Button>
+        </div>
+      )
+    }
+  </Container>
+</Section>
+
+<style>
+  .gallery-chapter {
+    /* Halo cálido muy tenue: evita que el bloque oscuro se lea como un vacío. */
+    background-image: radial-gradient(
+      95% 65% at 12% 0%,
+      rgb(var(--sky-rgb) / 22%) 0%,
+      transparent 62%
+    );
+  }
+
+  .gallery-chapter__action {
+    display: flex;
+    justify-content: center;
+    margin-block-start: var(--space-2xl);
+  }
+
+  @media (min-width: 64rem) {
+    /* En pantallas grandes la acción ya vive en la cabecera del capítulo. */
+    .gallery-chapter__action {
+      display: none;
+    }
+  }
+</style>

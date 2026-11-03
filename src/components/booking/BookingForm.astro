@@ -1,0 +1,559 @@
+---
+/**
+ * SOLICITUD DE RESERVA
+ * =============================================================================
+ * El componente sólo gestiona la interacción: leer el formulario, pintar
+ * errores por campo y mover los estados (reposo → enviando → éxito | error).
+ * La validación, la limpieza y el envío viven en
+ * `lib/services/booking.service.ts`.
+ *
+ * DOS ESTADOS SEGÚN LA CONFIGURACIÓN
+ * -----------------------------------------------------------------------------
+ * · Sin Supabase: el aviso se muestra ya al cargar la página, con WhatsApp como
+ *   alternativa. Nada finge que la solicitud se ha enviado.
+ * · Con Supabase: se envía de verdad y el resultado se comunica tal cual.
+ *
+ * Saber si está configurado se decide en el build (`isSupabaseConfigured`), así
+ * que el HTML sale ya con el estado correcto: no hay parpadeo.
+ */
+import { isSupabaseConfigured } from '../../config/env.js';
+import { site } from '../../config/site.js';
+import { limits, NOT_CONNECTED_MESSAGE } from '../../lib/services/booking.service.js';
+import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+const guestOptions = Array.from({ length: 16 }, (_, index) => index + 1);
+const maxGuests = site.property.guests;
+
+const connected = isSupabaseConfigured();
+/** Enlace de respaldo. `null` mientras no haya número de WhatsApp configurado. */
+const whatsapp = whatsAppUrl();
+---
+
+<form class="form" id="booking-form" novalidate>
+  <div class="form__fields">
+    <div class="field">
+      <label class="field__label" for="booking-name">
+        Nombre y apellido <span class="field__required" aria-hidden="true">*</span>
+      </label>
+      <input
+        class="field__input"
+        id="booking-name"
+        name="name"
+        type="text"
+        autocomplete="name"
+        maxlength={limits.name.max}
+        required
+        aria-describedby="booking-name-error"
+      />
+      <p class="field__error" id="booking-name-error" hidden></p>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="booking-phone">
+        Teléfono o WhatsApp <span class="field__required" aria-hidden="true">*</span>
+      </label>
+      <input
+        class="field__input"
+        id="booking-phone"
+        name="phone"
+        type="tel"
+        inputmode="tel"
+        autocomplete="tel"
+        placeholder="+51 ..."
+        maxlength={limits.phone.max}
+        required
+        aria-describedby="booking-phone-error"
+      />
+      <p class="field__error" id="booking-phone-error" hidden></p>
+    </div>
+
+    <div class="field field--full">
+      <label class="field__label" for="booking-email">Correo electrónico</label>
+      <input
+        class="field__input"
+        id="booking-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        maxlength={limits.email.max}
+        aria-describedby="booking-email-error"
+      />
+      <p class="field__error" id="booking-email-error" hidden></p>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="booking-checkin">Llegada</label>
+      <input
+        class="field__input"
+        id="booking-checkin"
+        name="checkIn"
+        type="date"
+        aria-describedby="booking-checkin-error"
+      />
+      <p class="field__error" id="booking-checkin-error" hidden></p>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="booking-checkout">Salida</label>
+      <input
+        class="field__input"
+        id="booking-checkout"
+        name="checkOut"
+        type="date"
+        aria-describedby="booking-checkout-error"
+      />
+      <p class="field__error" id="booking-checkout-error" hidden></p>
+    </div>
+
+    <div class="field field--full">
+      <label class="field__label" for="booking-guests">
+        Huéspedes <span class="field__required" aria-hidden="true">*</span>
+      </label>
+      <select
+        class="field__input"
+        id="booking-guests"
+        name="guests"
+        required
+        aria-describedby="booking-guests-error"
+      >
+        {
+          guestOptions.map((value) => (
+            <option value={value} selected={value === 2}>
+              {value} {value === 1 ? 'persona' : 'personas'}
+            </option>
+          ))
+        }
+      </select>
+      <p class="field__error" id="booking-guests-error" hidden></p>
+      {
+        maxGuests && (
+          <p class="field__hint">Capacidad máxima de la casa: {maxGuests} huéspedes.</p>
+        )
+      }
+    </div>
+
+    <div class="field field--full">
+      <label class="field__label" for="booking-message">Mensaje</label>
+      <textarea
+        class="field__input field__input--area"
+        id="booking-message"
+        name="message"
+        rows="4"
+        maxlength={limits.message.max}
+        placeholder="Cuéntanos brevemente cómo viajas o si tienes alguna pregunta."
+        aria-describedby="booking-message-error"
+      ></textarea>
+      <p class="field__error" id="booking-message-error" hidden></p>
+    </div>
+
+    {/* Campo señuelo antibot: invisible y fuera del orden de tabulación. */}
+    <div class="field field--trap" aria-hidden="true">
+      <label for="booking-website">No completes este campo</label>
+      <input id="booking-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+  </div>
+
+  <div class="form__actions">
+    <Button
+      type="submit"
+      variant="primary"
+      size="lg"
+      icon="arrow-right"
+      class="form__submit"
+    >
+      Solicitar reserva
+    </Button>
+    <p class="form__legal">
+      Te respondemos con la disponibilidad y las condiciones. Al enviar aceptas nuestra
+      <a href="/politica-privacidad">política de privacidad</a>.
+    </p>
+  </div>
+
+  {/* Caja de estado del formulario. Sin Supabase sale visible desde el primer
+      render con el aviso de "todavía no conectado"; con Supabase nace oculta y
+      la rellena el resultado real del envío. */}
+  <div class="form__status" data-form-status role="status" aria-live="polite" hidden={connected}>
+    <span class="form__status-icon" data-form-status-icon>
+      <Icon name="info" size={18} />
+    </span>
+    <div class="form__status-body">
+      <p class="form__status-text" data-form-status-text>
+        {connected ? '' : NOT_CONNECTED_MESSAGE}
+      </p>
+      <p class="form__fallback" data-form-fallback hidden={connected || !whatsapp}>
+        <a
+          class="form__fallback-link"
+          data-form-whatsapp
+          href={whatsapp ?? '/contacto'}
+          target={whatsapp ? '_blank' : undefined}
+          rel={whatsapp ? 'noopener noreferrer' : undefined}
+        >
+          <Icon name="whatsapp" size={17} />
+          Continuar por WhatsApp
+        </a>
+      </p>
+    </div>
+  </div>
+</form>
+
+<style>
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .form__fields {
+    display: grid;
+    gap: var(--space-lg);
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  /* El señuelo se saca del flujo sin usar display:none, que algunos bots
+     detectan; sigue oculto para lectores de pantalla vía aria-hidden. */
+  .field--trap {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .field__label {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+  }
+
+  .field__required {
+    color: var(--color-primary);
+  }
+
+  .field__input {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--text-body-sm);
+    transition: border-color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out);
+  }
+
+  .field__input:hover {
+    border-color: var(--color-text-muted);
+  }
+
+  .field__input:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 1px;
+    border-color: transparent;
+  }
+
+  .field__input--area {
+    min-height: 7.5rem;
+    resize: vertical;
+  }
+
+  .field__input[aria-invalid='true'] {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 12%, transparent);
+  }
+
+  .field__error {
+    font-size: var(--text-sm);
+    color: var(--color-danger);
+  }
+
+  .field__hint {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .form__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .form__legal {
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-muted);
+  }
+
+  .form__status {
+    display: flex;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-soft);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-normal);
+  }
+
+  .form__status-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-surface);
+    color: var(--color-text-muted);
+  }
+
+  .form__status[data-state='success'] {
+    border-color: color-mix(in srgb, var(--color-success) 45%, var(--color-border));
+    background-color: color-mix(in srgb, var(--color-success) 8%, transparent);
+  }
+
+  .form__status[data-state='success'] .form__status-icon {
+    color: var(--color-success);
+  }
+
+  .form__status[data-state='error'] {
+    border-color: color-mix(in srgb, var(--color-danger) 40%, var(--color-border));
+    background-color: color-mix(in srgb, var(--color-danger) 6%, transparent);
+  }
+
+  .form__status[data-state='error'] .form__status-icon {
+    color: var(--color-danger);
+  }
+
+  .form__fallback {
+    margin-block-start: var(--space-sm);
+  }
+
+  .form__fallback-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding-block: 0.4rem;
+    font-size: var(--text-body-sm);
+    font-weight: var(--weight-medium);
+  }
+
+  /* Estado de envío: el botón comunica progreso sin cambiar de tamaño. */
+  .form[data-state='loading'] :global(.form__submit) {
+    pointer-events: none;
+    opacity: 0.75;
+  }
+
+  @media (min-width: 40rem) {
+    .form__fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-lg);
+    }
+
+    .field--full {
+      grid-column: 1 / -1;
+    }
+
+    .form__actions {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-xl);
+    }
+
+    .form__legal {
+      max-width: 38ch;
+      text-align: end;
+    }
+  }
+</style>
+
+<script>
+  import { submitBookingInquiry } from '../../lib/services/booking.service.js';
+  import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+  import type { BookingInquiry } from '../../types/booking.js';
+
+  const form = document.getElementById('booking-form') as HTMLFormElement | null;
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const statusText = form.querySelector<HTMLElement>('[data-form-status-text]');
+    const fallback = form.querySelector<HTMLElement>('[data-form-fallback]');
+    const whatsappLink = form.querySelector<HTMLAnchorElement>('[data-form-whatsapp]');
+    const submit = form.querySelector<HTMLButtonElement>('button.form__submit');
+    const submitLabel = submit?.querySelector('.btn__label');
+    const defaultLabel = submitLabel?.textContent?.trim() || 'Solicitar reserva';
+
+    /**
+     * Cierre del doble envío. El atributo `disabled` del botón no basta: pulsar
+     * Intro en cualquier campo también dispara `submit`. Esta bandera es la que
+     * garantiza que sólo salga una solicitud por intento.
+     */
+    let sending = false;
+
+    /** Marca temporal de carga: alimenta el filtro antibot por tiempo. */
+    let loadedAt = Date.now();
+
+    const fieldIds: Record<keyof BookingInquiry, string> = {
+      name: 'booking-name',
+      phone: 'booking-phone',
+      email: 'booking-email',
+      checkIn: 'booking-checkin',
+      checkOut: 'booking-checkout',
+      guests: 'booking-guests',
+      message: 'booking-message',
+    };
+
+    // Impide seleccionar fechas pasadas sin bloquear la escritura manual.
+    // Es una ayuda del calendario: quien las escriba a mano sigue pasando por
+    // la validación del servicio y por las reglas de la base de datos.
+    const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000)
+      .toISOString()
+      .slice(0, 10);
+    const checkIn = document.getElementById('booking-checkin') as HTMLInputElement | null;
+    const checkOut = document.getElementById('booking-checkout') as HTMLInputElement | null;
+    checkIn?.setAttribute('min', today);
+    checkOut?.setAttribute('min', today);
+    checkIn?.addEventListener('change', () => {
+      if (checkIn.value) checkOut?.setAttribute('min', checkIn.value);
+    });
+
+    const readForm = (): BookingInquiry => {
+      const data = new FormData(form);
+      return {
+        name: String(data.get('name') ?? ''),
+        phone: String(data.get('phone') ?? ''),
+        email: String(data.get('email') ?? ''),
+        checkIn: String(data.get('checkIn') ?? ''),
+        checkOut: String(data.get('checkOut') ?? ''),
+        guests: Number(data.get('guests') ?? 0),
+        message: String(data.get('message') ?? ''),
+      };
+    };
+
+    const clearErrors = () => {
+      Object.values(fieldIds).forEach((id) => {
+        const input = document.getElementById(id);
+        const error = document.getElementById(`${id}-error`);
+        input?.removeAttribute('aria-invalid');
+        if (error) {
+          error.textContent = '';
+          error.hidden = true;
+        }
+      });
+    };
+
+    const showErrors = (errors: Partial<Record<keyof BookingInquiry, string>>) => {
+      let firstInvalid: HTMLElement | null = null;
+
+      for (const [field, message] of Object.entries(errors)) {
+        const id = fieldIds[field as keyof BookingInquiry];
+        if (!id || !message) continue;
+
+        const input = document.getElementById(id);
+        const error = document.getElementById(`${id}-error`);
+        input?.setAttribute('aria-invalid', 'true');
+        if (error) {
+          error.textContent = message;
+          error.hidden = false;
+        }
+        if (!firstInvalid) firstInvalid = input;
+      }
+
+      firstInvalid?.focus();
+    };
+
+    /**
+     * `notice` es el estado neutro (backend sin conectar): usa la caja tal cual,
+     * sin el color de error, porque no ha fallado nada.
+     */
+    const setStatus = (state: 'success' | 'error' | 'notice', message: string) => {
+      if (!status || !statusText) return;
+      if (state === 'notice') delete status.dataset.state;
+      else status.dataset.state = state;
+      statusText.textContent = message;
+      status.hidden = false;
+    };
+
+    /** Ofrece WhatsApp cuando el envío no ha podido completarse. */
+    const showWhatsAppFallback = (inquiry: BookingInquiry) => {
+      const url = whatsAppUrl({
+        checkIn: inquiry.checkIn,
+        checkOut: inquiry.checkOut,
+        guests: inquiry.guests,
+      });
+
+      if (!url || !whatsappLink || !fallback) return;
+
+      whatsappLink.href = url;
+      whatsappLink.target = '_blank';
+      whatsappLink.rel = 'noopener noreferrer';
+      fallback.hidden = false;
+    };
+
+    const setLoading = (loading: boolean) => {
+      form.dataset.state = loading ? 'loading' : 'idle';
+      if (submit) {
+        submit.disabled = loading;
+        submit.setAttribute('aria-disabled', String(loading));
+      }
+      if (submitLabel) submitLabel.textContent = loading ? 'Enviando…' : defaultLabel;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (sending) return;
+
+      clearErrors();
+      if (status) status.hidden = true;
+      if (fallback) fallback.hidden = true;
+
+      const inquiry = readForm();
+
+      sending = true;
+      setLoading(true);
+
+      try {
+        const result = await submitBookingInquiry(inquiry, {
+          honeypot: String(new FormData(form).get('website') ?? ''),
+          elapsedMs: Date.now() - loadedAt,
+        });
+
+        if (result.ok) {
+          setStatus('success', result.message);
+          form.reset();
+          clearErrors();
+          // El contador antibot vuelve a cero para el siguiente envío.
+          loadedAt = Date.now();
+          status?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } else if (result.fieldErrors) {
+          // `showErrors` ya lleva el foco al primer campo inválido: desplazar
+          // además hasta la caja de estado lo apartaría de la vista.
+          showErrors(result.fieldErrors);
+          setStatus('error', result.message);
+        } else {
+          setStatus(result.notConfigured ? 'notice' : 'error', result.message);
+          showWhatsAppFallback(inquiry);
+          status?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      } catch {
+        // Red de seguridad: el servicio ya captura sus propios fallos, pero el
+        // formulario nunca debe quedarse mudo si algo inesperado ocurre.
+        setStatus(
+          'error',
+          'No pudimos enviar tu solicitud. Inténtalo de nuevo o escríbenos por WhatsApp.',
+        );
+        showWhatsAppFallback(inquiry);
+      } finally {
+        sending = false;
+        setLoading(false);
+      }
+    });
+  }
+</script>

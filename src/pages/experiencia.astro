@@ -1,0 +1,175 @@
+---
+/**
+ * EXPERIENCIA — Ica como destino, con Casa Blanco como punto de partida.
+ */
+import NearbyPlaces from '../components/location/NearbyPlaces.astro';
+import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
+import Chapter from '../components/ui/Chapter.astro';
+import Container from '../components/ui/Container.astro';
+import Icon from '../components/ui/Icon.astro';
+import PlaceholderNotice from '../components/ui/PlaceholderNotice.astro';
+import Section from '../components/ui/Section.astro';
+import { experienceCategories } from '../data/nearby.js';
+import PageLayout from '../layouts/PageLayout.astro';
+import { getNearbyPlaces } from '../lib/services/content.service.js';
+
+const places = await getNearbyPlaces();
+
+const grouped = experienceCategories
+  .map((category) => ({
+    ...category,
+    places: places.filter((place) => place.category === category.id),
+  }))
+  .filter((category) => category.places.length > 0);
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Experiencia', href: '/experiencia' },
+];
+---
+
+<PageLayout
+  title="Experiencia en Ica"
+  description="Qué hacer cerca de Casa Blanco: el oasis de Huacachina, las dunas, las bodegas de pisco y vino, el centro histórico de Ica y la costa de Paracas."
+  heading="Ica, más allá de la casa"
+  eyebrow="Experiencia"
+  intro="El desierto, el oasis y los viñedos definen esta parte del Perú. Estas son las salidas que mejor combinan con una estancia tranquila."
+  breadcrumbs={breadcrumbs}
+  ctaTopWave="soft"
+>
+  <Section tone="default" container="none" aria-labelledby="categorias-title">
+    <Container size="wide">
+      <Chapter
+        index="01"
+        eyebrow="Cómo se organiza el viaje"
+        title="Cuatro maneras de recorrer la región"
+        id="categorias-title"
+        titleWidth="18ch"
+      />
+
+      <ul class="categories" role="list">
+        {
+          experienceCategories.map((category, index) => (
+            <li class="categories__item">
+              <Card tone="surface" padding="lg" class="category">
+                <span class="numeral category__index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="category__icon">
+                  <Icon name={category.icon} size={20} />
+                </span>
+                <h3 class="category__title">{category.title}</h3>
+                <p class="category__text">{category.description}</p>
+              </Card>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </Section>
+
+  {
+    grouped.map((category, index) => (
+      <Section
+        tone={index % 2 === 0 ? 'surface' : 'default'}
+        container="none"
+        aria-labelledby={`grupo-${category.id}`}
+      >
+        <Container size="wide">
+          <Chapter
+            index={String(index + 2).padStart(2, '0')}
+            eyebrow="Qué hacer"
+            title={category.title}
+            description={category.description}
+            id={`grupo-${category.id}`}
+            titleWidth="20ch"
+          />
+          <NearbyPlaces places={category.places} columns={category.places.length >= 3 ? 3 : 2} />
+        </Container>
+      </Section>
+    ))
+  }
+
+  <Section tone="muted" container="none" aria-labelledby="tiempos-title">
+    <Container size="wide">
+      <Chapter
+        index={String(grouped.length + 2).padStart(2, '0')}
+        eyebrow="Distancias"
+        title="Tiempos desde la propiedad"
+        description="Los trayectos se publican una vez medidos desde la dirección real de la casa. Hasta entonces aparecen como pendientes."
+        id="tiempos-title"
+        titleWidth="16ch"
+      />
+      <PlaceholderNotice text="Edita el campo distance de cada lugar en src/data/nearby.ts para publicar los tiempos reales." />
+      <div class="section-action">
+        <Button href="/ubicacion" variant="outline" icon="arrow-right">
+          Ver ubicación y accesos
+        </Button>
+      </div>
+    </Container>
+  </Section>
+</PageLayout>
+
+<style>
+  .categories {
+    display: grid;
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .categories__item {
+    display: flex;
+  }
+
+  .category {
+    width: 100%;
+    gap: var(--space-2xs);
+  }
+
+  .category__index {
+    color: var(--color-primary);
+  }
+
+  .category__icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-block: var(--space-sm) var(--space-xs);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+  }
+
+  .category__title {
+    font-size: var(--text-h3);
+  }
+
+  .category__text {
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .section-action {
+    display: flex;
+    justify-content: center;
+    margin-block-start: var(--space-xl);
+  }
+
+  @media (min-width: 40rem) {
+    .categories {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-lg);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .categories {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

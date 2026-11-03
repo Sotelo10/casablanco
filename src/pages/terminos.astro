@@ -1,0 +1,63 @@
+---
+/**
+ * Términos y condiciones — plantilla base pendiente de completar con las
+ * condiciones reales de la reserva.
+ */
+import LegalArticle from '../components/layout/LegalArticle.astro';
+import Section from '../components/ui/Section.astro';
+import PageLayout from '../layouts/PageLayout.astro';
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Términos y condiciones', href: '/terminos' },
+];
+---
+
+<PageLayout
+  title="Términos y condiciones"
+  description="Condiciones de uso del sitio y bases de la consulta de disponibilidad de la propiedad."
+  heading="Términos y condiciones"
+  eyebrow="Información legal"
+  breadcrumbs={breadcrumbs}
+  showCta={false}
+>
+  <Section container="narrow">
+    <LegalArticle>
+      <h2>Objeto</h2>
+      <p>
+        Este sitio informa sobre la propiedad y permite consultar su disponibilidad. La consulta no
+        constituye por sí misma una reserva: la estancia queda confirmada únicamente cuando así se
+        comunica de forma expresa.
+      </p>
+
+      <h2>Condiciones de reserva</h2>
+      <p class="legal-todo">
+        Completar con las condiciones reales: importe de la reserva, forma de pago, plazos, política
+        de cancelación y cualquier depósito o garantía exigida.
+      </p>
+
+      <h2>Normas de la casa</h2>
+      <p class="legal-todo">
+        Completar con las normas de convivencia: horarios de silencio, número máximo de ocupantes,
+        política sobre eventos, mascotas y fumar dentro de la propiedad.
+      </p>
+
+      <h2>Responsabilidad</h2>
+      <p class="legal-todo">
+        Indicar el alcance de la responsabilidad del titular durante la estancia y las obligaciones
+        del huésped respecto al cuidado del inmueble.
+      </p>
+
+      <h2>Propiedad intelectual</h2>
+      <p>
+        Los textos y las fotografías publicados en este sitio pertenecen a sus titulares y no pueden
+        reutilizarse sin autorización.
+      </p>
+
+      <h2>Legislación aplicable</h2>
+      <p class="legal-todo">
+        Indicar la legislación aplicable y la jurisdicción competente.
+      </p>
+    </LegalArticle>
+  </Section>
+</PageLayout>

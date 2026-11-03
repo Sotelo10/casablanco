@@ -1,0 +1,351 @@
+---
+/**
+ * MENÚ MÓVIL
+ * =============================================================================
+ * Panel a pantalla completa en tinta: el cambio de fondo separa con claridad la
+ * navegación del contenido y da al menú el mismo peso que al resto del sitio.
+ *
+ * Se construye sobre `<dialog>` nativo, que aporta la capa superior, la trampa
+ * de foco y el cierre con ESC. El script sólo abre, cierra, bloquea el scroll y
+ * devuelve el foco al botón que lo abrió.
+ */
+import { bookingHref, bookingLabelLong, mainNav, secondaryNav } from '../../config/navigation.js';
+import { site } from '../../config/site.js';
+import { isActivePath } from '../../lib/utils/url.js';
+import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+const whatsapp = whatsAppUrl();
+const isCurrent = (href: string) => isActivePath(href, currentPath);
+---
+
+<dialog id="mobile-menu" class="menu" aria-label="Menú de navegación">
+  <div class="menu__panel">
+    <div class="menu__head">
+      <p class="menu__brand">
+        <span class="menu__brand-name">{site.name}</span>
+        <span class="menu__brand-place">{site.location.city} · {site.location.country}</span>
+      </p>
+      <button type="button" class="menu__close" data-menu-close aria-label="Cerrar menú">
+        <Icon name="close" size={20} />
+      </button>
+    </div>
+
+    <nav class="menu__nav" aria-label="Navegación principal">
+      <ul class="menu__list" role="list">
+        {
+          mainNav.map((item, index) => (
+            <li class="menu__item" style={`--i:${index}`}>
+              <a
+                href={item.href}
+                class="menu__link"
+                aria-current={isCurrent(item.href) ? 'page' : undefined}
+              >
+                <span class="numeral menu__index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="menu__link-body">
+                  <span class="menu__link-label">{item.label}</span>
+                  {item.description && <span class="menu__link-desc">{item.description}</span>}
+                </span>
+                <Icon name="arrow-right" size={17} class="menu__link-icon" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <ul class="menu__secondary" role="list">
+        {
+          secondaryNav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="menu__sublink"
+                aria-current={isCurrent(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="menu__foot">
+      <Button href={bookingHref} variant="light" size="lg" block icon="arrow-right">
+        {bookingLabelLong}
+      </Button>
+      {
+        whatsapp && (
+          <Button
+            href={whatsapp}
+            variant="outline-light"
+            size="lg"
+            block
+            icon="whatsapp"
+            iconPosition="start"
+            external
+          >
+            Escribir por WhatsApp
+          </Button>
+        )
+      }
+      {
+        site.contact.email && (
+          <a class="menu__contact" href={`mailto:${site.contact.email}`}>
+            {site.contact.email}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .menu {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: var(--color-surface-deep);
+    color: var(--color-text-inverse);
+    overflow: hidden;
+  }
+
+  .menu::backdrop {
+    background-color: rgb(var(--deep-rgb) / 70%);
+  }
+
+  .menu__panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 100dvh;
+    overflow-y: auto;
+    padding: var(--space-md) var(--gutter) calc(var(--space-xl) + env(safe-area-inset-bottom));
+    background-image: radial-gradient(
+      120% 65% at 100% 0%,
+      rgb(var(--sky-rgb) / 26%) 0%,
+      transparent 62%
+    );
+  }
+
+  .menu__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    min-height: var(--header-height);
+    margin-block-end: var(--space-lg);
+  }
+
+  .menu__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .menu__brand-name {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+
+  .menu__brand-place {
+    font-family: var(--font-mono);
+    font-size: var(--text-3xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-inverse-muted);
+  }
+
+  .menu__close {
+    display: grid;
+    place-items: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    margin-inline-end: -0.4rem;
+    border: 1px solid var(--color-border-inverse);
+    border-radius: var(--radius-pill);
+    color: var(--color-text-inverse);
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .menu__close:hover {
+    background-color: rgb(var(--white-rgb) / 12%);
+  }
+
+  .menu__nav {
+    flex: 1;
+  }
+
+  .menu__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-block-start: 1px solid var(--color-border-inverse);
+  }
+
+  .menu__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding-block: var(--space-md);
+    border-block-end: 1px solid var(--color-border-inverse);
+    text-decoration: none;
+    color: var(--color-text-inverse);
+  }
+
+  .menu__link:hover {
+    color: var(--color-primary-light);
+  }
+
+  .menu__index {
+    color: var(--color-primary-light);
+    opacity: 0.85;
+  }
+
+  .menu__link-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+  }
+
+  .menu__link-label {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    line-height: 1.05;
+  }
+
+  .menu__link-desc {
+    font-size: var(--text-sm);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .menu__link-icon {
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity var(--duration) var(--ease-out),
+      transform var(--duration) var(--ease-emphasis);
+  }
+
+  .menu__link:hover .menu__link-icon {
+    opacity: 1;
+    transform: none;
+  }
+
+  .menu__link[aria-current='page'] .menu__link-label {
+    color: var(--color-primary-light);
+  }
+
+  .menu__secondary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+    list-style: none;
+    margin: 0;
+    padding-block: var(--space-lg);
+  }
+
+  .menu__sublink {
+    display: inline-block;
+    padding-block: 0.6rem;
+    font-size: var(--text-body-sm);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .menu__sublink:hover {
+    color: var(--color-primary-light);
+  }
+
+  .menu__foot {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding-block-start: var(--space-md);
+  }
+
+  .menu__contact {
+    margin-block-start: var(--space-2xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-inverse-muted);
+    text-align: center;
+  }
+
+  /* Entrada escalonada de los elementos: presencia sin aspavientos. */
+  @media (prefers-reduced-motion: no-preference) {
+    .menu[open] .menu__item,
+    .menu[open] .menu__foot {
+      animation: menu-in var(--duration-slow) var(--ease-emphasis) both;
+      animation-delay: calc(60ms + var(--i, 6) * 45ms);
+    }
+
+    @keyframes menu-in {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .menu {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const dialog = document.getElementById('mobile-menu') as HTMLDialogElement | null;
+  const toggles = document.querySelectorAll<HTMLButtonElement>('[data-menu-open]');
+  const closers = document.querySelectorAll<HTMLButtonElement>('[data-menu-close]');
+
+  if (dialog) {
+    let opener: HTMLElement | null = null;
+
+    const setExpanded = (value: boolean) => {
+      toggles.forEach((toggle) => toggle.setAttribute('aria-expanded', String(value)));
+    };
+
+    const open = (event: Event) => {
+      opener = event.currentTarget as HTMLElement;
+      dialog.showModal();
+      document.documentElement.style.overflow = 'hidden';
+      setExpanded(true);
+    };
+
+    const close = () => dialog.close();
+
+    toggles.forEach((toggle) => toggle.addEventListener('click', open));
+    closers.forEach((closer) => closer.addEventListener('click', close));
+
+    dialog.querySelectorAll('a[href]').forEach((link) => link.addEventListener('click', close));
+
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) close();
+    });
+
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+      setExpanded(false);
+      opener?.focus();
+      opener = null;
+    });
+  }
+</script>

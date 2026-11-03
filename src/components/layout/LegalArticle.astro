@@ -1,0 +1,77 @@
+---
+/**
+ * Contenedor tipográfico para las páginas legales.
+ * Centraliza los estilos de texto largo para no repetirlos en cada documento.
+ */
+interface Props {
+  updatedAt?: string;
+}
+
+const { updatedAt } = Astro.props;
+---
+
+<article class="legal">
+  {
+    updatedAt && (
+      <p class="legal__updated">Última actualización: <span>{updatedAt}</span></p>
+    )
+  }
+  <slot />
+</article>
+
+<style>
+  .legal {
+    max-width: 68ch;
+  }
+
+  .legal__updated {
+    margin-block-end: var(--space-xl);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .legal :global(h2) {
+    margin-block: var(--space-2xl) var(--space-sm);
+    font-size: var(--text-h3);
+    font-family: var(--font-heading);
+    font-weight: var(--weight-regular);
+  }
+
+  .legal :global(h2:first-of-type) {
+    margin-block-start: 0;
+  }
+
+  .legal :global(h3) {
+    margin-block: var(--space-lg) var(--space-xs);
+    font-size: var(--text-h4);
+  }
+
+  .legal :global(p),
+  .legal :global(li) {
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+  }
+
+  .legal :global(p) {
+    margin-block-start: var(--space-md);
+  }
+
+  .legal :global(ul) {
+    margin-block-start: var(--space-md);
+    padding-inline-start: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .legal :global(.legal-todo) {
+    display: block;
+    margin-block-start: var(--space-md);
+    padding: var(--space-md);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background-color: color-mix(in srgb, var(--color-surface-soft) 55%, transparent);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+</style>

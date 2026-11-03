@@ -1,0 +1,136 @@
+---
+/**
+ * RESEÑAS — resumen de valoraciones y testimonios.
+ * Preparada para consumir la tabla `reviews` de Supabase sin cambios de UI.
+ */
+import ReviewsSection from '../components/sections/ReviewsSection.astro';
+import Card from '../components/ui/Card.astro';
+import Chapter from '../components/ui/Chapter.astro';
+import Container from '../components/ui/Container.astro';
+import Icon from '../components/ui/Icon.astro';
+import Section from '../components/ui/Section.astro';
+import PageLayout from '../layouts/PageLayout.astro';
+import { getReviews, summarize } from '../lib/services/reviews.service.js';
+
+const reviews = await getReviews();
+const summary = summarize(reviews);
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Reseñas', href: '/resenas' },
+];
+
+const steps = [
+  {
+    icon: 'send',
+    title: 'Se recogen tras la estancia',
+    text: 'Cada huésped recibe una invitación para compartir su experiencia al terminar el viaje.',
+  },
+  {
+    icon: 'shield',
+    title: 'Se publican con su origen',
+    text: 'Junto a cada opinión aparece la plataforma de la que procede y la fecha de publicación.',
+  },
+  {
+    icon: 'check',
+    title: 'Se muestran sin editar',
+    text: 'Los textos se publican tal como los escribe el huésped, sin recortes ni retoques.',
+  },
+];
+---
+
+<PageLayout
+  title="Reseñas de huéspedes"
+  description="Opiniones de huéspedes sobre Casa Blanco, casa vacacional en Ica: valoración media, distribución por estrellas y testimonios."
+  heading="Lo que dicen los huéspedes"
+  eyebrow="Reseñas"
+  intro="Las valoraciones se muestran completas, con su puntuación, su fecha y la plataforma de origen."
+  breadcrumbs={breadcrumbs}
+  reviewSummary={summary}
+>
+  <ReviewsSection
+    reviews={reviews}
+    summary={summary}
+    index="01"
+    tone="default"
+    actionHref={undefined}
+    actionLabel={undefined}
+  />
+
+  <Section tone="surface" container="none" aria-labelledby="proceso-title">
+    <Container size="wide">
+      <Chapter
+        index="02"
+        eyebrow="Cómo funcionan"
+        title="Opiniones verificadas, sin filtros"
+        id="proceso-title"
+        titleWidth="16ch"
+      />
+      <ul class="steps" role="list">
+        {
+          steps.map((step) => (
+            <li class="steps__item">
+              <Card tone="outline" padding="lg" class="step">
+                <span class="step__icon">
+                  <Icon name={step.icon} size={18} />
+                </span>
+                <h3 class="step__title">{step.title}</h3>
+                <p class="step__text">{step.text}</p>
+              </Card>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </Section>
+</PageLayout>
+
+<style>
+  .steps {
+    display: grid;
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .steps__item {
+    display: flex;
+  }
+
+  .step {
+    width: 100%;
+    gap: var(--space-xs);
+  }
+
+  .step__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-block-end: var(--space-xs);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+  }
+
+  .step__title {
+    font-family: var(--font-body);
+    font-size: var(--text-h4);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-normal);
+  }
+
+  .step__text {
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 48rem) {
+    .steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-lg);
+    }
+  }
+</style>

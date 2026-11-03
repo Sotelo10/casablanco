@@ -1,0 +1,237 @@
+---
+/**
+ * BARRA DE DATOS DE LA PROPIEDAD
+ * =============================================================================
+ * Tarjeta elevada que se superpone al pie del hero: responde de inmediato
+ * "cuánta gente entra y con qué cuenta la casa", que es la primera pregunta de
+ * quien busca alojamiento.
+ *
+ * Los valores salen de `site.property`; los que aún no existen se muestran como
+ * pendientes en lugar de inventarse.
+ */
+import { site } from '../../config/site.js';
+import { formatRating } from '../../lib/utils/format.js';
+import type { ReviewSummary } from '../../types/content.js';
+import StarRating from '../reviews/StarRating.astro';
+import Icon from '../ui/Icon.astro';
+import PlaceholderValue from '../ui/PlaceholderValue.astro';
+
+interface Props {
+  reviewSummary?: ReviewSummary;
+  /** Superpone la tarjeta al bloque anterior (hero). */
+  overlap?: boolean;
+  /** Añade la superficie: sólo tiene sentido en la ficha de la propiedad. */
+  showArea?: boolean;
+  class?: string;
+}
+
+const {
+  reviewSummary,
+  overlap = true,
+  showArea = false,
+  class: className,
+  ...rest
+} = Astro.props;
+const { property } = site;
+
+const facts = [
+  { id: 'guests', label: 'Huéspedes', value: property.guests, icon: 'users' },
+  { id: 'bedrooms', label: 'Habitaciones', value: property.bedrooms, icon: 'home' },
+  { id: 'beds', label: 'Camas', value: property.beds, icon: 'bed' },
+  { id: 'bathrooms', label: 'Baños', value: property.bathrooms, icon: 'bath' },
+  ...(showArea
+    ? [{ id: 'area', label: 'Superficie', value: property.area, icon: 'ruler' }]
+    : []),
+];
+
+const showRating = Boolean(reviewSummary && reviewSummary.total > 0 && reviewSummary.average);
+---
+
+<div class:list={['rail', overlap && 'rail--overlap', className]} {...rest}>
+  <div class="rail__container">
+    <div class="rail__card">
+      <dl class="rail__facts">
+        {
+          facts.map((fact) => (
+            <div class="rail__fact">
+              <Icon name={fact.icon} size={18} class="rail__icon" />
+              <dt class="rail__label">{fact.label}</dt>
+              <dd class="rail__value">
+                <PlaceholderValue
+                  value={fact.value}
+                  suffix={fact.id === 'area' ? 'm²' : undefined}
+                  fallback="Por confirmar"
+                />
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      {
+        showRating && reviewSummary && (
+          <div class="rail__rating">
+            <StarRating value={reviewSummary.average ?? 0} size={15} />
+            <p class="rail__rating-text">
+              <strong>{formatRating(reviewSummary.average ?? 0)}</strong> · {reviewSummary.total}{' '}
+              {reviewSummary.total === 1 ? 'reseña' : 'reseñas'}
+              {reviewSummary.isDemo && <span class="rail__demo">de ejemplo</span>}
+            </p>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .rail {
+    position: relative;
+    z-index: var(--z-raised);
+  }
+
+  .rail--overlap {
+    margin-block-start: calc(var(--space-xl) * -1);
+  }
+
+  .rail__container {
+    width: 100%;
+    max-width: var(--container-wide);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .rail__card {
+    display: grid;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .rail__facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-lg) var(--space-md);
+    margin: 0;
+  }
+
+  .rail__fact {
+    display: grid;
+    grid-template-areas:
+      'icon label'
+      'value value';
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.15rem var(--space-xs);
+  }
+
+  .rail__icon {
+    grid-area: icon;
+    color: var(--color-primary);
+  }
+
+  .rail__label {
+    grid-area: label;
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .rail__value {
+    grid-area: value;
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.9rem;
+    line-height: 1.05;
+  }
+
+  /* Sin dato real, el hueco se resuelve con una etiqueta discreta en vez de
+     una cifra enorme en cursiva. */
+  .rail__value :global(.placeholder) {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-style: normal;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .rail__rating {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding-block-start: var(--space-md);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .rail__rating-text {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .rail__demo {
+    margin-inline-start: 0.4em;
+    font-style: italic;
+  }
+
+  @media (min-width: 48rem) {
+    .rail--overlap {
+      margin-block-start: calc(var(--space-2xl) * -1);
+    }
+
+    .rail__card {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: var(--space-2xl);
+      padding: var(--space-xl) var(--space-2xl);
+    }
+
+    .rail__facts {
+      grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+      gap: var(--space-xl);
+    }
+
+    .rail__fact {
+      position: relative;
+      padding-inline-start: var(--space-lg);
+    }
+
+    .rail__fact::before {
+      content: '';
+      position: absolute;
+      inset-block: -0.25rem;
+      inset-inline-start: 0;
+      width: 1px;
+      background-color: var(--color-border);
+    }
+
+    .rail__fact:first-child {
+      padding-inline-start: 0;
+    }
+
+    .rail__fact:first-child::before {
+      display: none;
+    }
+
+    .rail__rating {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-2xs);
+      padding-block-start: 0;
+      padding-inline-start: var(--space-2xl);
+      border-block-start: none;
+      border-inline-start: 1px solid var(--color-border);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .rail__value {
+      font-size: 2.25rem;
+    }
+  }
+</style>

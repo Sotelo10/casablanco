@@ -1,0 +1,153 @@
+---
+/**
+ * LAYOUT BASE
+ * =============================================================================
+ * Estructura común de todas las páginas: `<head>` con metadatos y fuentes,
+ * cabecera, contenido principal, pie y barra móvil de acción.
+ *
+ * Los datos estructurados se componen aquí a partir de la configuración central
+ * y de los nodos extra que aporte cada página.
+ */
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+
+import Analytics from '../components/analytics/Analytics.astro';
+import MobileBookingBar from '../components/booking/MobileBookingBar.astro';
+import Footer from '../components/layout/Footer.astro';
+import Header from '../components/navigation/Header.astro';
+import SkipLink from '../components/navigation/SkipLink.astro';
+import SEO from '../components/seo/SEO.astro';
+import { site } from '../config/site.js';
+import { theme } from '../config/theme.js';
+import { absoluteUrl, buildTitle, canonicalUrl } from '../lib/seo/meta.js';
+import { normalizePath } from '../lib/utils/url.js';
+import {
+  breadcrumbSchema,
+  jsonLdGraph,
+  propertySchema,
+  webPageSchema,
+  websiteSchema,
+  type BreadcrumbEntry,
+  type JsonObject,
+} from '../lib/seo/schema.js';
+import type { ReviewSummary } from '../types/content.js';
+
+interface Props {
+  title: string;
+  description: string;
+  isHome?: boolean;
+  noindex?: boolean;
+  headerVariant?: 'transparent' | 'solid';
+  /** Migas de pan; también alimentan el schema BreadcrumbList. */
+  breadcrumbs?: BreadcrumbEntry[];
+  /** Nodos JSON-LD adicionales de la página (FAQPage, etc.). */
+  schemas?: (JsonObject | null)[];
+  /** Resumen de reseñas: sólo se publica en el schema si son reales. */
+  reviewSummary?: ReviewSummary;
+  showMobileBar?: boolean;
+  mainClass?: string;
+}
+
+const {
+  title,
+  description,
+  isHome = false,
+  noindex = false,
+  headerVariant = 'solid',
+  breadcrumbs = [],
+  schemas = [],
+  reviewSummary,
+  showMobileBar = true,
+  mainClass,
+} = Astro.props;
+
+const origin = Astro.site?.origin ?? '';
+const currentPath = normalizePath(Astro.url.pathname);
+
+const canonical = canonicalUrl(Astro.url.pathname, Astro.site?.origin);
+
+const graph = jsonLdGraph([
+  propertySchema({
+    origin,
+    image: site.seo.ogImage ? absoluteUrl(site.seo.ogImage, origin) : undefined,
+    reviewSummary,
+  }),
+  websiteSchema(origin),
+  webPageSchema({
+    origin,
+    url: canonical,
+    name: buildTitle(title, isHome),
+    description,
+    isHome,
+  }),
+  breadcrumbs.length > 1 ? breadcrumbSchema(breadcrumbs, origin) : null,
+  ...schemas,
+]);
+---
+
+<!doctype html>
+<html lang="es-PE">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content={theme.themeColor} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    {/* Sólo se precargan los pesos que aparecen en la primera pantalla. */}
+    <Font cssVariable="--font-general-sans" preload={[{ weight: 400, style: 'normal' }]} />
+    <Font cssVariable="--font-boska" preload={[{ weight: 400, style: 'normal' }]} />
+    <Font cssVariable="--font-petit-script" />
+
+    <SEO
+      title={title}
+      description={description}
+      isHome={isHome}
+      noindex={noindex}
+      jsonLd={graph}
+    />
+
+    <Analytics />
+  </head>
+
+  <body data-mobile-bar={showMobileBar ? 'true' : 'false'}>
+    <SkipLink />
+    <Header variant={headerVariant} currentPath={currentPath} />
+
+    <main
+      id="contenido"
+      class:list={['main', headerVariant === 'solid' && 'main--offset', mainClass]}
+    >
+      <slot />
+    </main>
+
+    <Footer />
+    {showMobileBar && <MobileBookingBar />}
+
+    <style>
+      .main {
+        display: block;
+      }
+
+      /* Compensa la cabecera fija cuando no hay hero a pantalla completa. */
+      .main--offset {
+        padding-block-start: var(--header-height);
+      }
+    </style>
+
+    <style is:global>
+      /* Evita que la barra móvil tape el final del contenido. */
+      @media (max-width: 63.99rem) {
+        body[data-mobile-bar='true'] #footer {
+          padding-block-end: calc(
+            var(--mobile-bar-height) + env(safe-area-inset-bottom) + var(--space-lg)
+          );
+        }
+      }
+    </style>
+  </body>
+</html>
