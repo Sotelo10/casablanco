@@ -1,5 +1,5 @@
 /**
- * DESIGN TOKENS — CASA BLANCO
+ * DESIGN TOKENS — CASA LEBLANC
  * =============================================================================
  * Única fuente de verdad del sistema visual: color, tipografía, espaciado,
  * radios, sombras, transiciones, contenedores y capas.
@@ -7,9 +7,11 @@
  * Toda la identidad del sitio se cambia desde aquí. Ningún componente define un
  * color, una sombra, un radio o una familia tipográfica por su cuenta.
  *
- * La dirección de arte parte de tres materiales: el CIELO de Ica (azules
- * luminosos), el BLANCO de la arquitectura y un ORO ARENA cálido que aparece
- * sólo en detalles. Todos los pares texto/fondo cumplen WCAG AA.
+ * Dirección de arte: arquitectura blanca, noche azul y arena del desierto.
+ * Azul profundo #153B56 y secundario #285F7D para texto y acción; blanco
+ * cálido #FAFAF7 y arena #E9E0D3 para superficies. Las fotografías llevan el
+ * color: la interfaz se mantiene sobria. Todos los pares texto/fondo cumplen
+ * WCAG AA.
  */
 
 :root {
@@ -18,122 +20,130 @@
   /* ═══ CANALES BASE ════════════════════════════════════════════════════ */
   /* Velos, sombras y degradados se componen desde estos valores: cambiarlos
      recalcula toda la profundidad del sitio. */
-  --sky-rgb: 111 182 228;
-  --deep-rgb: 18 49 74;
+  --sky-rgb: 40 95 125;
+  --deep-rgb: 21 59 86;
   --white-rgb: 255 255 255;
-  --accent-rgb: 201 154 91;
+  --accent-rgb: 233 224 211;
+  /* Velo nocturno de las fotografías (= --color-surface-deep). */
+  --veil-rgb: 16 47 69;
 
-  /* ═══ ESCALA DE CIELO ═════════════════════════════════════════════════ */
-  --sky-50: #f4fafe;
-  --sky-100: #e9f4fc;
-  --sky-200: #cfe7f7;
-  --sky-300: #a6d4f1;
-  --sky-400: #6fb6e4;
-  --sky-500: #4a9bd4;
-  --sky-600: #2e7fb5;
-  --sky-700: #26719f;
-  --sky-800: #1b5a82;
-  --sky-900: #12314a;
+  /* ═══ ESCALA DE AZUL ══════════════════════════════════════════════════ */
+  /* Construida alrededor de los dos azules de marca: 600 = #285F7D
+     (secundario) y 800 = #153B56 (profundo). */
+  --sky-50: #f4f7f9;
+  --sky-100: #e8eef2;
+  --sky-200: #cfdce5;
+  --sky-300: #a9c0cf;
+  --sky-400: #6f93aa;
+  --sky-500: #3e7192;
+  --sky-600: #285f7d;
+  --sky-700: #1e4d69;
+  --sky-800: #153b56;
+  --sky-900: #0e2a3e;
 
   /* ═══ COLOR SEMÁNTICO ═════════════════════════════════════════════════ */
 
-  /* Superficies: del marfil azulado al blanco puro */
-  --color-background: #f7fbfe;
+  /* Superficies: blanco cálido, blanco y arena */
+  --color-background: #fafaf7;
   --color-surface: #ffffff;
   --color-surface-elevated: #ffffff;
-  --color-surface-soft: var(--sky-100);
-  --color-surface-mist: var(--sky-50);
-  --color-surface-sand: #f7f3ec; /* neutro cálido, para variar el ritmo */
-  --color-surface-sand-deep: #ece2d2;
+  --color-surface-soft: #f3efe8;
+  --color-surface-mist: #f6f4ef;
+  --color-surface-sand: #f3eee6;
+  --color-surface-sand-deep: #e9e0d3;
 
   /* Anclaje profundo: pie de página y bandas de cierre */
-  --color-surface-deep: #10293f;
-  --color-surface-deep-soft: #16384f;
-  --color-surface-deep-raised: #1d4560;
+  --color-surface-deep: #102f45;
+  --color-surface-deep-soft: #153b56;
+  --color-surface-deep-raised: #1e4d69;
 
   /* Texto */
-  --color-text: #12314a;
-  --color-text-soft: #2c4c68;
-  --color-text-muted: #56697c;
+  --color-text: #153b56;
+  --color-text-soft: #2b4a60;
+  --color-text-muted: #5b6b7f; /* #64748B oscurecido lo justo para AA sobre arena */
   --color-text-inverse: #ffffff;
-  --color-text-inverse-muted: #c6ddee;
+  --color-text-inverse-muted: #c9d6e0;
 
-  /* Acción principal: azul cielo profundo sobre claro, blanco sobre foto */
-  --color-primary: var(--sky-700);
-  --color-primary-dark: var(--sky-800);
+  /* Acción principal: azul profundo sobre claro, blanco sobre foto */
+  --color-primary: #153b56;
+  --color-primary-dark: #0e2a3e;
   --color-primary-light: var(--sky-400);
   --color-primary-soft: var(--sky-100);
-  --color-primary-hover: var(--sky-800);
+  --color-primary-hover: #285f7d;
   --color-primary-contrast: #ffffff;
 
-  /* Acento oro arena. Tres intensidades para mantener el contraste AA:
-     `accent` para gráficos, `accent-strong` sobre claro, `accent-light`
-     sobre fondo profundo. */
-  --color-accent: #c99a5b;
-  --color-accent-strong: #96692b;
-  --color-accent-light: #e7c08a;
-  --color-accent-hover: #8a5f26;
-  --color-accent-soft: #f6efe4;
+  /* Acento: el azul secundario y la arena. Sin dorados. `accent-strong` cumple
+     AA sobre claro; `accent-light` sobre fondo profundo. */
+  --color-accent: #c8b9a3;
+  --color-accent-strong: #285f7d;
+  --color-accent-light: #e9e0d3;
+  --color-accent-hover: #1e4d69;
+  --color-accent-soft: #f3eee6;
 
   /* Bordes y separadores */
-  --color-border: #dceaf4;
-  --color-border-strong: #bfd8e8;
-  --color-border-input: #6e8ca3; /* controles: contraste ≥ 3:1 (WCAG 1.4.11) */
-  --color-border-inverse: rgb(var(--white-rgb) / 22%);
+  --color-border: #e6e1d8;
+  --color-border-strong: #d2c9bb;
+  --color-border-input: #7a8798; /* controles: contraste ≥ 3:1 (WCAG 1.4.11) */
+  --color-border-inverse: rgb(var(--white-rgb) / 20%);
   --color-border-inverse-strong: rgb(var(--white-rgb) / 45%);
 
-  /* Velos y cristal */
+  /* Velos */
   --color-overlay: rgb(var(--deep-rgb) / 45%);
   --color-overlay-soft: rgb(var(--deep-rgb) / 12%);
   --color-veil: rgb(var(--white-rgb) / 10%);
   --color-veil-strong: rgb(var(--white-rgb) / 18%);
-  --glass-bg: rgb(var(--white-rgb) / 16%);
-  --glass-bg-strong: rgb(var(--white-rgb) / 82%);
-  --glass-border: rgb(var(--white-rgb) / 38%);
-  --glass-blur: 16px;
+  --glass-bg: rgb(var(--white-rgb) / 12%);
+  --glass-bg-strong: rgb(var(--white-rgb) / 92%);
+  --glass-border: rgb(var(--white-rgb) / 32%);
+  --glass-blur: 14px;
 
-  --color-focus: var(--sky-700);
-  --color-danger: #b3402f;
-  --color-success: #1f7a5a;
+  --color-focus: #285f7d;
+  --color-danger: #a8402f;
+  --color-success: #1f6f55;
 
   /* ═══ TIPOGRAFÍA ══════════════════════════════════════════════════════ */
   /* Las variables --font-* de familias las inyecta la API de fuentes de Astro
      con sus fallbacks métricamente ajustados. */
-  --font-body: var(--font-general-sans, ui-sans-serif, system-ui, -apple-system, sans-serif);
-  --font-heading: var(--font-boska, Georgia, "Times New Roman", serif);
-  --font-script: var(--font-petit-script, "Segoe Script", cursive);
+  --font-body: var(--font-manrope, ui-sans-serif, system-ui, -apple-system, sans-serif);
+  --font-heading: var(--font-cormorant, Georgia, "Times New Roman", serif);
+  /* Los acentos "manuscritos" pasan a la cursiva de la serif editorial. */
+  --font-script: var(--font-cormorant, Georgia, serif);
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  --tracking-tighter: -0.03em;
-  --tracking-tight: -0.015em;
+  --tracking-tighter: -0.025em;
+  --tracking-tight: -0.01em;
   --tracking-normal: 0;
-  --tracking-wide: 0.06em;
-  --tracking-wider: 0.14em;
-  --tracking-widest: 0.24em;
+  --tracking-wide: 0.08em;
+  --tracking-wider: 0.18em;
+  --tracking-widest: 0.28em;
 
   --leading-none: 1;
-  --leading-tight: 1.05;
-  --leading-snug: 1.25;
-  --leading-normal: 1.6;
-  --leading-relaxed: 1.75;
+  --leading-tight: 1.04;
+  --leading-snug: 1.22;
+  --leading-normal: 1.65;
+  --leading-relaxed: 1.8;
 
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
+  --weight-bold: 700;
+  /* Peso de los titulares en Cormorant: 500 lee mejor que 400 en pantalla. */
+  --weight-heading: 500;
 
-  /* Escala fluida con fuerte contraste entre titular y texto */
+  /* Escala fluida. Cormorant tiene un ojo pequeño: los titulares van un
+     escalón por encima de lo habitual para compensarlo. */
   --text-3xs: 0.625rem;
   --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
   --text-body-sm: 0.9375rem;
-  --text-body: clamp(1rem, 0.97rem + 0.16vw, 1.0938rem);
-  --text-lead: clamp(1.0938rem, 1rem + 0.5vw, 1.375rem);
-  --text-h4: clamp(1.0625rem, 1rem + 0.32vw, 1.25rem);
-  --text-h3: clamp(1.35rem, 1.2rem + 0.7vw, 1.75rem);
-  --text-h2: clamp(2rem, 1.5rem + 2.3vw, 3.4rem);
-  --text-h1: clamp(2.5rem, 1.75rem + 3.4vw, 4.5rem);
-  --text-display: clamp(3.25rem, 1.7rem + 6.6vw, 7.5rem);
+  --text-body: clamp(1rem, 0.97rem + 0.14vw, 1.0625rem);
+  --text-lead: clamp(1.0625rem, 0.98rem + 0.42vw, 1.3125rem);
+  --text-h4: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  --text-h3: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+  --text-h2: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
+  --text-h1: clamp(2.75rem, 1.9rem + 3.6vw, 5rem);
+  --text-display: clamp(3.5rem, 2rem + 7vw, 8.5rem);
 
   /* ═══ ESPACIADO ═══════════════════════════════════════════════════════ */
   --space-3xs: 0.125rem;
@@ -162,22 +172,22 @@
   --mobile-bar-height: 4.5rem;
 
   /* ═══ FORMA Y ELEVACIÓN ═══════════════════════════════════════════════ */
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
-  --radius-xl: 32px;
-  --radius-2xl: 44px;
+  /* Esquinas casi rectas: lenguaje arquitectónico, no de aplicación. */
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --radius-2xl: 8px;
   --radius-pill: 999px;
+  --radius-button: 2px;
 
-  /* Sombras teñidas de azul profundo: luz natural, no gris fotográfico */
-  --shadow-xs: 0 1px 2px rgb(var(--deep-rgb) / 6%);
-  --shadow-sm: 0 1px 2px rgb(var(--deep-rgb) / 5%), 0 6px 16px -10px rgb(var(--deep-rgb) / 16%);
-  --shadow-md: 0 8px 20px -12px rgb(var(--deep-rgb) / 20%),
-    0 20px 44px -28px rgb(var(--deep-rgb) / 24%);
-  --shadow-lg: 0 16px 40px -20px rgb(var(--deep-rgb) / 24%),
-    0 44px 90px -50px rgb(var(--deep-rgb) / 32%);
-  --shadow-glass: 0 10px 34px -14px rgb(var(--deep-rgb) / 28%);
+  /* Sombras mínimas: la profundidad la dan la fotografía y el color. */
+  --shadow-xs: 0 1px 2px rgb(var(--deep-rgb) / 5%);
+  --shadow-sm: 0 1px 2px rgb(var(--deep-rgb) / 4%), 0 4px 12px -8px rgb(var(--deep-rgb) / 12%);
+  --shadow-md: 0 10px 30px -18px rgb(var(--deep-rgb) / 22%);
+  --shadow-lg: 0 24px 60px -36px rgb(var(--deep-rgb) / 30%);
+  --shadow-glass: 0 10px 30px -18px rgb(var(--deep-rgb) / 30%);
   --shadow-ring: inset 0 0 0 1px rgb(var(--deep-rgb) / 6%);
 
   /* ═══ MOVIMIENTO ══════════════════════════════════════════════════════ */

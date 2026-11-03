@@ -2,92 +2,93 @@
  * ESPACIOS Y TEXTOS DE LA PROPIEDAD
  * =============================================================================
  * Los números (huéspedes, habitaciones, camas, baños) viven en
- * `src/config/site.ts`. Aquí van los espacios y los textos descriptivos.
+ * `src/config/site.ts` y siguen en `null` hasta que el propietario los
+ * confirme: aquí no se cuenta nada.
  *
- * Ningún texto afirma características concretas del inmueble: descríbelas tú
- * cuando tengas la información real.
+ * Regla de redacción: sólo se describe lo que se ve en las fotografías reales
+ * de la casa (piscina, jardín, terraza, patio techado, sala, cocina,
+ * dormitorios con cama matrimonial, camarotes y camas individuales, baños con
+ * ducha de mampara). Nada de capacidades, metros ni servicios no verificados.
  */
 import type { PropertySpace } from '../types/content.js';
+import type { GalleryImage } from '../types/content.js';
+import { photoBySlug } from './gallery.js';
 
-/** Bloques de texto editables de la página "La casa". */
+/** Bloques de texto de la página "La casa". */
 export const propertyIntro = {
   eyebrow: 'La propiedad',
-  title: 'Una casa para quedarse, no sólo para dormir',
+  title: 'Una casa de dos plantas, con piscina, jardín y espacio para todos',
   paragraphs: [
-    'Casa Blanco se alquila completa: durante tu estancia la propiedad es sólo de tu grupo. Llegar, dejar las maletas y no pensar en nada más.',
-    'La distribución, los ambientes y el equipamiento definitivos se detallan a continuación. Sustituye este texto por la descripción real de la casa cuando la tengas: mantén el tono tranquilo y concreto, sin exageraciones comerciales.',
+    'Casa Leblanc es una casa vacacional en Ica que se reserva completa. Durante tu estadía, la piscina, el jardín, la terraza y todos los ambientes son sólo para tu grupo: sin recepción, sin pasillos compartidos y sin horarios que no sean los tuyos.',
+    'La planta baja se abre al exterior con ventanales corredizos: la sala y la cocina miran a la terraza y a la piscina. Los dormitorios combinan camas matrimoniales, camarotes y camas individuales, una distribución pensada para familias y grupos de amigos.',
   ],
 };
 
 /** Párrafos de presentación de la portada. Admiten enlaces internos. */
 export const homeIntroParagraphs = [
-  'Casa Blanco se alquila completa: durante tu estancia la propiedad es sólo de tu grupo. Sin recepción, sin pasillos compartidos y sin horarios que no sean los tuyos.',
-  'Ica se recorre bien de día y se agradece con calma al volver. Por eso la casa está pensada para las dos cosas: <a href="/casa">espacios amplios</a> donde reunirse y rincones tranquilos para desconectar, con <a href="/experiencia">el desierto y los viñedos</a> a un trayecto corto.',
+  'Casa Leblanc es una casa de dos plantas en Ica que se alquila completa: la piscina, el jardín, la terraza y cada ambiente son sólo para tu grupo durante toda la estadía.',
+  'De día, el desierto, las bodegas y el <a href="/experiencia">oasis de Huacachina</a> esperan a un trayecto corto. Al volver, la casa ofrece lo que se busca en un alojamiento para familias y grupos: <a href="/casa">espacio, calma</a> y una piscina iluminada para terminar el día.',
 ];
 
-/**
- * TODO: describe los espacios reales de la casa. `beds: null` se muestra como
- * pendiente en lugar de inventar una configuración de camas.
- */
+/** Espacios de la casa, con su fotografía real. */
 export const spaces: PropertySpace[] = [
   {
-    id: 'dormitorio-1',
-    name: 'Dormitorio principal',
-    description: 'Habitación principal de la casa.',
+    id: 'exteriores',
+    name: 'Piscina, jardín y terraza',
+    description:
+      'La piscina iluminada es el centro de la casa. A su alrededor, jardín, una terraza con piso de madera, mesa exterior con sombrilla y un patio techado con luces colgantes.',
     beds: null,
-    icon: 'bed',
+    icon: 'pool',
   },
   {
-    id: 'dormitorio-2',
-    name: 'Dormitorio secundario',
-    description: 'Habitación adicional para acompañantes.',
-    beds: null,
-    icon: 'bed',
-  },
-  {
-    id: 'sala',
-    name: 'Sala de estar',
-    description: 'Zona común para reunirse al final del día.',
+    id: 'sala-cocina',
+    name: 'Sala y cocina',
+    description:
+      'Una sala amplia con sofá seccional y ventanales hacia la terraza, y una cocina con refrigeradora, cocina con horno y espacio para preparar las comidas del grupo.',
     beds: null,
     icon: 'sofa',
   },
   {
-    id: 'cocina-comedor',
-    name: 'Cocina y comedor',
-    description: 'Espacio para preparar y compartir las comidas.',
+    id: 'dormitorios',
+    name: 'Dormitorios y baños',
+    description:
+      'Dormitorios con cama matrimonial y clóset, una habitación con camarotes y otras con camas individuales. Baños con ducha de mampara de vidrio y acabados en madera.',
     beds: null,
-    icon: 'utensils',
-  },
-  {
-    id: 'exteriores',
-    name: 'Exteriores',
-    description: 'Áreas al aire libre de la propiedad.',
-    beds: null,
-    icon: 'sun',
+    icon: 'bed',
   },
 ];
 
-/** Argumentos de estancia mostrados en la portada. Textos genéricos y honestos. */
+/** Fotografía de cada espacio (mismo orden e `id` que `spaces`). */
+export const spaceImages: Record<string, GalleryImage> = {
+  exteriores: photoBySlug('piscina-zona-comedor-exterior-casa-leblanc'),
+  'sala-cocina': photoBySlug('cocina-equipada-casa-leblanc-ica'),
+  dormitorios: photoBySlug('habitacion-camarotes-casa-leblanc'),
+};
+
+/** Argumentos de estancia mostrados en la portada. Todos verificables. */
 export const stayHighlights = [
   {
     id: 'privacidad',
-    title: 'Una sola reserva a la vez',
-    description:
-      'La casa no se comparte. Durante tu estancia el espacio es de tu grupo, de principio a fin.',
+    title: 'Casa completa y privada',
+    description: 'Una sola reserva a la vez: el espacio es de tu grupo de principio a fin.',
     icon: 'key',
   },
   {
-    id: 'descanso',
-    title: 'Ambientes para cada momento',
-    description:
-      'Zonas comunes para reunirse y rincones tranquilos para leer, dormir o no hacer nada.',
-    icon: 'moon',
+    id: 'piscina',
+    title: 'Piscina iluminada',
+    description: 'Rodeada de jardín y terraza, para el sol de Ica y para las noches templadas.',
+    icon: 'pool',
+  },
+  {
+    id: 'grupos',
+    title: 'Para familias y grupos',
+    description: 'Camas matrimoniales, camarotes y camas individuales en dormitorios separados.',
+    icon: 'users',
   },
   {
     id: 'directo',
-    title: 'Trato directo con el propietario',
-    description:
-      'Escribes y te responde quien administra la casa: sin centralitas ni intermediarios.',
-    icon: 'shield',
+    title: 'Trato directo',
+    description: 'Consultas y reservas con el anfitrión, por WhatsApp, sin intermediarios.',
+    icon: 'whatsapp',
   },
 ];

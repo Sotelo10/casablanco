@@ -16,12 +16,12 @@
 import type { SiteConfig } from '../types/site.js';
 
 export const site = {
-  name: 'Casa Blanco',
-  shortName: 'Casa Blanco',
-  tagline: 'Casa vacacional en Ica, Perú',
-  /** Descripción base para metadatos. Ajústala cuando tengas el detalle real. */
+  name: 'Casa Leblanc',
+  shortName: 'Casa Leblanc',
+  tagline: 'Casa vacacional y alojamiento en Ica, Perú',
+  /** Descripción base para metadatos y datos estructurados. */
   description:
-    'Casa Blanco es una casa vacacional en Ica, Perú: se alquila completa, para una sola reserva a la vez. Espacios amplios, privacidad total y el desierto, los viñedos y el oasis a corta distancia.',
+    'Casa Leblanc es una casa vacacional en Ica, Perú, cerca de Huacachina: casa de dos plantas con piscina iluminada, jardín, terraza, sala, cocina y dormitorios para familias y grupos. Reserva directa con el anfitrión.',
 
   location: {
     city: 'Ica',
@@ -30,8 +30,9 @@ export const site = {
     countryCode: 'PE',
     /** TODO: calle y número exactos. */
     address: '',
-    /** TODO: urbanización, zona o distrito. */
-    area: '',
+    /** Zona publicada por la propia marca en su perfil oficial de Instagram
+        ("Huacachina - Ica - Perú"). */
+    area: 'Huacachina',
     /** TODO: referencia para llegar (p. ej. "a dos cuadras de …"). */
     reference: '',
     postalCode: '',
@@ -44,19 +45,23 @@ export const site = {
   },
 
   contact: {
-    /** TODO: teléfono en formato internacional, p. ej. `+51 900 000 000`. */
-    phone: '',
-    /** TODO: WhatsApp sólo con dígitos y código de país, p. ej. `51900000000`. */
-    whatsapp: '',
+    /** Número de contacto publicado en el perfil oficial de Instagram. */
+    phone: '+51 948 898 400',
+    /**
+     * Mismo número, en formato wa.me. VERIFICAR con el propietario que la
+     * línea tiene WhatsApp activo (el perfil lo publica como "contacto").
+     */
+    whatsapp: '51948898400',
     /** TODO: correo de contacto. */
     email: '',
-    hours: 'Respondemos todos los días',
+    /** Horario de atención: vacío hasta que el propietario lo confirme. */
+    hours: '',
   },
 
   social: {
-    instagram: '',
-    facebook: '',
-    tiktok: '',
+    instagram: 'https://www.instagram.com/casa_leblanc26/',
+    facebook: 'https://www.facebook.com/profile.php?id=61586105676935',
+    tiktok: 'https://www.tiktok.com/@casa_leblanc',
     airbnb: '',
     booking: '',
   },
@@ -86,17 +91,14 @@ export const site = {
   seo: {
     locale: 'es-PE',
     ogLocale: 'es_PE',
-    /**
-     * TODO: coloca una imagen social de 1200×630 px en `public/` y escribe aquí
-     * su ruta (p. ej. `/og-image.jpg`). Vacío = no se emite `og:image`.
-     */
-    ogImage: '',
-    ogImageAlt: '',
+    /** Imagen social 1200×630 generada por `scripts/optimize-media.mjs`. */
+    ogImage: '/images/casa-leblanc/og/casa-leblanc-ica-peru.jpg',
+    ogImageAlt: 'Piscina iluminada y fachada de Casa Leblanc de noche, en Ica, Perú',
     twitterHandle: '',
   },
 
   content: {
-    isPlaceholder: true,
+    isPlaceholder: false,
     placeholderLabel: 'Por confirmar',
   },
 } satisfies SiteConfig;

@@ -90,3 +90,8 @@ ol[role="list"] {
     scroll-behavior: auto !important;
   }
 }
+
+/* `hidden` siempre gana a cualquier `display` de componente. */
+[hidden] {
+  display: none !important;
+}

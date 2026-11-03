@@ -9,33 +9,35 @@ import Card from '../components/ui/Card.astro';
 import Chapter from '../components/ui/Chapter.astro';
 import Container from '../components/ui/Container.astro';
 import Icon from '../components/ui/Icon.astro';
-import PlaceholderNotice from '../components/ui/PlaceholderNotice.astro';
 import PlaceholderValue from '../components/ui/PlaceholderValue.astro';
 import Section from '../components/ui/Section.astro';
 import { formattedAddress, formattedCity, site } from '../config/site.js';
 import PageLayout from '../layouts/PageLayout.astro';
 import { getNearbyPlaces } from '../lib/services/content.service.js';
-import { googleDirectionsLink, googleMapsLink } from '../lib/utils/maps.js';
+import { googleDirectionsLink, googleMapsLink, googleMapsZoneLink } from '../lib/utils/maps.js';
+import WhatsAppButton from '../components/booking/WhatsAppButton.astro';
 
 const places = await getNearbyPlaces();
 const directions = googleDirectionsLink();
 const mapsUrl = googleMapsLink();
+const zoneUrl = googleMapsZoneLink();
 
 const breadcrumbs = [
   { name: 'Inicio', href: '/' },
   { name: 'Ubicación', href: '/ubicacion' },
 ];
 
+/** Sólo se listan los datos que existen; la dirección se comparte al reservar. */
 const details = [
   {
     label: 'Dirección',
     value: site.location.address ? formattedAddress() : null,
     fallback: 'Se comparte al confirmar la reserva',
   },
-  { label: 'Zona', value: site.location.area, fallback: 'Por confirmar' },
-  { label: 'Referencia', value: site.location.reference, fallback: 'Por confirmar' },
-  { label: 'Ciudad', value: formattedCity(), fallback: 'Por confirmar' },
-];
+  { label: 'Zona', value: site.location.area, fallback: '' },
+  { label: 'Referencia', value: site.location.reference, fallback: '' },
+  { label: 'Ciudad', value: formattedCity(), fallback: '' },
+].filter((item) => item.value || item.fallback);
 
 const arrivals = [
   {
@@ -57,13 +59,12 @@ const arrivals = [
 ---
 
 <PageLayout
-  title="Ubicación y cómo llegar"
-  description="Dónde está Casa Blanco en Ica, cómo llegar en auto o en bus y qué lugares de interés quedan cerca de la propiedad."
-  heading="Dónde está la casa"
+  title="Ubicación: cómo llegar a Casa Leblanc en Ica"
+  description="Casa Leblanc está en Ica, Perú, en la zona de Huacachina. Cómo llegar desde Lima por la Panamericana Sur o en bus, y qué lugares de interés hay cerca."
+  heading="Cómo llegar a Casa Leblanc"
   eyebrow="Ubicación"
-  intro="Casa Blanco está en Ica, Perú. Aquí encontrarás la zona, cómo llegar y los puntos de interés más próximos."
+  intro="Casa Leblanc está en Ica, Perú, en la zona de Huacachina. Aquí tienes cómo llegar y qué hay alrededor."
   breadcrumbs={breadcrumbs}
-  ctaTopWave="background"
 >
   <Section tone="default" container="none" aria-labelledby="mapa-title">
     <Container size="wide">
@@ -109,17 +110,22 @@ const arrivals = [
             }
             {
               !directions && !mapsUrl && (
-                <Button href="/contacto" variant="primary" icon="arrow-right">
-                  Pedir indicaciones
-                </Button>
+                <>
+                  <WhatsAppButton
+                    variant="primary"
+                    label="Pedir indicaciones"
+                    message={`Hola, quisiera indicaciones para llegar a ${site.name}.`}
+                  />
+                  {zoneUrl && (
+                    <Button href={zoneUrl} variant="outline" icon="arrow-up-right" external>
+                      Ver la zona en Google Maps
+                    </Button>
+                  )}
+                </>
               )
             }
           </div>
 
-          <PlaceholderNotice
-            text="Al completar la dirección (o la latitud y longitud) en src/config/site.ts aparecen los enlaces a Google Maps; con la clave PUBLIC_GOOGLE_MAPS_API_KEY el mapa se incrusta en la página."
-            class="location__notice"
-          />
         </Card>
       </div>
     </Container>
@@ -161,7 +167,7 @@ const arrivals = [
         index="03"
         eyebrow="Alrededores"
         title="Qué hay cerca"
-        description="Los tiempos se publican una vez medidos desde la dirección real de la propiedad."
+        description="Distancias aproximadas desde el centro de Ica."
         id="cerca-title"
         actionHref="/experiencia"
         actionLabel="Ver la experiencia completa"

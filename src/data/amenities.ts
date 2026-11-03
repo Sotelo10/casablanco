@@ -42,33 +42,38 @@ export const amenityGroups: { id: AmenityGroup; title: string; description: stri
   },
 ];
 
+/**
+ * `confirmed: true` = visible en las fotografías reales de la casa.
+ * El resto sigue pendiente de confirmación del propietario y no se publica.
+ */
 export const amenities: Amenity[] = [
+  { id: 'piscina', name: 'Piscina con iluminación', group: 'exterior', icon: 'pool', confirmed: true },
+  { id: 'jardin', name: 'Jardín', group: 'exterior', icon: 'leaf', confirmed: true },
+  { id: 'terraza', name: 'Terraza con piso de madera', group: 'exterior', icon: 'sun', confirmed: true },
+  { id: 'mesa-exterior', name: 'Mesa exterior con sombrilla', group: 'exterior', icon: 'table', confirmed: true },
+  { id: 'patio-techado', name: 'Patio techado con luces', group: 'exterior', icon: 'home', confirmed: true },
+  { id: 'sala', name: 'Sala con sofá seccional', group: 'confort', icon: 'sofa', confirmed: true },
+  { id: 'closet', name: 'Clósets en dormitorios', group: 'confort', icon: 'key', confirmed: true },
+  { id: 'ropa-cama', name: 'Ropa de cama y toallas', group: 'esenciales', icon: 'bed', confirmed: true },
+  { id: 'ducha', name: 'Duchas con mampara de vidrio', group: 'esenciales', icon: 'bath', confirmed: true },
+  { id: 'refrigeradora', name: 'Refrigeradora', group: 'cocina', icon: 'fridge', confirmed: true },
+  { id: 'cocina-horno', name: 'Cocina con horno', group: 'cocina', icon: 'kitchen', confirmed: true },
   { id: 'wifi', name: 'WiFi', group: 'esenciales', icon: 'wifi', confirmed: false },
   { id: 'agua-caliente', name: 'Agua caliente', group: 'esenciales', icon: 'droplet', confirmed: false },
-  { id: 'ropa-cama', name: 'Ropa de cama y toallas', group: 'esenciales', icon: 'bed', confirmed: false },
   { id: 'aire', name: 'Aire acondicionado', group: 'confort', icon: 'snowflake', confirmed: false },
-  { id: 'ventiladores', name: 'Ventiladores', group: 'confort', icon: 'fan', confirmed: false },
   { id: 'tv', name: 'Televisor', group: 'confort', icon: 'tv', confirmed: false },
-  { id: 'cocina-equipada', name: 'Cocina equipada', group: 'cocina', icon: 'kitchen', confirmed: false },
-  { id: 'refrigeradora', name: 'Refrigeradora', group: 'cocina', icon: 'fridge', confirmed: false },
   { id: 'vajilla', name: 'Vajilla y utensilios', group: 'cocina', icon: 'utensils', confirmed: false },
-  { id: 'comedor', name: 'Comedor', group: 'cocina', icon: 'table', confirmed: false },
-  { id: 'piscina', name: 'Piscina', group: 'exterior', icon: 'pool', confirmed: false },
-  { id: 'terraza', name: 'Terraza', group: 'exterior', icon: 'sun', confirmed: false },
-  { id: 'jardin', name: 'Jardín', group: 'exterior', icon: 'leaf', confirmed: false },
   { id: 'parrilla', name: 'Parrilla', group: 'exterior', icon: 'flame', confirmed: false },
   { id: 'estacionamiento', name: 'Estacionamiento', group: 'seguridad', icon: 'car', confirmed: false },
-  { id: 'ingreso-privado', name: 'Ingreso privado', group: 'seguridad', icon: 'key', confirmed: false },
   { id: 'lavanderia', name: 'Lavandería', group: 'servicios', icon: 'washer', confirmed: false },
-  { id: 'limpieza', name: 'Limpieza antes del ingreso', group: 'servicios', icon: 'sparkle', confirmed: false },
 ];
 
 /** Selección corta para la portada y la vista previa de "La casa". */
 export const featuredAmenityIds = [
-  'wifi',
   'piscina',
-  'cocina-equipada',
-  'aire',
-  'estacionamiento',
+  'jardin',
   'terraza',
+  'sala',
+  'cocina-horno',
+  'ropa-cama',
 ];

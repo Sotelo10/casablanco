@@ -5,6 +5,10 @@
  * se elimina del JSON-LD en lugar de rellenarse con un valor inventado.
  */
 import { site } from '../../config/site.js';
+import { amenities } from '../../data/amenities.js';
+import { gallery } from '../../data/gallery.js';
+import { largestSource } from '../images.js';
+import { withBase } from '../utils/url.js';
 import type { FaqItem, ReviewSummary } from '../../types/content.js';
 
 type JsonValue = string | number | boolean | JsonObject | JsonValue[] | null | undefined;
@@ -54,6 +58,11 @@ export function propertySchema({ origin, image, reviewSummary }: SchemaContext):
   const hasRealRating =
     reviewSummary && !reviewSummary.isDemo && reviewSummary.total > 0 && reviewSummary.average;
 
+  /* Imagen social + las fotografías destacadas reales, en absoluto. */
+  const photos = gallery
+    .filter((photo) => photo.featured)
+    .map((photo) => `${origin}${largestSource(photo)}`);
+
   const schema: JsonObject = {
     '@type': 'LodgingBusiness',
     '@id': propertyId(origin),
@@ -61,7 +70,7 @@ export function propertySchema({ origin, image, reviewSummary }: SchemaContext):
     name: site.name,
     description: site.description,
     url: `${origin}/`,
-    image: image,
+    image: [image, ...photos],
     telephone: contact.phone || undefined,
     email: contact.email || undefined,
     priceRange: booking.priceRange || undefined,
@@ -85,6 +94,14 @@ export function propertySchema({ origin, image, reviewSummary }: SchemaContext):
           }
         : undefined,
     hasMap: location.googleMapsUrl || undefined,
+    /* Sólo equipamiento verificado en las fotografías. */
+    amenityFeature: amenities
+      .filter((amenity) => amenity.confirmed)
+      .map((amenity) => ({
+        '@type': 'LocationFeatureSpecification',
+        name: amenity.name,
+        value: true,
+      })),
     numberOfRooms: property.bedrooms ?? undefined,
     containsPlace:
       property.guests || property.bedrooms || property.bathrooms
@@ -110,7 +127,13 @@ export function propertySchema({ origin, image, reviewSummary }: SchemaContext):
           worstRating: 1,
         }
       : undefined,
-    sameAs: [site.social.instagram, site.social.facebook, site.social.airbnb, site.social.booking],
+    sameAs: [
+      site.social.instagram,
+      site.social.facebook,
+      site.social.tiktok,
+      site.social.airbnb,
+      site.social.booking,
+    ],
   };
 
   return prune(schema) as JsonObject;
@@ -167,7 +190,7 @@ export function breadcrumbSchema(items: BreadcrumbEntry[], origin: string): Json
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: `${origin}${item.href === '/' ? '/' : item.href}`,
+      item: `${origin}${withBase(item.href === '/' ? '/' : item.href)}`,
     })),
   };
 }

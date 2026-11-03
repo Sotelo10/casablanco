@@ -48,7 +48,7 @@ import Icon from '../ui/Icon.astro';
     margin: 0;
     padding: 0;
     border: none;
-    background-color: rgb(var(--deep-rgb) / 97%);
+    background-color: rgb(var(--veil-rgb) / 98%);
     color: var(--color-text-inverse);
   }
 
@@ -85,6 +85,7 @@ import Icon from '../ui/Icon.astro';
     border: 1px solid rgb(var(--white-rgb) / 18%);
     border-radius: var(--radius-pill);
     color: var(--color-text-inverse);
+    cursor: pointer;
     transition: background-color var(--duration-fast) var(--ease-out);
   }
 
@@ -158,6 +159,33 @@ import Icon from '../ui/Icon.astro';
   .lightbox__media :global(figcaption) {
     display: none;
   }
+
+  .lightbox__media :global(.frame__media) {
+    background: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .lightbox[open] {
+      animation: lightbox-in var(--duration) var(--ease-out);
+    }
+
+    .lightbox__media.is-entering {
+      animation: lightbox-photo var(--duration-slow) var(--ease-emphasis);
+    }
+
+    @keyframes lightbox-in {
+      from {
+        opacity: 0;
+      }
+    }
+
+    @keyframes lightbox-photo {
+      from {
+        opacity: 0;
+        transform: scale(0.985);
+      }
+    }
+  }
 </style>
 
 <script>
@@ -189,11 +217,17 @@ import Icon from '../ui/Icon.astro';
       media.replaceChildren();
       if (source) media.append(source.cloneNode(true));
 
-      // Las imágenes clonadas deben cargarse de inmediato.
+      // Las imágenes clonadas se cargan de inmediato y piden la variante del
+      // tamaño de pantalla, no la de la miniatura. Sin recortes: se ven enteras.
       media.querySelectorAll('img').forEach((img) => {
         img.loading = 'eager';
+        img.sizes = '(min-width: 78rem) 78rem, 100vw';
+        img.style.objectPosition = '';
         img.removeAttribute('fetchpriority');
       });
+      media.classList.remove('is-entering');
+      void media.offsetWidth;
+      media.classList.add('is-entering');
 
       if (stage) stage.dataset.orientation = item.dataset.orientation ?? 'landscape';
       if (caption) {

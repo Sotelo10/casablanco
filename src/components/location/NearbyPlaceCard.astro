@@ -66,8 +66,7 @@ const { place, withImage = true, index, class: className, ...rest } = Astro.prop
     <p class="place__description">{place.description}</p>
     <p class="place__distance">
       <Icon name="clock" size={14} />
-      {place.distance ?? '[X min]'}
-      <span class="visually-hidden">desde la propiedad</span>
+      {place.distance ?? 'Distancia por confirmar'}
     </p>
   </div>
 </Card>
@@ -128,7 +127,8 @@ const { place, withImage = true, index, class: className, ...rest } = Astro.prop
     gap: 0.4rem;
     margin-block-start: auto;
     padding-block-start: var(--space-sm);
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
+    font-weight: var(--weight-semibold);
     font-size: var(--text-2xs);
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;

@@ -33,6 +33,17 @@ export function googleMapsLink(): string | null {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
+/**
+ * Enlace a la ZONA publicada (p. ej. "Huacachina, Ica, Perú"), no a la casa.
+ * Se usa mientras no haya dirección ni coordenadas, siempre rotulado como zona.
+ */
+export function googleMapsZoneLink(): string | null {
+  const { area, city, country } = site.location;
+  if (!area.trim()) return null;
+  const query = [area, city, country].filter((part) => part.trim()).join(', ');
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
 /** Enlace de indicaciones "cómo llegar". */
 export function googleDirectionsLink(): string | null {
   const query = mapQuery();

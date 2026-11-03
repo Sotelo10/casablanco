@@ -153,7 +153,8 @@ const showRating = Boolean(reviewSummary && reviewSummary.total > 0 && reviewSum
   /* Sin dato real, el hueco se resuelve con una etiqueta discreta en vez de
      una cifra enorme en cursiva. */
   .rail__value :global(.placeholder) {
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
+    font-weight: var(--weight-semibold);
     font-size: 0.7rem;
     font-style: normal;
     letter-spacing: var(--tracking-wide);

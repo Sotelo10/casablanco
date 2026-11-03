@@ -1,0 +1,175 @@
+{
+  "photos": {
+    "casa-leblanc-ica-fachada-piscina-noche": {
+      "src": "/images/casa-leblanc/exteriores/casa-leblanc-ica-fachada-piscina-noche",
+      "width": 960,
+      "height": 1280,
+      "widths": [
+        480,
+        768,
+        960
+      ]
+    },
+    "piscina-iluminada-casa-vacacional-ica": {
+      "src": "/images/casa-leblanc/exteriores/piscina-iluminada-casa-vacacional-ica",
+      "width": 960,
+      "height": 1280,
+      "widths": [
+        480,
+        768,
+        960
+      ]
+    },
+    "terraza-deck-piscina-casa-leblanc": {
+      "src": "/images/casa-leblanc/exteriores/terraza-deck-piscina-casa-leblanc",
+      "width": 960,
+      "height": 1280,
+      "widths": [
+        480,
+        768,
+        960
+      ]
+    },
+    "piscina-jardin-alojamiento-ica": {
+      "src": "/images/casa-leblanc/exteriores/piscina-jardin-alojamiento-ica",
+      "width": 1200,
+      "height": 900,
+      "widths": [
+        480,
+        768,
+        1200
+      ]
+    },
+    "patio-pergola-jardin-casa-leblanc": {
+      "src": "/images/casa-leblanc/exteriores/patio-pergola-jardin-casa-leblanc",
+      "width": 960,
+      "height": 1280,
+      "widths": [
+        480,
+        768,
+        960
+      ]
+    },
+    "piscina-zona-comedor-exterior-casa-leblanc": {
+      "src": "/images/casa-leblanc/exteriores/piscina-zona-comedor-exterior-casa-leblanc",
+      "width": 1200,
+      "height": 900,
+      "widths": [
+        480,
+        768,
+        1200
+      ]
+    },
+    "cocina-equipada-casa-leblanc-ica": {
+      "src": "/images/casa-leblanc/interiores/cocina-equipada-casa-leblanc-ica",
+      "width": 1200,
+      "height": 900,
+      "widths": [
+        480,
+        768,
+        1200
+      ]
+    },
+    "sala-de-estar-casa-leblanc": {
+      "src": "/images/casa-leblanc/interiores/sala-de-estar-casa-leblanc",
+      "width": 960,
+      "height": 1280,
+      "widths": [
+        480,
+        768,
+        960
+      ]
+    },
+    "bano-ducha-vidrio-casa-leblanc": {
+      "src": "/images/casa-leblanc/interiores/bano-ducha-vidrio-casa-leblanc",
+      "width": 1200,
+      "height": 1600,
+      "widths": [
+        480,
+        768,
+        1200
+      ]
+    },
+    "bano-completo-casa-leblanc": {
+      "src": "/images/casa-leblanc/interiores/bano-completo-casa-leblanc",
+      "width": 1200,
+      "height": 1600,
+      "widths": [
+        480,
+        768,
+        1200
+      ]
+    },
+    "dormitorio-cama-matrimonial-casa-leblanc": {
+      "src": "/images/casa-leblanc/habitaciones/dormitorio-cama-matrimonial-casa-leblanc",
+      "width": 960,
+      "height": 1280,
+      "widths": [
+        480,
+        768,
+        960
+      ]
+    },
+    "dormitorio-matrimonial-closet-casa-leblanc": {
+      "src": "/images/casa-leblanc/habitaciones/dormitorio-matrimonial-closet-casa-leblanc",
+      "width": 960,
+      "height": 1280,
+      "widths": [
+        480,
+        768,
+        960
+      ]
+    },
+    "dormitorio-cama-doble-casa-leblanc": {
+      "src": "/images/casa-leblanc/habitaciones/dormitorio-cama-doble-casa-leblanc",
+      "width": 960,
+      "height": 1280,
+      "widths": [
+        480,
+        768,
+        960
+      ]
+    },
+    "habitacion-camarotes-casa-leblanc": {
+      "src": "/images/casa-leblanc/habitaciones/habitacion-camarotes-casa-leblanc",
+      "width": 1200,
+      "height": 900,
+      "widths": [
+        480,
+        768,
+        1200
+      ]
+    },
+    "habitacion-camas-individuales-casa-leblanc": {
+      "src": "/images/casa-leblanc/habitaciones/habitacion-camas-individuales-casa-leblanc",
+      "width": 960,
+      "height": 1280,
+      "widths": [
+        480,
+        768,
+        960
+      ]
+    },
+    "dormitorio-dos-camas-casa-leblanc": {
+      "src": "/images/casa-leblanc/habitaciones/dormitorio-dos-camas-casa-leblanc",
+      "width": 1200,
+      "height": 900,
+      "widths": [
+        480,
+        768,
+        1200
+      ]
+    }
+  },
+  "video": {
+    "mp4": "/video/casa-leblanc-recorrido-piscina-noche.mp4",
+    "webm": "/video/casa-leblanc-recorrido-piscina-noche.webm",
+    "poster": "/images/casa-leblanc/hero/casa-leblanc-recorrido-poster",
+    "posterWidths": [
+      480,
+      576
+    ],
+    "width": 576,
+    "height": 1024
+  }
+}

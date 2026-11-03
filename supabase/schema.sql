@@ -1,5 +1,5 @@
 -- =============================================================================
--- CASA BLANCO · ESQUEMA DE SUPABASE
+-- CASA LEBLANC · ESQUEMA DE SUPABASE
 -- =============================================================================
 -- Ejecuta este archivo completo en el SQL Editor de tu proyecto de Supabase.
 -- Es idempotente: puedes volver a ejecutarlo tras cambiarlo sin romper nada.

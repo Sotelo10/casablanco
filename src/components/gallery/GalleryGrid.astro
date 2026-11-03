@@ -2,12 +2,17 @@
 /**
  * MOSAICO EDITORIAL DE LA GALERÍA
  * =============================================================================
- * En lugar de una retícula de cuadrados iguales, las piezas alternan anchos y
- * proporciones sobre doce columnas (8+4, 4+8, 6+6) para dar ritmo de
- * publicación impresa. La última fila siempre se completa, de modo que el
- * mosaico no queda abierto sea cual sea el número de fotografías.
+ * Filas sobre doce columnas que alternan composición: ancha + estrecha (7+5),
+ * tres verticales (4+4+4), estrecha + ancha (5+7) y dos horizontales (6+6).
  *
- * En móvil todo pasa a una sola columna respetando el orden del DOM.
+ * Dentro de cada fila la proporción de cada celda se calcula a partir de su
+ * ancho y de una altura común (`height`, en unidades de columna), así todas
+ * las piezas de la fila miden lo mismo de alto sin depender de `height: 100%`
+ * ni dejar huecos. La fila de verticales sale exactamente 3:4 y la de
+ * horizontales 4:3, las proporciones nativas de las fotografías.
+ *
+ * Si sobran piezas al final, se reparten en una fila completa.
+ * En móvil: dos columnas y una pieza a todo el ancho cada cinco.
  */
 import GalleryItem from './GalleryItem.astro';
 import type { GalleryImage } from '../../types/content.js';
@@ -21,39 +26,38 @@ interface Props {
 
 const { images, priorityCount = 0, class: className, ...rest } = Astro.props;
 
+interface Row {
+  spans: number[];
+  /** Altura de la fila en anchos de columna. */
+  height: number;
+}
+
+const rhythm: Row[] = [
+  { spans: [7, 5], height: 5 },
+  { spans: [4, 4, 4], height: 16 / 3 },
+  { spans: [5, 7], height: 5 },
+  { spans: [6, 6], height: 4.5 },
+];
+
+/** Fila de cierre cuando sobran piezas. */
+const closingRow = (count: number): Row =>
+  count === 1 ? { spans: [12], height: 5 } : { spans: Array(count).fill(12 / count), height: 16 / 3 };
+
 interface Cell {
   span: number;
   ratio: string;
 }
 
-/** Patrón que se repite cada seis piezas; cada fila suma doce columnas. */
-const pattern: Cell[] = [
-  { span: 8, ratio: '3 / 2' },
-  { span: 4, ratio: '4 / 5' },
-  { span: 4, ratio: '4 / 5' },
-  { span: 8, ratio: '3 / 2' },
-  { span: 6, ratio: '5 / 4' },
-  { span: 6, ratio: '5 / 4' },
-];
-
-const ratioBySpan: Record<number, string> = {
-  4: '4 / 5',
-  6: '5 / 4',
-  8: '3 / 2',
-  12: '2 / 1',
-};
-
 function buildLayout(count: number): Cell[] {
-  const cells = Array.from({ length: count }, (_, index) => ({
-    ...pattern[index % pattern.length]!,
-  }));
+  const cells: Cell[] = [];
+  let rowIndex = 0;
 
-  const remainder = cells.reduce((total, cell) => (total + cell.span) % 12, 0);
-
-  if (remainder !== 0 && cells.length > 0) {
-    const last = cells[cells.length - 1]!;
-    last.span += 12 - remainder;
-    last.ratio = ratioBySpan[last.span] ?? last.ratio;
+  while (cells.length < count) {
+    const remaining = count - cells.length;
+    const pattern = rhythm[rowIndex % rhythm.length]!;
+    const row = remaining >= pattern.spans.length ? pattern : closingRow(remaining);
+    for (const span of row.spans) cells.push({ span, ratio: `${span} / ${row.height}` });
+    rowIndex += 1;
   }
 
   return cells;
@@ -67,17 +71,16 @@ const layout = buildLayout(images.length);
     images.map((image, index) => {
       const cell = layout[index]!;
       return (
-        <div class="grid__cell" style={`--span:${cell.span}`}>
+        <div
+          class:list={['grid__cell', index % 5 === 0 && 'grid__cell--wide']}
+          style={`--span:${cell.span};--ratio:${cell.ratio}`}
+        >
           <GalleryItem
             image={image}
             index={index}
             ratio={cell.ratio}
             priority={index < priorityCount}
-            sizes={
-              cell.span >= 8
-                ? '(min-width: 64rem) 66vw, 100vw'
-                : '(min-width: 64rem) 33vw, (min-width: 48rem) 50vw, 100vw'
-            }
+            sizes={`(min-width: 88rem) ${Math.round((cell.span / 12) * 86)}rem, (min-width: 48rem) ${Math.round((cell.span / 12) * 100)}vw, ${index % 5 === 0 ? '100vw' : '50vw'}`}
           />
         </div>
       );
@@ -88,27 +91,36 @@ const layout = buildLayout(images.length);
 <style>
   .grid {
     display: grid;
-    gap: var(--space-sm);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-xs);
   }
 
   .grid__cell {
     display: flex;
+    aspect-ratio: 3 / 4;
+  }
+
+  .grid__cell--wide {
+    grid-column: 1 / -1;
+    aspect-ratio: 4 / 3;
   }
 
   @media (min-width: 48rem) {
     .grid {
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: var(--space-md);
+      gap: var(--space-sm);
     }
 
-    .grid__cell {
+    .grid__cell,
+    .grid__cell--wide {
       grid-column: span var(--span);
+      aspect-ratio: var(--ratio);
     }
   }
 
   @media (min-width: 64rem) {
     .grid {
-      gap: var(--space-lg);
+      gap: var(--space-md);
     }
   }
 </style>

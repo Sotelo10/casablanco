@@ -1,12 +1,13 @@
 ---
 /**
- * Marca tipográfica de Casa Blanco.
+ * Marca tipográfica de Casa Leblanc.
  *
- * Es intencionadamente tipográfica: el nombre en la serif editorial y la
- * localización en monoespaciada, como una firma de arquitectura. Cuando exista
+ * Logotipo tipográfico: el nombre en versalitas espaciadas de Cormorant
+ * Garamond y la localización en Manrope, como una firma de arquitectura. Cuando exista
  * un logotipo bastará con sustituir este componente.
  */
 import { site } from '../../config/site.js';
+import { withBase } from '../../lib/utils/url.js';
 
 interface Props {
   href?: string;
@@ -27,7 +28,7 @@ const {
 ---
 
 <a
-  href={href}
+  href={withBase(href)}
   class:list={['brand', `brand--${size}`, tone === 'inverse' && 'brand--inverse', className]}
   aria-label={`${site.name} · Inicio`}
   {...rest}
@@ -58,22 +59,24 @@ const {
 
   .brand__name {
     font-family: var(--font-heading);
-    font-weight: var(--weight-regular);
-    letter-spacing: var(--tracking-tight);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     transition: color var(--duration-fast) var(--ease-out);
   }
 
   .brand--md .brand__name {
-    font-size: 1.45rem;
+    font-size: 1.25rem;
   }
 
   .brand--sm .brand__name {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
   }
 
   .brand__location {
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: var(--text-3xs);
+    font-weight: var(--weight-semibold);
     letter-spacing: var(--tracking-widest);
     text-transform: uppercase;
     color: var(--color-text-muted);
@@ -93,7 +96,7 @@ const {
 
   @media (min-width: 64rem) {
     .brand--md .brand__name {
-      font-size: 1.7rem;
+      font-size: 1.4rem;
     }
   }
 </style>

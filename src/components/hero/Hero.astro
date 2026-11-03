@@ -1,81 +1,96 @@
 ---
 /**
- * HERO
+ * HERO CINEMATOGRÁFICO
  * =============================================================================
- * Fotografía a sangre, velo en degradado que respeta el cielo y contenido
- * alineado a la izquierda: antetítulo, nombre, promesa, descripción, dos
- * acciones y una fila de beneficios.
+ * El vídeo real de la casa (recorrido nocturno por el patio, la piscina y la
+ * fachada) es vertical, así que la composición se adapta a él:
  *
- * A la derecha flota una tarjeta de cristal con la nota de destino, y el
- * bloque se cierra con la curva que enlaza con el resto de la página.
+ * - Móvil y tablet: vídeo a sangre detrás del texto, con velo de contraste.
+ * - Escritorio: composición editorial partida. Texto sobre azul profundo a la
+ *   izquierda y el vídeo en un gran panel vertical a la derecha, sin ampliarlo
+ *   más de lo que su resolución permite.
  *
- * La imagen es el LCP de la portada: carga con prioridad y con dimensiones
- * fijadas para que no haya salto de maquetación.
+ * RENDIMIENTO
+ * El LCP es el póster (`<img>` WebP con prioridad alta). El vídeo no lleva
+ * `src` en el HTML: un script mínimo lo carga cuando la página ya está
+ * inactiva, y sólo si el visitante no pidió movimiento reducido ni ahorro de
+ * datos. Sin JavaScript, o en conexiones lentas, queda el póster.
  */
-import { Image } from 'astro:assets';
-import { bookingHref, bookingLabelLong, exploreHref } from '../../config/navigation.js';
-import { site } from '../../config/site.js';
-import { resolvePropertyImage } from '../../lib/images.js';
-import { formatRating } from '../../lib/utils/format.js';
-import type { GalleryImage, ReviewSummary } from '../../types/content.js';
-import HeroBackdrop from './HeroBackdrop.astro';
-import StarRating from '../reviews/StarRating.astro';
+import { bookingHref, bookingLabel, exploreHref } from '../../config/navigation.js';
+import { formattedCity, site } from '../../config/site.js';
+import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
 import Button from '../ui/Button.astro';
-import GlassCard from '../ui/GlassCard.astro';
 import Icon from '../ui/Icon.astro';
-import WaveDivider from '../ui/WaveDivider.astro';
 
 interface Props {
-  image: GalleryImage;
+  video: {
+    mp4: string;
+    webm: string;
+    poster: string;
+    posterWidths: number[];
+    width: number;
+    height: number;
+  } | null;
+  posterAlt: string;
   eyebrow?: string;
   claim: string;
   lead: string;
-  benefits: { icon: string; title: string; detail: string }[];
-  reviewSummary?: ReviewSummary;
-  /** Color del bloque siguiente, para que la curva enlace sin costura. */
-  waveTone?: 'background' | 'surface' | 'soft' | 'sand';
+  /** Características reales, visibles en las fotografías. */
+  features: { icon: string; label: string }[];
 }
 
-const {
-  image,
-  eyebrow = 'Naturaleza · Confort · Privacidad',
-  claim,
-  lead,
-  benefits,
-  reviewSummary,
-  waveTone = 'background',
-} = Astro.props;
+const { video, posterAlt, eyebrow = 'Casa vacacional · Ica, Perú', claim, lead, features } =
+  Astro.props;
 
-const resolved = resolvePropertyImage(image.src);
-const hasRating = Boolean(reviewSummary && reviewSummary.total > 0 && reviewSummary.average);
+const whatsapp = whatsAppUrl();
+const place = [site.location.area, formattedCity()].filter(Boolean).join(' · ');
+const posterSrcset = video
+  ? video.posterWidths.map((w) => `${video.poster}-${w}.webp ${w}w`).join(', ')
+  : '';
+const posterSrc = video ? `${video.poster}-${video.posterWidths.at(-1)}.webp` : '';
 ---
 
-<section class="hero">
+<section class="hero" aria-labelledby="hero-title">
   <div class="hero__media">
     {
-      resolved ? (
-        <Image
-          src={resolved}
-          alt={image.alt}
-          widths={[640, 1024, 1440, 1920, 2560]}
-          sizes="100vw"
-          loading="eager"
-          decoding="sync"
-          fetchpriority="high"
-          class="hero__img"
-        />
-      ) : (
-        <HeroBackdrop label={`${image.label} · 2400 × 1600 px`} />
+      video && (
+        <>
+          <img
+            class="hero__poster"
+            src={posterSrc}
+            srcset={posterSrcset}
+            sizes="(min-width: 64rem) 46vw, 100vw"
+            width={video.width}
+            height={video.height}
+            alt={posterAlt}
+            fetchpriority="high"
+            decoding="async"
+          />
+          <video
+            class="hero__video"
+            data-hero-video
+            data-mp4={video.mp4}
+            data-webm={video.webm}
+            width={video.width}
+            height={video.height}
+            muted
+            loop
+            playsinline
+            preload="none"
+            aria-hidden="true"
+            tabindex="-1"
+          />
+        </>
       )
     }
-    <div class="hero__scrim"></div>
+    <div class="hero__scrim" aria-hidden="true"></div>
   </div>
 
   <div class="hero__inner">
     <div class="hero__content">
       <p class="eyebrow hero__eyebrow">{eyebrow}</p>
 
-      <h1 class="hero__title">
+      <h1 class="hero__title" id="hero-title">
         <span class="hero__name">{site.name}</span>
         <span class="hero__claim">{claim}</span>
       </h1>
@@ -83,63 +98,98 @@ const hasRating = Boolean(reviewSummary && reviewSummary.total > 0 && reviewSumm
       <p class="hero__lead">{lead}</p>
 
       <div class="hero__actions">
-        <Button href={bookingHref} variant="light" size="lg" icon="arrow-right" leadingIcon="calendar">
-          {bookingLabelLong}
+        <Button href={bookingHref} variant="light" size="lg" leadingIcon="calendar">
+          {bookingLabel}
         </Button>
-        {/* Flecha, no un ▶: el botón lleva a una página, no a un vídeo. */}
-        <Button href={exploreHref} variant="glass" size="lg" leadingIcon="arrow-right">
-          Conocer la casa
+        <Button href={exploreHref} variant="glass" size="lg" icon="arrow-right">
+          Descubrir la casa
         </Button>
       </div>
 
-      <ul class="benefits" role="list">
+      <ul class="hero__features" role="list" aria-label="Características de la casa">
         {
-          benefits.map((benefit) => (
-            <li class="benefit">
-              <Icon name={benefit.icon} size={22} class="benefit__icon" />
-              <span class="benefit__body">
-                <span class="benefit__title">{benefit.title}</span>
-                <span class="benefit__detail">{benefit.detail}</span>
-              </span>
+          features.map((feature) => (
+            <li class="hero__feature">
+              <Icon name={feature.icon} size={18} />
+              <span>{feature.label}</span>
             </li>
           ))
         }
       </ul>
 
-      {
-        hasRating && reviewSummary && (
-          <p class="hero__rating">
-            <StarRating value={reviewSummary.average ?? 0} size={14} tone="inverse" />
-            <span class="hero__rating-value">{formatRating(reviewSummary.average ?? 0)}</span>
-            <span>
-              · {reviewSummary.total} {reviewSummary.total === 1 ? 'reseña' : 'reseñas'}
-            </span>
-            {reviewSummary.isDemo && <span class="hero__rating-demo">Contenido de ejemplo</span>}
-          </p>
-        )
-      }
+      <div class="hero__meta">
+        <p class="hero__place">
+          <Icon name="map-pin" size={16} />
+          <span>{place}</span>
+        </p>
+        {
+          whatsapp && (
+            <a class="hero__whatsapp" href={whatsapp} target="_blank" rel="noopener noreferrer">
+              <Icon name="whatsapp" size={16} />
+              <span>
+                WhatsApp <span class="hero__phone">{site.contact.phone}</span>
+              </span>
+            </a>
+          )
+        }
+      </div>
     </div>
-
-    <GlassCard as="aside" tone="light" class="hero__note">
-      <p class="script hero__note-place">{site.location.city}, {site.location.country}</p>
-      <p class="hero__note-text">Un destino único,<br />a tu propio ritmo.</p>
-      <span class="hero__note-rule" aria-hidden="true"></span>
-    </GlassCard>
   </div>
 
-  <WaveDivider tone={waveTone} />
+  <a class="hero__scroll" href="#la-casa" aria-label="Ir a la presentación de la casa">
+    <span class="hero__scroll-line" aria-hidden="true"></span>
+  </a>
 </section>
+
+<script>
+  const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
+
+  if (video) {
+    const connection = (
+      navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }
+    ).connection;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const slow = connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType ?? '');
+
+    if (!reducedMotion && !slow) {
+      const start = () => {
+        const sources: [string | undefined, string][] = [
+          [video.dataset.webm, 'video/webm'],
+          [video.dataset.mp4, 'video/mp4'],
+        ];
+        for (const [src, type] of sources) {
+          if (!src) continue;
+          const source = document.createElement('source');
+          source.src = src;
+          source.type = type;
+          video.append(source);
+        }
+        video.addEventListener('playing', () => video.classList.add('is-playing'), { once: true });
+        video.load();
+        video.play().catch(() => {
+          /* Autoplay bloqueado (p. ej. modo de bajo consumo en iOS): queda el póster. */
+        });
+      };
+
+      const idle = (window as Window & { requestIdleCallback?: (cb: () => void) => void })
+        .requestIdleCallback;
+      const schedule = () => (idle ? idle(start) : setTimeout(start, 200));
+      if (document.readyState === 'complete') schedule();
+      else window.addEventListener('load', schedule, { once: true });
+    }
+  }
+</script>
 
 <style>
   .hero {
     position: relative;
     display: flex;
-    align-items: center;
-    min-height: clamp(38rem, 92svh, 48rem);
-    padding-block: calc(var(--header-height) + var(--space-2xl)) var(--space-4xl);
+    align-items: flex-end;
+    min-height: max(36rem, 100svh);
+    padding-block: calc(var(--header-height) + var(--space-2xl)) var(--space-3xl);
     overflow: hidden;
     color: var(--color-text-inverse);
-    background-color: var(--sky-500);
+    background-color: var(--color-surface-deep);
     isolation: isolate;
   }
 
@@ -147,33 +197,44 @@ const hasRating = Boolean(reviewSummary && reviewSummary.total > 0 && reviewSumm
     position: absolute;
     inset: 0;
     z-index: -1;
+    background-color: var(--color-surface-deep);
   }
 
-  .hero__img {
+  .hero__poster,
+  .hero__video {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: 50% 60%;
   }
 
-  /* Velo doble: horizontal para el texto y superior para la cabecera. Deja
-     respirar el cielo de la fotografía en lugar de oscurecerla entera. */
+  .hero__video {
+    opacity: 0;
+    transition: opacity 900ms var(--ease-out);
+  }
+
+  .hero__video.is-playing {
+    opacity: 1;
+  }
+
+  /* Velo: oscurece la parte baja, donde vive el texto, y la franja superior
+     de la cabecera; el centro del vídeo respira. */
   .hero__scrim {
     position: absolute;
     inset: 0;
     background:
       linear-gradient(
-        to right,
-        rgb(var(--deep-rgb) / 62%) 0%,
-        rgb(var(--deep-rgb) / 34%) 40%,
-        rgb(var(--deep-rgb) / 6%) 74%,
-        rgb(var(--deep-rgb) / 0%) 100%
-      ),
-      linear-gradient(to bottom, rgb(var(--deep-rgb) / 40%) 0%, transparent 24%);
+        to top,
+        rgb(var(--veil-rgb) / 96%) 0%,
+        rgb(var(--veil-rgb) / 82%) 42%,
+        rgb(var(--veil-rgb) / 40%) 72%,
+        rgb(var(--veil-rgb) / 55%) 100%
+      );
   }
 
   .hero__inner {
-    display: grid;
-    gap: var(--space-2xl);
     width: 100%;
     max-width: var(--container-full);
     margin-inline: auto;
@@ -181,38 +242,40 @@ const hasRating = Boolean(reviewSummary && reviewSummary.total > 0 && reviewSumm
   }
 
   .hero__content {
-    max-width: 46rem;
+    max-width: 38rem;
   }
 
   .hero__eyebrow {
-    color: var(--color-text-inverse);
+    color: var(--color-accent-light);
   }
 
   .hero__title {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2xs);
-    margin-block-start: var(--space-lg);
+    gap: var(--space-xs);
+    margin-block-start: var(--space-md);
   }
 
   .hero__name {
     font-size: var(--text-display);
-    line-height: 0.92;
+    font-weight: var(--weight-heading);
+    line-height: 0.9;
     letter-spacing: var(--tracking-tighter);
   }
 
   .hero__claim {
     font-family: var(--font-heading);
-    font-size: clamp(1.5rem, 1rem + 2.2vw, 3rem);
-    font-weight: var(--weight-regular);
-    line-height: 1.15;
-    letter-spacing: var(--tracking-tight);
-    color: rgb(var(--white-rgb) / 92%);
+    font-size: clamp(1.375rem, 1.05rem + 1.4vw, 2.25rem);
+    font-style: italic;
+    font-weight: var(--weight-heading);
+    line-height: 1.2;
+    letter-spacing: 0;
+    color: rgb(var(--white-rgb) / 90%);
   }
 
   .hero__lead {
     margin-block-start: var(--space-lg);
-    max-width: 40ch;
+    max-width: 44ch;
     font-size: var(--text-body);
     line-height: var(--leading-relaxed);
     color: rgb(var(--white-rgb) / 84%);
@@ -225,120 +288,135 @@ const hasRating = Boolean(reviewSummary && reviewSummary.total > 0 && reviewSumm
     margin-block-start: var(--space-xl);
   }
 
-  .benefits {
-    display: grid;
-    gap: var(--space-md);
-    margin-block-start: var(--space-2xl);
-    padding: 0;
+  .hero__features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-lg);
+    margin-block-start: var(--space-xl);
+    padding: var(--space-lg) 0 0;
+    border-block-start: 1px solid rgb(var(--white-rgb) / 18%);
     list-style: none;
   }
 
-  .benefit {
-    display: flex;
+  .hero__feature {
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-sm);
-  }
-
-  .benefit__icon {
-    color: rgb(var(--white-rgb) / 88%);
-  }
-
-  .benefit__body {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.3;
-  }
-
-  .benefit__title {
-    font-size: var(--text-body-sm);
+    gap: var(--space-xs);
+    font-size: var(--text-sm);
     font-weight: var(--weight-medium);
+    color: rgb(var(--white-rgb) / 90%);
   }
 
-  .benefit__detail {
+  .hero__feature :global(svg) {
+    color: var(--color-accent-light);
+  }
+
+  .hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs) var(--space-lg);
+    margin-block-start: var(--space-lg);
     font-size: var(--text-sm);
     color: rgb(var(--white-rgb) / 76%);
   }
 
-  .hero__rating {
-    display: flex;
-    flex-wrap: wrap;
+  .hero__place,
+  .hero__whatsapp {
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-2xs) var(--space-xs);
-    margin-block-start: var(--space-xl);
-    font-size: var(--text-sm);
-    color: rgb(var(--white-rgb) / 82%);
+    gap: var(--space-xs);
   }
 
-  .hero__rating-value {
-    font-weight: var(--weight-semibold);
+  .hero__whatsapp {
+    min-height: 2.75rem;
     color: var(--color-text-inverse);
+    text-decoration: none;
   }
 
-  .hero__rating-demo {
-    padding: 0.35em 0.7em;
-    border: 1px solid var(--color-border-inverse);
-    border-radius: var(--radius-pill);
-    font-size: var(--text-3xs);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
+  .hero__whatsapp:hover {
+    color: var(--color-accent-light);
   }
 
-  /* Nota de destino: en móvil acompaña al contenido; en pantallas amplias
-     flota sobre la fotografía, a la derecha. */
-  .hero__note {
-    width: 100%;
-    max-width: 26rem;
+  .hero__phone {
+    font-variant-numeric: tabular-nums;
+    color: rgb(var(--white-rgb) / 76%);
   }
 
-  .hero__note-place {
-    font-size: 1.6rem;
-    color: var(--color-primary);
+  .hero__scroll {
+    display: none;
   }
 
-  .hero__note-text {
-    margin-block-start: var(--space-2xs);
-    font-family: var(--font-heading);
-    font-size: 1.35rem;
-    line-height: 1.3;
-    color: var(--color-text);
-  }
-
-  .hero__note-rule {
-    display: block;
-    width: 2.5rem;
-    height: 1px;
-    margin-block-start: var(--space-md);
-    background-color: var(--color-border-strong);
-  }
-
-  @media (min-width: 48rem) {
-    .benefits {
-      grid-auto-flow: column;
-      grid-auto-columns: max-content;
-      gap: var(--space-xl);
-    }
-
-    /* Filetes entre beneficios, como en la dirección de arte de referencia. */
-    .benefit + .benefit {
-      padding-inline-start: var(--space-xl);
-      border-inline-start: 1px solid rgb(var(--white-rgb) / 28%);
-    }
-  }
-
+  /* ── Escritorio: composición partida ─────────────────────────────────── */
   @media (min-width: 64rem) {
     .hero {
-      min-height: min(94svh, 54rem);
-    }
-
-    .hero__inner {
-      grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
-      gap: var(--space-4xl);
+      min-height: max(40rem, min(100svh, 62rem));
+      padding-block: calc(var(--header-height) + var(--space-2xl)) var(--space-4xl);
     }
 
-    .hero__note {
-      justify-self: end;
-      max-width: 20rem;
+    .hero__media {
+      inset: 0 0 0 auto;
+      width: 46%;
+    }
+
+    .hero__scrim {
+      background: linear-gradient(
+        to right,
+        var(--color-surface-deep) 0%,
+        rgb(var(--veil-rgb) / 30%) 14%,
+        rgb(var(--veil-rgb) / 0%) 40%
+      ),
+      linear-gradient(to bottom, rgb(var(--veil-rgb) / 40%) 0%, transparent 22%);
+    }
+
+    .hero__content {
+      max-width: min(40rem, 50%);
+    }
+
+    .hero__scroll {
+      position: absolute;
+      inset-block-end: var(--space-xl);
+      inset-inline-start: var(--gutter);
+      display: grid;
+      place-items: center;
+      width: 2.75rem;
+      height: 3.5rem;
+    }
+
+    .hero__scroll-line {
+      display: block;
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(to bottom, rgb(var(--white-rgb) / 70%), transparent);
+    }
+  }
+
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    .hero__scroll-line {
+      animation: scroll-hint 2.4s var(--ease-in-out) infinite;
+      transform-origin: top;
+    }
+
+    @keyframes scroll-hint {
+      0% {
+        transform: scaleY(0);
+      }
+
+      50% {
+        transform: scaleY(1);
+      }
+
+      100% {
+        transform: scaleY(1);
+        opacity: 0;
+      }
+    }
+  }
+
+  @media (min-width: 90rem) {
+    .hero__media {
+      width: 44%;
     }
   }
 </style>

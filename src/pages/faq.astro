@@ -6,9 +6,6 @@
  * buscadores.
  */
 import FaqSection from '../components/sections/FaqSection.astro';
-import Container from '../components/ui/Container.astro';
-import PlaceholderNotice from '../components/ui/PlaceholderNotice.astro';
-import Section from '../components/ui/Section.astro';
 import PageLayout from '../layouts/PageLayout.astro';
 import { faqSchema } from '../lib/seo/schema.js';
 import { getFaqs, getPublishableFaqs } from '../lib/services/content.service.js';
@@ -23,8 +20,8 @@ const breadcrumbs = [
 ---
 
 <PageLayout
-  title="Preguntas frecuentes"
-  description="Respuestas sobre la reserva, la capacidad, los horarios y las condiciones de Casa Blanco, casa vacacional en Ica."
+  title="Preguntas frecuentes sobre el alojamiento"
+  description="Cómo reservar Casa Leblanc en Ica, qué espacios tiene la casa, dónde está y qué hacer cerca de Huacachina. Respuestas antes de tu estadía."
   heading="Preguntas frecuentes"
   eyebrow="Antes de reservar"
   intro="Las dudas más habituales antes de solicitar una reserva. Si falta alguna, escríbenos y te respondemos."
@@ -35,13 +32,8 @@ const breadcrumbs = [
     faqs={faqs}
     index="01"
     title="Todo lo que suelen preguntarnos"
-    description="Las respuestas pendientes se marcan como tales: preferimos decirte que aún no está confirmado antes que darte un dato inexacto."
+    description="Si tu pregunta no está aquí, escríbenos por WhatsApp y te respondemos."
     tone="default"
   />
 
-  <Section tone="surface" container="none" size="compact">
-    <Container size="default">
-      <PlaceholderNotice text="Edita las preguntas en src/data/faq.ts. Sólo las marcadas como definitivas se publican en los datos estructurados." />
-    </Container>
-  </Section>
 </PageLayout>

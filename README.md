@@ -1,6 +1,6 @@
-# Casa Blanco — sitio web
+# Casa Leblanc — sitio web
 
-Sitio estático construido con [Astro](https://astro.build) para **Casa Blanco**,
+Sitio estático construido con [Astro](https://astro.build) para **Casa Leblanc**,
 casa vacacional en Ica, Perú. Está pensado para funcionar **desde el primer día
 sin fotografías ni datos definitivos**: todo lo que falta se muestra como
 marcador visible y se sustituye editando un puñado de archivos.
@@ -67,46 +67,42 @@ content: {
 }
 ```
 
-Las reseñas de ejemplo llevan `isDemo: true` y se muestran etiquetadas. Al
-sustituirlas por reseñas reales pon `isDemo: false`: el promedio pasa entonces a
+No hay reseñas de ejemplo: `src/data/reviews.ts` está vacío hasta que existan
+reseñas reales (con `isDemo: false`). Al publicarlas, el promedio pasa a
 publicarse también en los datos estructurados (`aggregateRating`).
 
 ---
 
-## 5. Dónde se colocan las fotografías
+## 5. Fotografías y vídeo
 
-1. Copia los archivos en **`src/assets/property/`**.
-2. Escribe el nombre del archivo en el campo `src` de `src/data/gallery.ts`
-   (o de `nearby.ts` para los lugares cercanos) y rellena `width` y `height`.
+Los originales del propietario viven en **`media/originales/`** y **nunca se
+publican ni se modifican**. La web sirve versiones optimizadas generadas por un
+script reproducible:
 
-```ts
-{
-  src: 'exterior-01.jpg',
-  alt: 'Fachada de la casa al atardecer',
-  category: 'exterior',
-  width: 2400,
-  height: 1600,
-  orientation: 'landscape',
-  label: 'Exterior · Fachada',
-  featured: true,
-}
+```bash
+node scripts/optimize-media.mjs
+# con vídeo (requiere ffmpeg en el PATH o FFMPEG_PATH):
+FFMPEG_PATH=/ruta/a/ffmpeg node scripts/optimize-media.mjs
 ```
 
-Mientras `src` esté vacío se muestra un mockup con **la proporción exacta** que
-tendrá la fotografía, de modo que el diseño no cambia al sustituirlo. Las
-imágenes reales pasan automáticamente por `astro:assets`: WebP, `srcset` por
-tamaños y dimensiones explícitas para evitar saltos de maquetación.
+| Qué                         | Dónde                                                   |
+| --------------------------- | ------------------------------------------------------- |
+| Selección, carpetas y slugs | `scripts/media-manifest.json`                           |
+| Fotografías WebP            | `public/images/casa-leblanc/{exteriores,interiores,habitaciones}/<slug>-<ancho>.webp` |
+| Póster del hero             | `public/images/casa-leblanc/hero/`                      |
+| Imagen social 1200×630      | `public/images/casa-leblanc/og/casa-leblanc-ica-peru.jpg` |
+| Vídeo del hero (MP4 + WebM) | `public/video/`                                         |
+| Dimensiones generadas       | `src/data/photos.generated.json`                        |
+| ALT, etiquetas y categorías | `src/data/gallery.ts`                                   |
 
-Consulta `src/assets/property/README.md` para las proporciones y resoluciones
-recomendadas.
+Cada foto se genera en 480, 768 y 1200 px (sin ampliar nunca el original;
+si el original mide menos, su ancho nativo es la última variante) con WebP
+calidad 82. El vídeo se recodifica sin audio y su bucle empieza en la piscina
+(`video.loopStart`).
 
-**Imagen social (Open Graph):** coloca un archivo de 1200 × 630 px en `public/`
-y escribe su ruta en `site.seo.ogImage` (por ejemplo `/og-image.jpg`). Si se
-deja vacío no se emite ninguna etiqueta `og:image`.
-
-**Favicon:** `public/favicon.svg` es un marcador geométrico neutro. Sustitúyelo
-y regenera los PNG (`apple-touch-icon.png`, `icon-192.png`, `icon-512.png`,
-`favicon-32.png`) manteniendo los mismos nombres.
+**Para añadir una foto:** cópiala en `media/originales/`, añádela al manifiesto
+con su carpeta y un slug descriptivo, ejecuta el script y crea su entrada en
+`src/data/gallery.ts` con un ALT que describa lo que se ve.
 
 ---
 
@@ -431,34 +427,21 @@ identidad completa del sitio se cambia desde ese archivo.
 
 ### Cambiar la paleta
 
-La identidad parte del **cielo de Ica**: azules luminosos, blanco de la
-arquitectura y un oro arena cálido reservado a los detalles.
+Arquitectura blanca, noche azul y arena del desierto. Las fotografías llevan el
+color; la interfaz se mantiene sobria.
 
-Primero, los cuatro canales base — de ellos salen todos los velos, degradados y
-sombras del sitio:
+| Token                       | Valor      | Uso                                     |
+| --------------------------- | ---------- | --------------------------------------- |
+| `--color-text` / `--color-primary` | `#153b56` | azul profundo: texto y acción principal |
+| `--color-accent-strong`     | `#285f7d`  | azul secundario: antetítulos y detalles  |
+| `--color-background`        | `#fafaf7`  | blanco cálido, fondo general             |
+| `--color-surface`           | `#ffffff`  | blanco                                   |
+| `--color-surface-sand-deep` | `#e9e0d3`  | arena                                    |
+| `--color-text-muted`        | `#5b6b7f`  | gris elegante (#64748B ajustado a AA)    |
+| `--color-surface-deep`      | `#102f45`  | bandas profundas, hero y pie             |
 
-```css
---sky-rgb: 111 182 228;    /* halos y brillos de cielo */
---deep-rgb: 18 49 74;      /* velos, sombras y bloques profundos */
---white-rgb: 255 255 255;  /* cristal y velos claros */
---accent-rgb: 201 154 91;  /* destellos del oro arena */
-```
-
-Después, la escala de cielo (`--sky-50` … `--sky-900`), de la que dependen los
-tokens semánticos. Cambiando la escala cambia el sitio entero:
-
-| Token                     | Valor      | Uso                                   |
-| ------------------------- | ---------- | ------------------------------------- |
-| `--color-background`      | `#f7fbfe`  | fondo general (marfil azulado)        |
-| `--color-surface`         | `#ffffff`  | tarjetas y paneles                    |
-| `--color-surface-soft`    | `#e9f4fc`  | secciones en clave de cielo           |
-| `--color-surface-sand`    | `#f7f3ec`  | neutro cálido para variar el ritmo     |
-| `--color-surface-deep`    | `#10293f`  | pie de página                          |
-| `--color-text`            | `#12314a`  | texto principal (azul profundo)        |
-| `--color-text-muted`      | `#56697c`  | texto secundario                       |
-| `--color-primary`         | `#26719f`  | acción principal, iconos, numerales    |
-| `--color-primary-light`   | `#6fb6e4`  | acentos sobre fondo profundo           |
-| `--color-accent`          | `#c99a5b`  | oro arena: estrellas y detalles        |
+Los velos sobre fotografía usan `--veil-rgb` y los demás canales base
+(`--deep-rgb`, `--sky-rgb`, `--accent-rgb`).
 
 Cada acento tiene tres intensidades para mantener el contraste AA:
 `--color-accent` (gráficos), `--color-accent-strong` (texto sobre claro) y
@@ -470,13 +453,12 @@ Un `grep` de `#` o `rgb(` en `src/components` no devuelve ningún literal.
 
 ### Cambiar las fuentes
 
-| Familia                 | Uso                                   | Origen    |
-| ----------------------- | ------------------------------------- | --------- |
-| **General Sans**        | interfaz y texto                      | Fontshare |
-| **Boska**               | titulares (serif de alto contraste)   | Fontshare |
-| **Petit Formal Script** | firma manuscrita (detalles de marca)  | Google    |
+| Familia                | Uso                                              | Origen |
+| ---------------------- | ------------------------------------------------ | ------ |
+| **Cormorant Garamond** | titulares editoriales y logotipo (500/600, cursiva) | Google |
+| **Manrope**            | texto, navegación, botones y elementos funcionales | Google |
 
-Las tres se descargan durante el `build` con la API de fuentes de Astro y se
+Ambas se descargan como WOFF2 durante el `build` con la API de fuentes de Astro y se
 sirven **desde tu propio dominio**: no hay peticiones a terceros en tiempo de
 ejecución. La primera compilación necesita conexión a internet; después quedan
 en caché.
@@ -492,13 +474,12 @@ la tipografía.
 
 `src/components/ui/` contiene la base: `Button` (ocho variantes, con icono de
 apertura y de cierre), `Card`, `Chapter` (encabezado de sección con numeral),
-`GlassCard`, `WaveDivider` (la curva que enlaza los bloques), `Badge`,
-`Container`, `Section`, `Icon`, `PlaceholderValue` y `PlaceholderNotice`.
+`Badge`, `Container`, `Section`, `Icon`, `PlaceholderValue` y
+`PlaceholderNotice`.
 
 Las secciones de portada viven en `src/components/sections/` y se reutilizan en
-las páginas interiores. El hero tiene su propio telón de cielo
-(`components/hero/HeroBackdrop.astro`) que sostiene la composición mientras no
-exista la fotografía definitiva.
+las páginas interiores. El hero (`components/hero/Hero.astro`) usa el vídeo real
+de la casa con su póster WebP como imagen LCP.
 
 Además de color y tipografía, los tokens centralizan espaciado, radios
 (`--radius-xs` … `--radius-2xl`), sombras (`--shadow-sm` … `--shadow-lg`,

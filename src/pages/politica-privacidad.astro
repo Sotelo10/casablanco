@@ -30,22 +30,19 @@ const breadcrumbs = [
         Los datos personales facilitados a través de este sitio son tratados por el titular de la
         propiedad {site.name}, ubicada en {site.location.city}, {site.location.country}.
       </p>
-      <p class="legal-todo">
-        Completar con la razón social o el nombre del titular, el número de documento y el domicilio
-        fiscal antes de publicar el sitio.
-      </p>
+      {/* TODO propietario: razón social o nombre del titular, documento y domicilio fiscal. */}
 
       <h2>Datos que se recogen</h2>
       <p>
-        A través del formulario de consulta de disponibilidad se recogen únicamente los datos
-        necesarios para responder a la solicitud:
+        El formulario de reserva redacta un mensaje de WhatsApp con los datos que escribes; nada se
+        envía hasta que tú mismo lo mandas desde WhatsApp. Se usan únicamente los datos necesarios
+        para responder a la consulta:
       </p>
       <ul>
-        <li>Nombre y apellido.</li>
-        <li>Teléfono o número de WhatsApp.</li>
-        <li>Correo electrónico, cuando se facilita.</li>
-        <li>Fechas de estancia y número de huéspedes.</li>
+        <li>Nombre.</li>
+        <li>Fechas de estadía y número de huéspedes.</li>
         <li>El mensaje que decidas escribir.</li>
+        <li>Tu número de WhatsApp, al escribirnos por esa vía.</li>
       </ul>
 
       <h2>Finalidad</h2>
@@ -55,14 +52,17 @@ const breadcrumbs = [
       </p>
 
       <h2>Conservación</h2>
-      <p class="legal-todo">
-        Indicar durante cuánto tiempo se conservan las consultas recibidas.
+      <p>
+        Las conversaciones se conservan sólo durante el tiempo necesario para responder la consulta
+        y gestionar la estadía.
       </p>
+      {/* TODO propietario: confirmar el plazo exacto de conservación. */}
 
       <h2>Destinatarios</h2>
-      <p class="legal-todo">
-        Enumerar los proveedores que tratan datos por cuenta del titular (por ejemplo, el proveedor
-        de alojamiento web o la base de datos utilizada para almacenar las consultas).
+      <p>
+        Los mensajes se intercambian a través de WhatsApp, sujeto a su propia política de
+        privacidad. Este sitio no utiliza cookies de seguimiento ni comparte tus datos con
+        terceros con fines comerciales.
       </p>
 
       <h2>Derechos</h2>
@@ -72,8 +72,8 @@ const breadcrumbs = [
       </p>
 
       <h2>Contacto</h2>
-      <p class="legal-todo">
-        Añadir el correo electrónico de contacto para ejercer los derechos sobre los datos.
+      <p>
+        Para cualquier consulta sobre tus datos escríbenos por WhatsApp al {site.contact.phone}.
       </p>
     </LegalArticle>
   </Section>

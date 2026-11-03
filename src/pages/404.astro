@@ -6,6 +6,7 @@ import Button from '../components/ui/Button.astro';
 import Container from '../components/ui/Container.astro';
 import { mainNav } from '../config/navigation.js';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/utils/url.js';
 ---
 
 <BaseLayout
@@ -15,19 +16,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   showMobileBar={false}
 >
   <section class="notfound">
-    <svg class="notfound__motif" viewBox="0 0 200 160" aria-hidden="true" focusable="false">
-      <path d="M55 160V78a45 45 0 0 1 90 0v82" fill="none" stroke="currentColor" stroke-width="1" />
-      <path
-        d="M78 160V83a22 22 0 0 1 44 0v77"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1"
-        opacity="0.6"
-      />
-    </svg>
 
     <Container size="narrow">
-      <p class="numeral notfound__code">Error 404</p>
+      <p class="eyebrow notfound__code">Error 404</p>
       <h1 class="notfound__title">Esta página no está disponible.</h1>
       <p class="notfound__text">
         Puede que el enlace haya cambiado o que la dirección esté mal escrita. Desde el inicio
@@ -41,7 +32,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       <nav class="notfound__nav" aria-label="Páginas del sitio">
         <ul role="list">
-          {mainNav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          {mainNav.map((item) => <li><a href={withBase(item.href)}>{item.label}</a></li>)}
         </ul>
       </nav>
     </Container>
@@ -57,16 +48,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     padding-block: var(--section-space);
     overflow: hidden;
     isolation: isolate;
-  }
-
-  .notfound__motif {
-    position: absolute;
-    inset-block-end: -20%;
-    inset-inline-end: -5%;
-    z-index: -1;
-    width: min(45%, 28rem);
-    height: auto;
-    color: rgb(var(--deep-rgb) / 5%);
   }
 
   .notfound__code {

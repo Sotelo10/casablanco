@@ -4,9 +4,6 @@
  */
 import GallerySection from '../components/sections/GallerySection.astro';
 import Badge from '../components/ui/Badge.astro';
-import PlaceholderNotice from '../components/ui/PlaceholderNotice.astro';
-import Container from '../components/ui/Container.astro';
-import Section from '../components/ui/Section.astro';
 import { galleryCategories } from '../data/gallery.js';
 import PageLayout from '../layouts/PageLayout.astro';
 import { getGallery } from '../lib/services/content.service.js';
@@ -24,13 +21,12 @@ const breadcrumbs = [
 ---
 
 <PageLayout
-  title="Galería de fotos"
-  description="Fotografías de Casa Blanco, casa vacacional en Ica: exteriores, sala, comedor, cocina, habitaciones, baños y zonas al aire libre."
-  heading="La casa, ambiente por ambiente"
+  title="Galería de fotos de la casa vacacional en Ica"
+  description="Fotos reales de Casa Leblanc en Ica: piscina iluminada, jardín, terraza, sala, cocina, dormitorios y baños de esta casa vacacional cerca de Huacachina."
+  heading="Galería de Casa Leblanc"
   eyebrow="Galería"
-  intro="Los espacios de Casa Blanco, uno a uno. Pulsa cualquier imagen para verla a pantalla completa."
+  intro="Fotografías reales de la casa: exteriores, piscina, zonas comunes, dormitorios y baños. Pulsa cualquier imagen para verla a pantalla completa."
   breadcrumbs={breadcrumbs}
-  ctaTopWave="deep"
 >
   <ul class="categories" role="list" slot="header-extra">
     {
@@ -42,17 +38,11 @@ const breadcrumbs = [
     }
   </ul>
 
-  <Section tone="default" container="none" size="compact">
-    <Container size="wide">
-      <PlaceholderNotice text="Las imágenes son placas con la proporción exacta de las fotografías definitivas. Al añadir los archivos reales en src/assets/property/ la galería se actualiza sola." />
-    </Container>
-  </Section>
-
   <GallerySection
     images={images}
     index="01"
-    title="Recorrido completo"
-    description="Exteriores, zonas comunes, dormitorios y áreas al aire libre."
+    title="Recorrido completo por la casa"
+    description={`${images.length} fotografías de los exteriores, la piscina, las zonas comunes, los dormitorios y los baños.`}
     actionHref={null}
     actionLabel={null}
     priorityCount={2}

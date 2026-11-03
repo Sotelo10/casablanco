@@ -9,8 +9,10 @@
  *
  * DOS ESTADOS SEGÚN LA CONFIGURACIÓN
  * -----------------------------------------------------------------------------
- * · Sin Supabase: el aviso se muestra ya al cargar la página, con WhatsApp como
- *   alternativa. Nada finge que la solicitud se ha enviado.
+ * · Sin Supabase y con WhatsApp: el formulario redacta la consulta y la abre
+ *   en WhatsApp con los datos ya escritos. Nada finge que la solicitud se ha
+ *   enviado ni que la reserva está confirmada.
+ * · Sin Supabase ni WhatsApp: el aviso se muestra ya al cargar la página.
  * · Con Supabase: se envía de verdad y el resultado se comunica tal cual.
  *
  * Saber si está configurado se decide en el build (`isSupabaseConfigured`), así
@@ -19,6 +21,7 @@
 import { isSupabaseConfigured } from '../../config/env.js';
 import { site } from '../../config/site.js';
 import { limits, NOT_CONNECTED_MESSAGE } from '../../lib/services/booking.service.js';
+import { withBase } from '../../lib/utils/url.js';
 import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
@@ -29,9 +32,11 @@ const maxGuests = site.property.guests;
 const connected = isSupabaseConfigured();
 /** Enlace de respaldo. `null` mientras no haya número de WhatsApp configurado. */
 const whatsapp = whatsAppUrl();
+/** Modo WhatsApp: sin base de datos, el formulario compone el mensaje. */
+const whatsappMode = !connected && Boolean(whatsapp);
 ---
 
-<form class="form" id="booking-form" novalidate>
+<form class="form" id="booking-form" novalidate data-mode={whatsappMode ? 'whatsapp' : 'database'}>
   <div class="form__fields">
     <div class="field">
       <label class="field__label" for="booking-name">
@@ -50,38 +55,44 @@ const whatsapp = whatsAppUrl();
       <p class="field__error" id="booking-name-error" hidden></p>
     </div>
 
-    <div class="field">
-      <label class="field__label" for="booking-phone">
-        Teléfono o WhatsApp <span class="field__required" aria-hidden="true">*</span>
-      </label>
-      <input
-        class="field__input"
-        id="booking-phone"
-        name="phone"
-        type="tel"
-        inputmode="tel"
-        autocomplete="tel"
-        placeholder="+51 ..."
-        maxlength={limits.phone.max}
-        required
-        aria-describedby="booking-phone-error"
-      />
-      <p class="field__error" id="booking-phone-error" hidden></p>
-    </div>
+    {
+      !whatsappMode && (
+        <>
+          <div class="field">
+            <label class="field__label" for="booking-phone">
+              Teléfono o WhatsApp <span class="field__required" aria-hidden="true">*</span>
+            </label>
+            <input
+              class="field__input"
+              id="booking-phone"
+              name="phone"
+              type="tel"
+              inputmode="tel"
+              autocomplete="tel"
+              placeholder="+51 ..."
+              maxlength={limits.phone.max}
+              required
+              aria-describedby="booking-phone-error"
+            />
+            <p class="field__error" id="booking-phone-error" hidden></p>
+          </div>
 
-    <div class="field field--full">
-      <label class="field__label" for="booking-email">Correo electrónico</label>
-      <input
-        class="field__input"
-        id="booking-email"
-        name="email"
-        type="email"
-        autocomplete="email"
-        maxlength={limits.email.max}
-        aria-describedby="booking-email-error"
-      />
-      <p class="field__error" id="booking-email-error" hidden></p>
-    </div>
+          <div class="field field--full">
+            <label class="field__label" for="booking-email">Correo electrónico</label>
+            <input
+              class="field__input"
+              id="booking-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              maxlength={limits.email.max}
+              aria-describedby="booking-email-error"
+            />
+            <p class="field__error" id="booking-email-error" hidden></p>
+          </div>
+        </>
+      )
+    }
 
     <div class="field">
       <label class="field__label" for="booking-checkin">Llegada</label>
@@ -160,27 +171,37 @@ const whatsapp = whatsAppUrl();
       type="submit"
       variant="primary"
       size="lg"
-      icon="arrow-right"
+      icon={whatsappMode ? 'whatsapp' : 'arrow-right'}
       class="form__submit"
     >
-      Solicitar reserva
+      {whatsappMode ? 'Consultar por WhatsApp' : 'Solicitar reserva'}
     </Button>
     <p class="form__legal">
-      Te respondemos con la disponibilidad y las condiciones. Al enviar aceptas nuestra
-      <a href="/politica-privacidad">política de privacidad</a>.
+      {
+        whatsappMode
+          ? 'Se abrirá WhatsApp con tu consulta ya redactada: sólo tienes que enviarla. La reserva se confirma cuando el anfitrión te responde.'
+          : 'Te respondemos con la disponibilidad y las condiciones.'
+      }{' '}
+      Al enviar aceptas nuestra <a href={withBase('/politica-privacidad')}>política de privacidad</a>.
     </p>
   </div>
 
   {/* Caja de estado del formulario. Sin Supabase sale visible desde el primer
       render con el aviso de "todavía no conectado"; con Supabase nace oculta y
       la rellena el resultado real del envío. */}
-  <div class="form__status" data-form-status role="status" aria-live="polite" hidden={connected}>
+  <div
+    class="form__status"
+    data-form-status
+    role="status"
+    aria-live="polite"
+    hidden={connected || whatsappMode}
+  >
     <span class="form__status-icon" data-form-status-icon>
       <Icon name="info" size={18} />
     </span>
     <div class="form__status-body">
       <p class="form__status-text" data-form-status-text>
-        {connected ? '' : NOT_CONNECTED_MESSAGE}
+        {connected || whatsappMode ? '' : NOT_CONNECTED_MESSAGE}
       </p>
       <p class="form__fallback" data-form-fallback hidden={connected || !whatsapp}>
         <a
@@ -375,7 +396,7 @@ const whatsapp = whatsAppUrl();
 </style>
 
 <script>
-  import { submitBookingInquiry } from '../../lib/services/booking.service.js';
+  import { submitBookingInquiry, validateInquiry } from '../../lib/services/booking.service.js';
   import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
   import type { BookingInquiry } from '../../types/booking.js';
 
@@ -515,6 +536,32 @@ const whatsapp = whatsAppUrl();
       if (fallback) fallback.hidden = true;
 
       const inquiry = readForm();
+
+      /* Modo WhatsApp: se valida aquí y se abre la conversación con los datos.
+         El teléfono y el correo no son necesarios: escribe desde su WhatsApp. */
+      if (form.dataset.mode === 'whatsapp') {
+        const { phone: _phone, email: _email, ...errors } = validateInquiry(inquiry);
+        if (Object.keys(errors).length > 0) {
+          showErrors(errors);
+          return;
+        }
+        const url = whatsAppUrl({
+          name: inquiry.name.trim(),
+          checkIn: inquiry.checkIn,
+          checkOut: inquiry.checkOut,
+          guests: inquiry.guests || undefined,
+          note: inquiry.message.trim() || undefined,
+        });
+        if (url) {
+          window.open(url, '_blank', 'noopener,noreferrer');
+          setStatus('notice', 'Abrimos WhatsApp con tu consulta. Envía el mensaje y el anfitrión te responderá con disponibilidad y tarifa.');
+          if (whatsappLink && fallback) {
+            whatsappLink.href = url;
+            fallback.hidden = false;
+          }
+        }
+        return;
+      }
 
       sending = true;
       setLoading(true);

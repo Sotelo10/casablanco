@@ -2,53 +2,58 @@
 /**
  * BANDA DE CIERRE
  * =============================================================================
- * Último punto de conversión de cada página. Jerarquía explícita: una acción
- * principal (reservar), una alternativa directa (WhatsApp) y los datos de
- * contacto reales que existan.
+ * Último punto de conversión de cada página: fotografía real a sangre bajo un
+ * velo azul profundo. Jerarquía explícita: una acción principal (reservar),
+ * una alternativa directa (WhatsApp) y los datos de contacto reales.
  */
-import { bookingHref, bookingLabelLong } from '../../config/navigation.js';
+import { bookingHref, bookingLabel } from '../../config/navigation.js';
 import { site } from '../../config/site.js';
-import Card from '../ui/Card.astro';
+import { photoBySlug } from '../../data/gallery.js';
+import { responsiveSource } from '../../lib/images.js';
 import Button from '../ui/Button.astro';
 import Container from '../ui/Container.astro';
 import Icon from '../ui/Icon.astro';
-import WaveDivider from '../ui/WaveDivider.astro';
 import WhatsAppButton from './WhatsAppButton.astro';
 
 interface Props {
   eyebrow?: string;
   title?: string;
   description?: string;
-  /** Color del bloque anterior, para que la curva de entrada encaje. */
-  topWaveTone?: 'background' | 'surface' | 'soft' | 'sand' | 'deep';
+  /** Compatibilidad con llamadas anteriores; ya no se dibuja la curva. */
+  topWaveTone?: string;
 }
 
 const {
   eyebrow = 'Disponibilidad',
-  title = '¿Tienes fechas en mente?',
-  description = 'Cuéntanos cuándo viajas y cuántas personas son. Te respondemos con la disponibilidad, la tarifa y las condiciones de la estancia.',
-  topWaveTone = 'surface',
+  title = 'Tu estadía en Ica empieza con un mensaje',
+  description = 'Cuéntanos tus fechas y cuántas personas viajan. Te respondemos con la disponibilidad, la tarifa y las condiciones de la estadía.',
 } = Astro.props;
 
 const steps = [
   'Envías tus fechas y el tamaño del grupo.',
-  'Confirmamos disponibilidad, tarifa y condiciones.',
-  'Coordinamos el ingreso y la dirección exacta.',
+  'Te confirmamos disponibilidad, tarifa y condiciones.',
+  'Coordinamos el ingreso y te enviamos la ubicación exacta.',
 ];
+
+const backdrop = responsiveSource(photoBySlug('piscina-iluminada-casa-vacacional-ica'));
 ---
 
 <section class="cta" aria-labelledby="cta-title">
-  <WaveDivider tone={topWaveTone} position="top" />
-  <svg class="cta__motif" viewBox="0 0 200 160" aria-hidden="true" focusable="false">
-    <path d="M55 160V78a45 45 0 0 1 90 0v82" fill="none" stroke="currentColor" stroke-width="1" />
-    <path
-      d="M78 160V83a22 22 0 0 1 44 0v77"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1"
-      opacity="0.6"
-    />
-  </svg>
+  {
+    backdrop && (
+      <img
+        class="cta__backdrop"
+        src={backdrop.src}
+        srcset={backdrop.srcset}
+        sizes="100vw"
+        width={backdrop.width}
+        height={backdrop.height}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    )
+  }
 
   <Container size="wide">
     <div class="cta__inner">
@@ -62,16 +67,15 @@ const steps = [
         </ol>
       </div>
 
-      <Card tone="ink" padding="lg" class="cta__panel">
-        <p class="cta__panel-title">Reserva directa con el propietario</p>
+      <div class="cta__panel">
+        <p class="cta__panel-title">Reserva directa con el anfitrión</p>
         <p class="cta__panel-text">
-          Sin intermediarios ni comisiones de plataforma: escribes y te responde quien administra la
-          casa.
+          Sin intermediarios: escribes y te responde quien administra la casa.
         </p>
 
         <div class="cta__actions">
-          <Button href={bookingHref} variant="light" size="lg" block icon="arrow-right">
-            {bookingLabelLong}
+          <Button href={bookingHref} variant="light" size="lg" block leadingIcon="calendar">
+            {bookingLabel}
           </Button>
           <WhatsAppButton variant="outline-light" size="lg" block />
         </div>
@@ -93,16 +97,12 @@ const steps = [
               </li>
             )
           }
-          {
-            site.contact.hours && (
-              <li>
-                <Icon name="clock" size={15} />
-                <span>{site.contact.hours}</span>
-              </li>
-            )
-          }
+          <li>
+            <Icon name="map-pin" size={15} />
+            <span>Huacachina · Ica, Perú</span>
+          </li>
         </ul>
-      </Card>
+      </div>
     </div>
   </Container>
 </section>
@@ -110,47 +110,55 @@ const steps = [
 <style>
   .cta {
     position: relative;
-    padding-block: calc(var(--section-space) + clamp(2rem, 4vw, 4rem)) var(--section-space);
-    background-color: var(--color-surface-deep-soft);
-    background-image: radial-gradient(
-      80% 70% at 85% 100%,
-      rgb(var(--sky-rgb) / 22%) 0%,
-      transparent 62%
-    );
-    color: var(--color-text-inverse);
+    padding-block: var(--section-space);
     overflow: hidden;
+    color: var(--color-text-inverse);
+    background-color: var(--color-surface-deep);
     isolation: isolate;
   }
 
-  /* Arco de la marca como filigrana: identidad sin ruido. */
-  .cta__motif {
+  .cta__backdrop {
     position: absolute;
-    inset-block-end: -8%;
-    inset-inline-start: -6%;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 70%;
+  }
+
+  .cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     z-index: -1;
-    width: min(52%, 34rem);
-    height: auto;
-    color: rgb(var(--white-rgb) / 5%);
+    background: linear-gradient(
+      100deg,
+      rgb(var(--veil-rgb) / 95%) 0%,
+      rgb(var(--veil-rgb) / 78%) 50%,
+      rgb(var(--veil-rgb) / 50%) 100%
+    );
   }
 
   .cta__inner {
     display: grid;
-    gap: var(--space-2xl);
+    gap: var(--space-3xl);
+    align-items: center;
   }
 
   .cta__eyebrow {
-    color: var(--color-primary-light);
+    color: var(--color-accent-light);
   }
 
   .cta__title {
     margin-block-start: var(--space-md);
-    max-width: 16ch;
+    max-width: 15ch;
+    font-size: var(--text-h2);
   }
 
   .cta__description {
     margin-block-start: var(--space-lg);
     max-width: 46ch;
-    font-size: var(--text-lead);
     line-height: var(--leading-relaxed);
     color: var(--color-text-inverse-muted);
   }
@@ -159,59 +167,66 @@ const steps = [
     display: grid;
     gap: var(--space-sm);
     margin-block-start: var(--space-xl);
-    padding-inline-start: 0;
+    padding: 0;
     list-style: none;
     counter-reset: step;
-    max-width: 44ch;
   }
 
   .cta__steps li {
     display: flex;
     align-items: baseline;
-    gap: var(--space-sm);
+    gap: var(--space-md);
     font-size: var(--text-body-sm);
-    color: var(--color-text-inverse-muted);
+    color: rgb(var(--white-rgb) / 88%);
     counter-increment: step;
   }
 
   .cta__steps li::before {
     content: counter(step, decimal-leading-zero);
-    font-family: var(--font-mono);
-    font-size: var(--text-2xs);
-    color: var(--color-primary-light);
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--color-accent-light);
   }
 
   .cta__panel {
-    gap: var(--space-md);
-    background-color: rgb(var(--white-rgb) / 6%);
-    backdrop-filter: blur(2px);
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    border: 1px solid var(--color-border-inverse);
+    background-color: rgb(var(--veil-rgb) / 55%);
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    .cta__panel {
+      backdrop-filter: blur(12px);
+    }
   }
 
   .cta__panel-title {
     font-family: var(--font-heading);
-    font-size: var(--text-h3);
+    font-size: 1.75rem;
+    font-weight: var(--weight-heading);
+    line-height: 1.2;
   }
 
   .cta__panel-text {
+    margin-block-start: var(--space-xs);
     font-size: var(--text-body-sm);
-    line-height: var(--leading-relaxed);
     color: var(--color-text-inverse-muted);
   }
 
   .cta__actions {
     display: grid;
     gap: var(--space-sm);
-    margin-block-start: var(--space-xs);
+    margin-block-start: var(--space-xl);
   }
 
   .cta__contact {
     display: grid;
     gap: var(--space-xs);
-    margin-block-start: var(--space-md);
-    padding-block-start: var(--space-md);
+    margin-block-start: var(--space-xl);
+    padding: var(--space-lg) 0 0;
     border-block-start: 1px solid var(--color-border-inverse);
     list-style: none;
-    padding-inline: 0;
     font-size: var(--text-sm);
     color: var(--color-text-inverse-muted);
   }
@@ -222,19 +237,20 @@ const steps = [
     gap: var(--space-xs);
   }
 
-  .cta__contact :global(svg) {
-    color: var(--color-primary-light);
-  }
-
   .cta__contact a {
     color: var(--color-text-inverse);
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cta__contact a:hover {
+    color: var(--color-accent-light);
   }
 
   @media (min-width: 64rem) {
     .cta__inner {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 25rem);
-      gap: var(--space-4xl);
-      align-items: center;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: clamp(3rem, 8vw, 8rem);
     }
   }
 </style>

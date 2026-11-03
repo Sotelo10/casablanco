@@ -1,32 +1,44 @@
 ---
 /**
  * LA CASA — presentación detallada de la propiedad.
+ *
+ * Sólo se publica lo verificado en las fotografías reales. Capacidad, número
+ * de dormitorios y baños, horarios y tarifa se confirman por WhatsApp hasta
+ * que el propietario los facilite (ver `src/config/site.ts`).
  */
 import AmenityGrid from '../components/amenities/AmenityGrid.astro';
+import WhatsAppButton from '../components/booking/WhatsAppButton.astro';
 import PropertyImage from '../components/media/PropertyImage.astro';
-import FactsRail from '../components/property/FactsRail.astro';
 import GallerySection from '../components/sections/GallerySection.astro';
-import Card from '../components/ui/Card.astro';
+import SpacesSection from '../components/sections/SpacesSection.astro';
 import Chapter from '../components/ui/Chapter.astro';
 import Container from '../components/ui/Container.astro';
-import Icon from '../components/ui/Icon.astro';
-import PlaceholderNotice from '../components/ui/PlaceholderNotice.astro';
-import PlaceholderValue from '../components/ui/PlaceholderValue.astro';
 import Section from '../components/ui/Section.astro';
 import { site } from '../config/site.js';
-import { gallery, introImage } from '../data/gallery.js';
-import { propertyIntro, spaces } from '../data/property.js';
+import { gallery, photoBySlug } from '../data/gallery.js';
+import { propertyIntro } from '../data/property.js';
 import PageLayout from '../layouts/PageLayout.astro';
 import { getAmenities } from '../lib/services/content.service.js';
 
-const amenities = await getAmenities();
-const showcase = gallery.filter((image) => image.featured).slice(0, 4);
+const amenities = (await getAmenities()).filter((amenity) => amenity.confirmed);
+const pendingNames = (await getAmenities())
+  .filter((amenity) => !amenity.confirmed)
+  .map((amenity) => amenity.name.toLowerCase());
 
+/** Interiores para el cierre: dormitorios y baños. */
+const interiors = gallery.filter(
+  (image) => image.category === 'habitaciones' || image.category === 'banos',
+);
+
+/** Condiciones: se muestra el dato si existe; si no, cómo se confirma. */
 const conditions = [
-  { label: 'Check-in', value: site.booking.checkIn, fallback: 'Por confirmar' },
-  { label: 'Check-out', value: site.booking.checkOut, fallback: 'Por confirmar' },
-  { label: 'Estancia mínima', value: site.booking.minNights, fallback: 'Por confirmar' },
-  { label: 'Tarifa', value: site.booking.priceRange, fallback: 'Según fechas' },
+  { label: 'Check-in', value: site.booking.checkIn || 'Se coordina al reservar' },
+  { label: 'Check-out', value: site.booking.checkOut || 'Se coordina al reservar' },
+  {
+    label: 'Estadía mínima',
+    value: site.booking.minNights ? `${site.booking.minNights} noches` : 'Consultar según fechas',
+  },
+  { label: 'Tarifa', value: site.booking.priceRange || 'Según temporada y grupo' },
 ];
 
 const breadcrumbs = [
@@ -36,23 +48,21 @@ const breadcrumbs = [
 ---
 
 <PageLayout
-  title="La casa: espacios y capacidad"
-  description="Espacios, capacidad y equipamiento de Casa Blanco, casa vacacional en Ica: habitaciones, baños, zonas comunes y servicios previstos para la estancia."
-  heading="La casa por dentro"
-  eyebrow={propertyIntro.eyebrow}
-  intro="Distribución, capacidad y equipamiento. Todo lo que necesitas saber antes de escribirnos."
+  title="La casa: piscina, jardín y dormitorios en Ica"
+  description="Conoce Casa Leblanc por dentro: casa vacacional de dos plantas en Ica con piscina iluminada, jardín, terraza, sala, cocina y dormitorios para familias y grupos."
+  heading="Una casa completa en Ica, para tu grupo"
+  eyebrow="La casa"
+  intro="Dos plantas, piscina iluminada, jardín y dormitorios para familias y grupos. Así es Casa Leblanc por dentro y por fuera."
   breadcrumbs={breadcrumbs}
-  ctaTopWave="deep"
+  image={photoBySlug('casa-leblanc-ica-fachada-piscina-noche')}
 >
-  <FactsRail overlap={false} showArea class="casa__rail" />
-
   <Section tone="default" container="none" aria-labelledby="descripcion-title">
     <Container size="wide">
       <div class="overview">
         <div class="overview__text">
           <Chapter
             index="01"
-            eyebrow="La propiedad"
+            eyebrow={propertyIntro.eyebrow}
             title={propertyIntro.title}
             id="descripcion-title"
             titleWidth="18ch"
@@ -61,30 +71,24 @@ const breadcrumbs = [
             {propertyIntro.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
           </div>
 
-          <Card tone="muted" padding="lg" class="overview__conditions">
-            <h3 class="overview__conditions-title">Condiciones de la estancia</h3>
+          <div class="overview__conditions">
+            <h3 class="overview__conditions-title">Condiciones de la estadía</h3>
             <dl class="conditions">
               {
                 conditions.map((item) => (
                   <div class="conditions__item">
                     <dt>{item.label}</dt>
-                    <dd>
-                      <PlaceholderValue value={item.value} fallback={item.fallback} />
-                    </dd>
+                    <dd>{item.value}</dd>
                   </div>
                 ))
               }
             </dl>
-            <PlaceholderNotice
-              text="Estos valores se completan desde src/config/site.ts."
-              class="overview__notice"
-            />
-          </Card>
+          </div>
         </div>
 
         <div class="overview__media">
           <PropertyImage
-            image={introImage}
+            image={photoBySlug('sala-de-estar-casa-leblanc')}
             ratio="4 / 5"
             sizes="(min-width: 64rem) 38vw, 92vw"
             class="overview__image"
@@ -94,66 +98,59 @@ const breadcrumbs = [
     </Container>
   </Section>
 
-  <Section tone="surface" container="none" aria-labelledby="espacios-title">
-    <Container size="wide">
-      <Chapter
-        index="02"
-        eyebrow="Distribución"
-        title="Los espacios de la casa"
-        description="Cada ambiente se describe con su configuración definitiva de camas cuando esté confirmada."
-        id="espacios-title"
-        titleWidth="16ch"
-      />
-
-      <ul class="spaces" role="list">
-        {
-          spaces.map((space, index) => (
-            <li class="spaces__item">
-              <Card tone="outline" padding="lg" class="space">
-                <span class="numeral space__index" aria-hidden="true">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <span class="space__icon">
-                  <Icon name={space.icon} size={18} />
-                </span>
-                <h3 class="space__name">{space.name}</h3>
-                <p class="space__description">{space.description}</p>
-                <p class="space__beds">
-                  <PlaceholderValue value={space.beds} fallback="Camas por confirmar" />
-                </p>
-              </Card>
-            </li>
-          ))
-        }
-      </ul>
-    </Container>
-  </Section>
+  <SpacesSection
+    index="02"
+    title="Exteriores, zonas comunes y dormitorios"
+    description="Tres ambientes que definen la estadía en Casa Leblanc."
+    showAction={false}
+  />
 
   <Section tone="default" container="none" aria-labelledby="amenities-title">
     <Container size="wide">
       <Chapter
         index="03"
         eyebrow="Equipamiento"
-        title="Todo lo necesario para instalarse"
-        description="Listado completo de servicios previstos. Los marcados como pendientes se confirman con la información real de la propiedad."
+        title="Lo que encontrarás en la casa"
+        description="Equipamiento visible en las fotografías de la casa."
         id="amenities-title"
         titleWidth="18ch"
       />
       <AmenityGrid amenities={amenities} grouped columns={2} />
+
+      <div class="ask">
+        <p class="ask__text">
+          ¿Necesitas confirmar algo más antes de reservar, como {pendingNames.slice(0, 4).join(', ')}
+          u otro servicio? Pregúntanos y te respondemos con el detalle.
+        </p>
+        <WhatsAppButton variant="outline" message={`Hola, tengo una consulta sobre los servicios de ${site.name}.`} />
+      </div>
     </Container>
   </Section>
 
   <GallerySection
-    images={showcase}
+    images={interiors}
     index="04"
-    title="Un vistazo a los ambientes"
-    description="Una selección de la galería completa de Casa Blanco."
+    title="Dormitorios y baños"
+    description="Camas matrimoniales, camarotes y camas individuales, y baños con ducha de mampara."
   />
 </PageLayout>
 
 <style>
-  .casa__rail {
-    margin-block-start: var(--space-2xl);
+  .ask {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    margin-block-start: var(--space-3xl);
+    padding: var(--space-xl);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface-sand);
+  }
+
+  .ask__text {
+    max-width: 60ch;
+    color: var(--color-text-soft);
   }
 
   .overview {
@@ -163,6 +160,8 @@ const breadcrumbs = [
 
   .overview__conditions {
     margin-block-start: var(--space-2xl);
+    padding-block-start: var(--space-xl);
+    border-block-start: 1px solid var(--color-border);
   }
 
   .overview__conditions-title {
@@ -191,72 +190,9 @@ const breadcrumbs = [
   .conditions dd {
     margin: 0.3rem 0 0;
     font-family: var(--font-heading);
-    font-size: var(--text-h3);
-  }
-
-  .overview__notice {
-    margin-block-start: var(--space-lg);
-  }
-
-  .overview__image :global(.frame__media) {
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-  }
-
-  .spaces {
-    display: grid;
-    gap: var(--space-md);
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .spaces__item {
-    display: flex;
-  }
-
-  .space {
-    width: 100%;
-    gap: var(--space-2xs);
-  }
-
-  .space__index {
-    color: var(--color-primary);
-  }
-
-  .space__icon {
-    display: grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-block: var(--space-sm) var(--space-xs);
-    border-radius: var(--radius-pill);
-    background-color: var(--color-primary-soft);
-    color: var(--color-primary);
-  }
-
-  .space__name {
-    font-size: var(--text-h3);
-  }
-
-  .space__description {
-    font-size: var(--text-body-sm);
-    line-height: var(--leading-relaxed);
-    color: var(--color-text-muted);
-  }
-
-  .space__beds {
-    margin-block-start: var(--space-md);
-    padding-block-start: var(--space-sm);
-    border-block-start: 1px solid var(--color-border);
-    font-size: var(--text-sm);
-  }
-
-  @media (min-width: 40rem) {
-    .spaces {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--space-lg);
-    }
+    font-size: 1.375rem;
+    font-weight: var(--weight-heading);
+    line-height: 1.25;
   }
 
   @media (min-width: 64rem) {
@@ -264,10 +200,6 @@ const breadcrumbs = [
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
       gap: var(--space-4xl);
       align-items: start;
-    }
-
-    .spaces {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>

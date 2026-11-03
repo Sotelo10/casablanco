@@ -1,0 +1,112 @@
+{
+  "sourceDir": "media/originales/whatsapp-2026-11-02",
+  "outputDir": "public/images/casa-leblanc",
+  "widths": [
+    480,
+    768,
+    1200
+  ],
+  "quality": 82,
+  "photos": [
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.16 PM (1).jpeg",
+      "dir": "exteriores",
+      "slug": "casa-leblanc-ica-fachada-piscina-noche"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.16 PM (2).jpeg",
+      "dir": "exteriores",
+      "slug": "piscina-iluminada-casa-vacacional-ica"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.16 PM (3).jpeg",
+      "dir": "exteriores",
+      "slug": "terraza-deck-piscina-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.16 PM (4).jpeg",
+      "dir": "exteriores",
+      "slug": "piscina-jardin-alojamiento-ica"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.16 PM.jpeg",
+      "dir": "exteriores",
+      "slug": "patio-pergola-jardin-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.17 PM.jpeg",
+      "dir": "exteriores",
+      "slug": "piscina-zona-comedor-exterior-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.17 PM (1).jpeg",
+      "dir": "interiores",
+      "slug": "cocina-equipada-casa-leblanc-ica"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.18 PM (1).jpeg",
+      "dir": "interiores",
+      "slug": "sala-de-estar-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.19 PM (2).jpeg",
+      "dir": "interiores",
+      "slug": "bano-ducha-vidrio-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.19 PM (3).jpeg",
+      "dir": "interiores",
+      "slug": "bano-completo-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.17 PM (2).jpeg",
+      "dir": "habitaciones",
+      "slug": "dormitorio-cama-matrimonial-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.18 PM (3).jpeg",
+      "dir": "habitaciones",
+      "slug": "dormitorio-matrimonial-closet-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.19 PM.jpeg",
+      "dir": "habitaciones",
+      "slug": "dormitorio-cama-doble-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.18 PM (2).jpeg",
+      "dir": "habitaciones",
+      "slug": "habitacion-camarotes-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.18 PM (4).jpeg",
+      "dir": "habitaciones",
+      "slug": "habitacion-camas-individuales-casa-leblanc"
+    },
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.18 PM.jpeg",
+      "dir": "habitaciones",
+      "slug": "dormitorio-dos-camas-casa-leblanc"
+    }
+  ],
+  "excluded": [
+    {
+      "source": "WhatsApp Image 2026-11-02 at 7.51.19 PM (1).jpeg",
+      "reason": "Proyección sobre el muro con el rostro de una persona reconocible (contenido audiovisual de terceros)."
+    }
+  ],
+  "og": {
+    "source": "WhatsApp Image 2026-11-02 at 7.51.16 PM (2).jpeg",
+    "file": "og/casa-leblanc-ica-peru.jpg",
+    "width": 1200,
+    "height": 630,
+    "top": 0.32
+  },
+  "video": {
+    "source": "WhatsApp Video 2026-11-02 at 7.51.17 PM.mp4",
+    "outputDir": "public/video",
+    "slug": "casa-leblanc-recorrido-piscina-noche",
+    "poster": "hero/casa-leblanc-recorrido-poster",
+    "loopStart": 6
+  }
+}

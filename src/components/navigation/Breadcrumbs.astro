@@ -4,6 +4,7 @@
  * orientarse; el marcado BreadcrumbList lo emite el layout.
  */
 import Icon from '../ui/Icon.astro';
+import { withBase } from '../../lib/utils/url.js';
 
 export interface BreadcrumbItem {
   name: string;
@@ -34,7 +35,7 @@ const { items, tone = 'default', class: className, ...rest } = Astro.props;
               <span aria-current="page">{item.name}</span>
             ) : (
               <>
-                <a href={item.href}>{item.name}</a>
+                <a href={withBase(item.href)}>{item.name}</a>
                 <Icon name="chevron-right" size={13} class="breadcrumbs__sep" />
               </>
             )}
@@ -54,7 +55,8 @@ const { items, tone = 'default', class: className, ...rest } = Astro.props;
     list-style: none;
     margin: 0;
     padding: 0;
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
+    font-weight: var(--weight-semibold);
     font-size: var(--text-2xs);
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;

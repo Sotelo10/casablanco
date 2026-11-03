@@ -10,10 +10,14 @@ import Container from '../components/ui/Container.astro';
 import Icon from '../components/ui/Icon.astro';
 import Section from '../components/ui/Section.astro';
 import PageLayout from '../layouts/PageLayout.astro';
+import { socialProfiles } from '../config/social.js';
 import { getReviews, summarize } from '../lib/services/reviews.service.js';
+import { withBase } from '../lib/utils/url.js';
 
-const reviews = await getReviews();
+const reviews = (await getReviews()).filter((review) => !review.isDemo);
 const summary = summarize(reviews);
+/** Sin reseñas reales la página no se indexa (contenido vacío). */
+const hasReviews = reviews.length > 0;
 
 const breadcrumbs = [
   { name: 'Inicio', href: '/' },
@@ -41,51 +45,122 @@ const steps = [
 
 <PageLayout
   title="Reseñas de huéspedes"
-  description="Opiniones de huéspedes sobre Casa Blanco, casa vacacional en Ica: valoración media, distribución por estrellas y testimonios."
+  description="Opiniones de huéspedes sobre Casa Leblanc, casa vacacional en Ica: valoración media, distribución por estrellas y testimonios."
   heading="Lo que dicen los huéspedes"
   eyebrow="Reseñas"
-  intro="Las valoraciones se muestran completas, con su puntuación, su fecha y la plataforma de origen."
+  intro={hasReviews
+    ? 'Las valoraciones se muestran completas, con su puntuación, su fecha y la plataforma de origen.'
+    : 'Casa Leblanc acaba de abrir sus puertas. Las opiniones de los primeros huéspedes se publicarán aquí, completas y con su origen.'}
   breadcrumbs={breadcrumbs}
   reviewSummary={summary}
+  noindex={!hasReviews}
 >
-  <ReviewsSection
-    reviews={reviews}
-    summary={summary}
-    index="01"
-    tone="default"
-    actionHref={undefined}
-    actionLabel={undefined}
-  />
-
-  <Section tone="surface" container="none" aria-labelledby="proceso-title">
-    <Container size="wide">
-      <Chapter
-        index="02"
-        eyebrow="Cómo funcionan"
-        title="Opiniones verificadas, sin filtros"
-        id="proceso-title"
-        titleWidth="16ch"
+  {
+    hasReviews ? (
+      <ReviewsSection
+        reviews={reviews}
+        summary={summary}
+        index="01"
+        tone="default"
+        actionHref={undefined}
+        actionLabel={undefined}
       />
-      <ul class="steps" role="list">
-        {
-          steps.map((step) => (
-            <li class="steps__item">
-              <Card tone="outline" padding="lg" class="step">
-                <span class="step__icon">
-                  <Icon name={step.icon} size={18} />
-                </span>
-                <h3 class="step__title">{step.title}</h3>
-                <p class="step__text">{step.text}</p>
-              </Card>
-            </li>
-          ))
-        }
-      </ul>
-    </Container>
-  </Section>
+    ) : (
+      <Section tone="default" container="narrow">
+        <div class="empty">
+          <Icon name="quote" size={28} class="empty__icon" />
+          <p class="empty__text">
+            Mientras tanto, puedes ver la casa en la <a href={withBase('/galeria')}>galería de fotos</a> y
+            seguirnos en nuestras redes oficiales.
+          </p>
+          <ul class="empty__social" role="list">
+            {socialProfiles.map((profile) => (
+              <li>
+                <a href={profile.url} target="_blank" rel="noopener noreferrer">
+                  <Icon name={profile.icon} size={18} />
+                  {profile.network}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+    )
+  }
+
+  {
+    hasReviews && (
+      <Section tone="surface" container="none" aria-labelledby="proceso-title">
+        <Container size="wide">
+          <Chapter
+            index="02"
+            eyebrow="Cómo funcionan"
+            title="Opiniones verificadas, sin filtros"
+            id="proceso-title"
+            titleWidth="16ch"
+          />
+          <ul class="steps" role="list">
+            {
+              steps.map((step) => (
+                <li class="steps__item">
+                  <Card tone="outline" padding="lg" class="step">
+                    <span class="step__icon">
+                      <Icon name={step.icon} size={18} />
+                    </span>
+                    <h3 class="step__title">{step.title}</h3>
+                    <p class="step__text">{step.text}</p>
+                  </Card>
+                </li>
+              ))
+            }
+          </ul>
+        </Container>
+      </Section>
+    )
+  }
 </PageLayout>
 
 <style>
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+    text-align: center;
+  }
+
+  .empty :global(.empty__icon) {
+    color: var(--color-accent);
+  }
+
+  .empty__text {
+    max-width: 44ch;
+    font-size: var(--text-lead);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-soft);
+  }
+
+  .empty__social {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: 0;
+    list-style: none;
+  }
+
+  .empty__social a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.75rem;
+    padding-inline: var(--space-md);
+    border: 1px solid var(--color-border-strong);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+  }
+
   .steps {
     display: grid;
     gap: var(--space-md);

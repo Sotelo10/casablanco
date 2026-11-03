@@ -23,3 +23,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Windows: metadatos de descarga (Alternate Data Streams copiados por WSL)
+*:Zone.Identifier

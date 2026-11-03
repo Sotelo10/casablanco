@@ -37,6 +37,12 @@ export interface GalleryImage {
   /** Texto alternativo. Obligatorio por accesibilidad y SEO. */
   alt: string;
   category: GalleryCategory;
+  /**
+   * Anchos disponibles de una fotografía pregenerada en `public/` (WebP). Si
+   * existe, `src` es la ruta base sin sufijo y cada variante vive en
+   * `${src}-${ancho}.webp`.
+   */
+  widths?: number[];
   /** Dimensiones reales de la foto. 0 mientras sea un placeholder. */
   width: number;
   height: number;
@@ -45,6 +51,8 @@ export interface GalleryImage {
   label: string;
   /** Pie de foto opcional. */
   caption?: string;
+  /** Punto focal (`object-position`) cuando el marco recorta la fotografía. */
+  focus?: string;
   /** Marca la imagen como destacada dentro del mosaico editorial. */
   featured?: boolean;
 }

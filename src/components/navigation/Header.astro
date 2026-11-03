@@ -10,7 +10,7 @@
  * marca y el botón de menú, ambos con área táctil amplia.
  */
 import { bookingHref, bookingLabel, mainNav } from '../../config/navigation.js';
-import { isActivePath } from '../../lib/utils/url.js';
+import { isActivePath, withBase } from '../../lib/utils/url.js';
 import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
@@ -23,7 +23,7 @@ interface Props {
 }
 
 const { variant = 'solid', currentPath } = Astro.props;
-const isCurrent = (href: string) => isActivePath(href, currentPath);
+const isCurrent = (href: string) => isActivePath(withBase(href), currentPath);
 const whatsapp = whatsAppUrl();
 ---
 
@@ -37,7 +37,7 @@ const whatsapp = whatsAppUrl();
           mainNav.map((item) => (
             <li>
               <a
-                href={item.href}
+                href={withBase(item.href)}
                 class="header__link"
                 aria-current={isCurrent(item.href) ? 'page' : undefined}
               >

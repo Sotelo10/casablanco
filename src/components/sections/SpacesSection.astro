@@ -1,0 +1,147 @@
+---
+/**
+ * ESPACIOS DE LA CASA
+ * =============================================================================
+ * Tres filas editoriales que alternan fotografía y texto. Cada una describe un
+ * conjunto de espacios reales con la fotografía que lo muestra.
+ */
+import { spaceImages, spaces } from '../../data/property.js';
+import PropertyImage from '../media/PropertyImage.astro';
+import Button from '../ui/Button.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  index?: string;
+  title?: string;
+  description?: string;
+  showAction?: boolean;
+  /** Nivel de los títulos de cada espacio. */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const {
+  index = '02',
+  title = 'Los espacios de Casa Leblanc',
+  description = 'Exteriores para reunirse, una planta baja abierta al jardín y dormitorios para todo el grupo.',
+  showAction = true,
+  headingLevel: Heading = 'h3',
+} = Astro.props;
+---
+
+<Section tone="sand" container="none" aria-labelledby="espacios-title">
+  <Container size="wide">
+    <Chapter
+      index={index}
+      eyebrow="Espacios"
+      title={title}
+      description={description}
+      id="espacios-title"
+      titleWidth="18ch"
+      actionHref={showAction ? '/casa' : undefined}
+      actionLabel={showAction ? 'Ver la casa en detalle' : undefined}
+    />
+
+    <ol class="spaces" role="list">
+      {
+        spaces.map((space, i) => {
+          const image = spaceImages[space.id];
+          return (
+            <li class:list={['space', i % 2 === 1 && 'space--reverse']}>
+              {image && (
+                <PropertyImage
+                  image={image}
+                  ratio="4 / 3"
+                  sizes="(min-width: 64rem) 50vw, 100vw"
+                  class="space__image"
+                />
+              )}
+              <div class="space__body">
+                <span class="space__number" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <Heading class="space__title">{space.name}</Heading>
+                <p class="space__text">{space.description}</p>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ol>
+
+    {
+      showAction && (
+        <div class="spaces__action">
+          <Button href="/casa" variant="outline" icon="arrow-right">
+            Ver la casa en detalle
+          </Button>
+        </div>
+      )
+    }
+  </Container>
+</Section>
+
+<style>
+  .spaces {
+    display: grid;
+    gap: var(--space-3xl);
+    margin-block-start: var(--space-3xl);
+    padding: 0;
+    list-style: none;
+  }
+
+  .space {
+    display: grid;
+    gap: var(--space-lg);
+    align-items: center;
+  }
+
+  .space__number {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 3.5rem;
+    font-style: italic;
+    line-height: 1;
+    color: var(--color-accent);
+  }
+
+  .space__title {
+    margin-block-start: var(--space-sm);
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+    font-weight: var(--weight-heading);
+  }
+
+  .space__text {
+    margin-block-start: var(--space-md);
+    max-width: 46ch;
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .spaces__action {
+    display: flex;
+    justify-content: center;
+    margin-block-start: var(--space-3xl);
+  }
+
+  @media (min-width: 64rem) {
+    .space {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+
+    .space--reverse {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+
+    .space--reverse :global(.space__image) {
+      order: 2;
+    }
+
+    .spaces__action {
+      display: none;
+    }
+  }
+</style>

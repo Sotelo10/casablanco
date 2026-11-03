@@ -1,0 +1,180 @@
+---
+/**
+ * REDES SOCIALES OFICIALES
+ * =============================================================================
+ * Invitación a seguir a Casa Leblanc en Instagram, TikTok y Facebook.
+ *
+ * No se incrustan feeds (cada uno añade cientos de KB de JavaScript de
+ * terceros y cookies) ni se muestran cifras de seguidores: sólo enlaces
+ * oficiales y fotografías reales de la casa.
+ */
+import { photoBySlug } from '../../data/gallery.js';
+import { socialProfiles } from '../../config/social.js';
+import PropertyImage from '../media/PropertyImage.astro';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import Section from '../ui/Section.astro';
+
+const tiles = [
+  photoBySlug('dormitorio-matrimonial-closet-casa-leblanc'),
+  photoBySlug('piscina-jardin-alojamiento-ica'),
+  photoBySlug('bano-completo-casa-leblanc'),
+];
+---
+
+<Section tone="default" container="none" aria-labelledby="redes-title" class="social">
+  <Container size="wide">
+    <div class="social__layout">
+      <div class="social__text">
+        <p class="eyebrow">Comunidad</p>
+        <h2 id="redes-title" class="social__title">
+          Sigue la vida en <em>Casa Leblanc</em>
+        </h2>
+        <p class="social__lead">
+          Rincones de la casa, atardeceres en Ica y novedades de disponibilidad. Síguenos en
+          nuestras redes oficiales y escríbenos por mensaje directo cuando quieras.
+        </p>
+
+        <ul class="social__list" role="list">
+          {
+            socialProfiles.map((profile) => (
+              <li>
+                <a
+                  class="social__link"
+                  href={profile.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="social__icon">
+                    <Icon name={profile.icon} size={22} />
+                  </span>
+                  <span class="social__body">
+                    <span class="social__network">{profile.network}</span>
+                    <span class="social__handle">{profile.handle}</span>
+                  </span>
+                  <Icon name="arrow-up-right" size={18} class="social__arrow" />
+                  <span class="visually-hidden">(se abre en una pestaña nueva)</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="social__tiles" aria-hidden="true">
+        {
+          tiles.map((tile, i) => (
+            <PropertyImage
+              image={tile}
+              ratio={i === 1 ? '4 / 5' : '1 / 1'}
+              sizes="(min-width: 64rem) 18vw, 33vw"
+              class:list={['social__tile', `social__tile--${i + 1}`]}
+              as="div"
+            />
+          ))
+        }
+      </div>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .social__layout {
+    display: grid;
+    gap: var(--space-3xl);
+    align-items: center;
+  }
+
+  .social__title {
+    margin-block-start: var(--space-md);
+    font-size: var(--text-h2);
+    max-width: 14ch;
+  }
+
+  .social__title em {
+    font-style: italic;
+    color: var(--color-accent-strong);
+  }
+
+  .social__lead {
+    margin-block-start: var(--space-lg);
+    max-width: 46ch;
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .social__list {
+    margin-block-start: var(--space-xl);
+    padding: 0;
+    list-style: none;
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .social__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding-block: var(--space-md);
+    border-block-end: 1px solid var(--color-border);
+    text-decoration: none;
+    transition: padding var(--transition-base), color var(--transition-fast);
+  }
+
+  .social__link:hover {
+    color: var(--color-accent-strong);
+    padding-inline-start: var(--space-xs);
+  }
+
+  .social__icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+  }
+
+  .social__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    line-height: 1.3;
+  }
+
+  .social__network {
+    font-family: var(--font-heading);
+    font-size: 1.375rem;
+    font-weight: var(--weight-heading);
+  }
+
+  .social__handle {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .social__tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-sm);
+    align-items: center;
+  }
+
+  @media (min-width: 64rem) {
+    .social__layout {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: clamp(3rem, 7vw, 7rem);
+    }
+
+    .social__tiles {
+      gap: var(--space-md);
+    }
+
+    .social__tiles :global(.social__tile--1) {
+      transform: translateY(-1.5rem);
+    }
+
+    .social__tiles :global(.social__tile--3) {
+      transform: translateY(1.5rem);
+    }
+  }
+</style>

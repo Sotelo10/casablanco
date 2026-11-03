@@ -20,7 +20,7 @@ import SEO from '../components/seo/SEO.astro';
 import { site } from '../config/site.js';
 import { theme } from '../config/theme.js';
 import { absoluteUrl, buildTitle, canonicalUrl } from '../lib/seo/meta.js';
-import { normalizePath } from '../lib/utils/url.js';
+import { normalizePath, withBase } from '../lib/utils/url.js';
 import {
   breadcrumbSchema,
   jsonLdGraph,
@@ -46,6 +46,8 @@ interface Props {
   reviewSummary?: ReviewSummary;
   showMobileBar?: boolean;
   mainClass?: string;
+  /** Imagen LCP de la página: se precarga con prioridad alta. */
+  preloadImage?: { href: string; srcset?: string; sizes?: string };
 }
 
 const {
@@ -59,6 +61,7 @@ const {
   reviewSummary,
   showMobileBar = true,
   mainClass,
+  preloadImage,
 } = Astro.props;
 
 const origin = Astro.site?.origin ?? '';
@@ -93,15 +96,28 @@ const graph = jsonLdGraph([
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content={theme.themeColor} />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={withBase('/favicon-32.png')} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
+    <link rel="manifest" href={withBase('/site.webmanifest')} />
+
+    {
+      preloadImage && (
+        <link
+          rel="preload"
+          as="image"
+          href={preloadImage.href}
+          imagesrcset={preloadImage.srcset}
+          imagesizes={preloadImage.sizes}
+          type="image/webp"
+          fetchpriority="high"
+        />
+      )
+    }
 
     {/* Sólo se precargan los pesos que aparecen en la primera pantalla. */}
-    <Font cssVariable="--font-general-sans" preload={[{ weight: 400, style: 'normal' }]} />
-    <Font cssVariable="--font-boska" preload={[{ weight: 400, style: 'normal' }]} />
-    <Font cssVariable="--font-petit-script" />
+    <Font cssVariable="--font-manrope" preload={[{ weight: 400, style: 'normal' }]} />
+    <Font cssVariable="--font-cormorant" preload={[{ weight: 500, style: 'normal' }]} />
 
     <SEO
       title={title}

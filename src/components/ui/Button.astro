@@ -10,6 +10,7 @@
  * cierre (`icon`, normalmente la flecha que se desplaza al pasar el cursor).
  */
 import Icon from './Icon.astro';
+import { withBase } from '../../lib/utils/url.js';
 
 interface Props {
   href?: string;
@@ -50,13 +51,14 @@ const {
 } = Astro.props;
 
 const Tag = href ? 'a' : 'button';
+const resolvedHref = href ? withBase(href) : undefined;
 const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 const iconSize = size === 'lg' ? 18 : size === 'sm' ? 15 : 16;
 ---
 
 <Tag
   class:list={['btn', `btn--${variant}`, `btn--${size}`, block && 'btn--block', className]}
-  href={href}
+  href={resolvedHref}
   type={href ? undefined : type}
   aria-disabled={disabled ? 'true' : undefined}
   disabled={!href && disabled ? true : undefined}
@@ -79,10 +81,11 @@ const iconSize = size === 'lg' ? 18 : size === 'sm' ? 15 : 16;
     justify-content: center;
     gap: 0.65em;
     border: 1px solid transparent;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-button);
     font-family: var(--font-body);
-    font-weight: var(--weight-medium);
-    letter-spacing: 0.005em;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
     line-height: 1.2;
     text-align: center;
     text-decoration: none;
@@ -112,19 +115,19 @@ const iconSize = size === 'lg' ? 18 : size === 'sm' ? 15 : 16;
   .btn--sm {
     min-height: 2.75rem;
     padding: 0.55rem 1.2rem;
-    font-size: var(--text-sm);
+    font-size: var(--text-2xs);
   }
 
   .btn--md {
     min-height: 3rem;
     padding: 0.75rem 1.7rem;
-    font-size: var(--text-body-sm);
+    font-size: var(--text-xs);
   }
 
   .btn--lg {
     min-height: 3.5rem;
-    padding: 0.9rem 2rem;
-    font-size: var(--text-body);
+    padding: 0.9rem 2.1rem;
+    font-size: var(--text-xs);
   }
 
   .btn--lg .btn__lead {
@@ -145,38 +148,32 @@ const iconSize = size === 'lg' ? 18 : size === 'sm' ? 15 : 16;
   .btn--primary {
     background-color: var(--color-primary);
     color: var(--color-primary-contrast);
-    box-shadow: var(--shadow-sm);
   }
 
   .btn--primary:hover {
     background-color: var(--color-primary-hover);
     color: var(--color-primary-contrast);
-    box-shadow: var(--shadow-md);
   }
 
   .btn--accent {
     background-color: var(--color-primary);
     color: var(--color-primary-contrast);
-    box-shadow: var(--shadow-sm);
   }
 
   .btn--accent:hover {
-    background-color: var(--color-primary);
+    background-color: var(--color-primary-hover);
     color: var(--color-primary-contrast);
-    box-shadow: var(--shadow-md);
   }
 
   /* Acción principal sobre fotografía: blanco pleno, la de mayor contraste. */
   .btn--light {
     background-color: var(--color-surface);
     color: var(--color-text);
-    box-shadow: var(--shadow-md);
   }
 
   .btn--light:hover {
     background-color: var(--color-surface);
     color: var(--color-primary-dark);
-    box-shadow: var(--shadow-lg);
   }
 
   .btn--light .btn__lead {
@@ -202,12 +199,7 @@ const iconSize = size === 'lg' ? 18 : size === 'sm' ? 15 : 16;
     color: var(--color-text-inverse);
   }
 
-  .btn--glass .btn__lead {
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: var(--radius-pill);
-    background-color: rgb(var(--white-rgb) / 26%);
-  }
+
 
   .btn--outline {
     border-color: var(--color-border-strong);
@@ -218,7 +210,6 @@ const iconSize = size === 'lg' ? 18 : size === 'sm' ? 15 : 16;
   .btn--outline:hover {
     border-color: var(--color-primary);
     color: var(--color-primary-dark);
-    box-shadow: var(--shadow-sm);
   }
 
   .btn--outline-light {
@@ -248,7 +239,7 @@ const iconSize = size === 'lg' ? 18 : size === 'sm' ? 15 : 16;
     padding: 0.45rem 0;
     border-radius: 0;
     color: var(--color-text);
-    font-size: var(--text-body-sm);
+    font-size: var(--text-2xs);
   }
 
   .btn--link .btn__label {

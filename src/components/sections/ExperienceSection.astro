@@ -1,15 +1,20 @@
 ---
 /**
- * CAPÍTULO DE ENTORNO
+ * CAPÍTULO DE ENTORNO — VIVIR ICA
  * =============================================================================
- * En móvil las tarjetas se recorren en horizontal con anclaje de scroll (sin
- * JavaScript); a partir de tablet pasan a rejilla. Es la forma más cómoda de
- * hojear lugares con el pulgar.
+ * Sobre azul profundo: a la izquierda el titular y una fotografía real de la
+ * casa ("volver a casa"); a la derecha, una lista editorial numerada de
+ * lugares de la región, con distancias aproximadas desde el centro de Ica.
+ *
+ * Los destinos no se ilustran con fotos de la casa (sería engañoso) ni con
+ * imágenes de stock: la lista tipográfica es honesta y ligera.
  */
+import { photoBySlug } from '../../data/gallery.js';
 import type { NearbyPlace } from '../../types/content.js';
-import NearbyPlaceCard from '../location/NearbyPlaceCard.astro';
-import Chapter from '../ui/Chapter.astro';
+import PropertyImage from '../media/PropertyImage.astro';
+import Button from '../ui/Button.astro';
 import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
 import Section from '../ui/Section.astro';
 
 interface Props {
@@ -17,106 +22,199 @@ interface Props {
   index?: string;
   title?: string;
   description?: string;
-  actionHref?: string;
+  actionHref?: string | null;
   actionLabel?: string;
-  tone?: 'default' | 'surface' | 'muted';
+  /** Nivel del titular de la sección (h1 si la página no tiene otro). */
+  headingLevel?: 'h2' | 'h3';
 }
 
 const {
   places,
   index = '04',
-  title = 'El desierto empieza a la salida',
-  description = 'El oasis, las dunas y las bodegas de la región están a un trayecto corto. Casa Blanco funciona como base para recorrer Ica con calma.',
+  title = 'Ica, entre dunas, viñedos y el oasis de Huacachina',
+  description = 'Casa Leblanc es una base cómoda para recorrer la región: el desierto y las bodegas de día, la piscina y la calma de la casa al volver.',
   actionHref = '/experiencia',
-  actionLabel = 'Descubrir el entorno',
-  tone = 'default',
+  actionLabel = 'Qué hacer en Ica',
+  headingLevel: Heading = 'h3',
 } = Astro.props;
+
+const image = photoBySlug('piscina-jardin-alojamiento-ica');
 ---
 
-<Section tone={tone} container="none" aria-labelledby="entorno-title">
+<Section tone="deep" container="none" aria-labelledby="entorno-title" class="experience">
   <Container size="wide">
-    <Chapter
-      index={index}
-      eyebrow="Experiencia"
-      title={title}
-      description={description}
-      id="entorno-title"
-      actionHref={actionHref}
-      actionLabel={actionLabel}
-      titleWidth="18ch"
-    />
-  </Container>
+    <div class="experience__layout">
+      <div class="experience__intro">
+        <p class="experience__meta">
+          <span class="numeral" aria-hidden="true">{index}</span>
+          <span class="eyebrow eyebrow--plain">Experiencia</span>
+        </p>
+        <h2 id="entorno-title" class="experience__title">{title}</h2>
+        <p class="experience__description">{description}</p>
 
-  <Container size="wide" class="experience__viewport">
-    {/* `tabindex` permite desplazar el carril con el teclado en móvil. */}
-    <ul class="experience__row" role="list" tabindex="0" aria-label="Lugares cercanos a la casa">
-      {
-        places.map((place, i) => (
-          <li class="experience__item">
-            <NearbyPlaceCard place={place} index={i} />
-          </li>
-        ))
-      }
-    </ul>
+        <PropertyImage
+          image={image}
+          ratio="4 / 3"
+          sizes="(min-width: 64rem) 36vw, 100vw"
+          class="experience__image"
+        />
+        <p class="experience__caption">De vuelta en casa: la piscina iluminada al caer la noche.</p>
+
+        {
+          actionHref && (
+            <Button href={actionHref} variant="outline-light" icon="arrow-right" class="experience__action">
+              {actionLabel}
+            </Button>
+          )
+        }
+      </div>
+
+      <ol class="places" role="list">
+        {
+          places.map((place, i) => (
+            <li class="place">
+              <span class="place__number" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div>
+                <Heading class="place__name">{place.name}</Heading>
+                <p class="place__text">{place.description}</p>
+                {place.distance && (
+                  <p class="place__distance">
+                    <Icon name="map-pin" size={14} />
+                    {place.distance}
+                  </p>
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <p class="experience__note">
+      Distancias aproximadas desde el centro de Ica. Ninguno de estos lugares forma parte de la
+      propiedad.
+    </p>
   </Container>
 </Section>
 
 <style>
-  /* El carril sangra hasta el borde de la pantalla para invitar a deslizar. */
-  .experience__viewport {
-    padding-inline: 0;
+  .experience__layout {
+    display: grid;
+    gap: var(--space-3xl);
   }
 
-  .experience__row:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: -2px;
-    border-radius: var(--radius-md);
-  }
-
-  .experience__row {
+  .experience__meta {
     display: flex;
-    gap: var(--space-md);
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .experience__meta .numeral {
+    color: var(--color-text-inverse-muted);
+  }
+
+  .experience__meta .eyebrow {
+    color: var(--color-accent-light);
+  }
+
+  .experience__title {
+    margin-block-start: var(--space-md);
+    max-width: 16ch;
+    font-size: var(--text-h2);
+  }
+
+  .experience__description {
+    margin-block-start: var(--space-lg);
+    max-width: 46ch;
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .experience__intro :global(.experience__image) {
+    margin-block-start: var(--space-2xl);
+  }
+
+  .experience__caption {
+    margin-block-start: var(--space-sm);
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    font-style: italic;
+    color: var(--color-text-inverse-muted);
+  }
+
+  .experience__intro :global(.experience__action) {
+    margin-block-start: var(--space-xl);
+  }
+
+  .places {
     margin: 0;
-    padding: var(--space-2xs) var(--gutter) var(--space-md);
+    padding: 0;
     list-style: none;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline-start: var(--gutter);
-    scrollbar-width: thin;
-    overscroll-behavior-inline: contain;
+    border-block-start: 1px solid var(--color-border-inverse);
   }
 
-  .experience__item {
-    flex: 0 0 min(78%, 20rem);
-    scroll-snap-align: start;
-    display: flex;
+  .place {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: var(--space-md);
+    padding-block: var(--space-lg);
+    border-block-end: 1px solid var(--color-border-inverse);
   }
 
-  .experience__item > :global(*) {
-    width: 100%;
+  .place__number {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-style: italic;
+    line-height: 1.2;
+    color: var(--color-accent-light);
   }
 
-  @media (min-width: 48rem) {
-    .experience__viewport {
-      padding-inline: var(--gutter);
-    }
+  .place__name {
+    font-family: var(--font-heading);
+    font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+    font-weight: var(--weight-heading);
+    line-height: 1.2;
+    color: var(--color-text-inverse);
+  }
 
-    .experience__row {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--space-lg);
-      padding: 0;
-      overflow: visible;
-    }
+  .place__text {
+    margin-block-start: var(--space-xs);
+    max-width: 52ch;
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-inverse-muted);
+  }
 
-    .experience__item {
-      flex: initial;
-    }
+  .place__distance {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-sm);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent-light);
+  }
+
+  .experience__note {
+    margin-block-start: var(--space-2xl);
+    font-size: var(--text-sm);
+    color: var(--color-text-inverse-muted);
   }
 
   @media (min-width: 64rem) {
-    .experience__row {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .experience__layout {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(3rem, 7vw, 7rem);
+      align-items: start;
+    }
+
+    .experience__intro {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-xl));
     }
   }
 </style>

@@ -11,52 +11,69 @@ const { SITE_URL } = loadEnv(process.env.NODE_ENV ?? 'production', process.cwd()
  */
 const site = SITE_URL || 'https://www.example.com';
 
+if (!SITE_URL) {
+  console.warn(
+    '\n⚠  SITE_URL no está definido: canonical, sitemap, robots y Open Graph usarán ' +
+      'https://www.example.com. Define el dominio real en .env antes de publicar.\n',
+  );
+}
+
+/**
+ * Despliegue de previsualización en GitHub Pages (repo `casablanco`), servido
+ * bajo `/casablanco/`. Sólo se activa dentro de GitHub Actions
+ * (`GITHUB_ACTIONS=true`): en local y en la build de producción real el sitio
+ * sigue viviendo en la raíz (`/`).
+ */
+const isGitHubPages = process.env.GITHUB_ACTIONS === 'true';
+
 // https://astro.build/config
 export default defineConfig({
   site,
+  base: isGitHubPages ? '/casablanco/' : '/',
   trailingSlash: 'never',
-  build: { format: 'file' },
-  integrations: [sitemap({ lastmod: new Date() })],
+  build: {
+    format: 'file',
+    /* CSS en línea: elimina las hojas de estilo que bloquean el render (una
+       ida y vuelta de red menos por archivo en móvil). Comprimido con gzip o
+       brotli, el sobrecoste en el HTML es de pocos KB. */
+    inlineStylesheets: 'always',
+  },
+  integrations: [
+    sitemap({
+      lastmod: new Date(),
+      /* `/resenas` no se indexa mientras no haya reseñas reales (ver
+         `src/data/reviews.ts`). Quita este filtro cuando se publiquen. */
+      filter: (page) => !/\/resenas\/?$/.test(page),
+    }),
+  ],
   /**
-   * Tipografía autoalojada. Las familias se descargan en el build y se sirven
-   * desde el propio dominio: no hay peticiones a terceros en runtime.
+   * Tipografía autoalojada. Las familias se descargan en el build como WOFF2 y
+   * se sirven desde el propio dominio: no hay peticiones a terceros en runtime.
    *
-   * General Sans        → interfaz y texto (geométrica luminosa, muy legible).
-   * Boska               → titulares (serif de alto contraste, hospitalidad).
-   * Petit Formal Script → firma manuscrita, sólo en detalles de identidad.
+   * Cormorant Garamond → titulares editoriales (serif clásica de alto contraste).
+   * Manrope            → texto, navegación, botones y elementos funcionales.
    */
   fonts: [
     {
-      name: 'General Sans',
-      cssVariable: '--font-general-sans',
-      provider: fontProviders.fontshare(),
-      weights: [400, 500, 600],
-      styles: ['normal'],
-      fallbacks: ['system-ui', 'sans-serif'],
-      optimizedFallbacks: true,
-      display: 'swap',
-    },
-    {
-      name: 'Boska',
-      cssVariable: '--font-boska',
-      provider: fontProviders.fontshare(),
-      /* Los titulares usan un solo peso y estilo: menos archivos y la misma
-         presencia. La cursiva puntual de los marcadores la resuelve el
-         navegador. */
-      weights: [400],
-      styles: ['normal'],
+      name: 'Cormorant Garamond',
+      cssVariable: '--font-cormorant',
+      provider: fontProviders.google(),
+      weights: [500, 600],
+      styles: ['normal', 'italic'],
+      subsets: ['latin'],
       fallbacks: ['Georgia', 'serif'],
       optimizedFallbacks: true,
       display: 'swap',
     },
     {
-      name: 'Petit Formal Script',
-      cssVariable: '--font-petit-script',
+      name: 'Manrope',
+      cssVariable: '--font-manrope',
       provider: fontProviders.google(),
-      weights: [400],
+      weights: [400, 500, 600, 700],
       styles: ['normal'],
       subsets: ['latin'],
-      fallbacks: ['cursive'],
+      fallbacks: ['system-ui', 'sans-serif'],
+      optimizedFallbacks: true,
       display: 'swap',
     },
   ],

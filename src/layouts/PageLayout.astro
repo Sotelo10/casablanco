@@ -2,16 +2,17 @@
 /**
  * LAYOUT DE PÁGINAS INTERIORES
  * =============================================================================
- * Cabecera editorial: migas, antetítulo, H1 y entradilla sobre fondo cal, con
- * el arco de la marca como filigrana. Da identidad a cada página sin recurrir a
- * un hero de imagen que competiría con la portada.
+ * Cabecera editorial: migas, antetítulo, H1 y entradilla sobre blanco cálido.
+ * Si la página aporta una fotografía real (`image`), se compone a la derecha
+ * del titular y actúa como imagen principal (LCP) de la página.
  */
 import BookingCTA from '../components/booking/BookingCTA.astro';
 import Breadcrumbs from '../components/navigation/Breadcrumbs.astro';
 import Container from '../components/ui/Container.astro';
-import WaveDivider from '../components/ui/WaveDivider.astro';
+import PropertyImage from '../components/media/PropertyImage.astro';
+import { responsiveSource } from '../lib/images.js';
 import type { BreadcrumbEntry, JsonObject } from '../lib/seo/schema.js';
-import type { ReviewSummary } from '../types/content.js';
+import type { GalleryImage, ReviewSummary } from '../types/content.js';
 import BaseLayout from './BaseLayout.astro';
 
 interface Props {
@@ -27,8 +28,10 @@ interface Props {
   noindex?: boolean;
   showCta?: boolean;
   showMobileBar?: boolean;
-  /** Color del bloque que sigue a la banda de cierre. */
-  ctaTopWave?: 'background' | 'surface' | 'soft' | 'sand' | 'deep';
+  /** Compatibilidad: la banda de cierre ya no dibuja curva. */
+  ctaTopWave?: string;
+  /** Fotografía real de cabecera (opcional). */
+  image?: GalleryImage;
 }
 
 const {
@@ -43,8 +46,11 @@ const {
   noindex = false,
   showCta = true,
   showMobileBar = true,
-  ctaTopWave = 'surface',
+  image,
 } = Astro.props;
+
+const headerImage = image ? responsiveSource(image) : null;
+const imageSizes = '(min-width: 64rem) 40vw, 100vw';
 ---
 
 <BaseLayout
@@ -55,66 +61,55 @@ const {
   reviewSummary={reviewSummary}
   noindex={noindex}
   showMobileBar={showMobileBar}
+  preloadImage={headerImage
+    ? { href: headerImage.src, srcset: headerImage.srcset, sizes: imageSizes }
+    : undefined}
 >
-  <header class="page-header">
-    <svg class="page-header__motif" viewBox="0 0 200 160" aria-hidden="true" focusable="false">
-      <path d="M55 160V78a45 45 0 0 1 90 0v82" fill="none" stroke="currentColor" stroke-width="1" />
-      <path
-        d="M78 160V83a22 22 0 0 1 44 0v77"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1"
-        opacity="0.6"
-      />
-    </svg>
-
+  <header class:list={['page-header', image && 'page-header--media']}>
     <Container size="wide">
       {breadcrumbs.length > 1 && <Breadcrumbs items={breadcrumbs} class="page-header__crumbs" />}
-      <div class="page-header__body">
-        {eyebrow && <span class="eyebrow page-header__eyebrow">{eyebrow}</span>}
-        <h1 class="page-header__title">{heading ?? title}</h1>
-        {intro && <p class="lead page-header__intro">{intro}</p>}
-        <slot name="header-extra" />
+      <div class="page-header__layout">
+        <div class="page-header__body">
+          {eyebrow && <span class="eyebrow page-header__eyebrow">{eyebrow}</span>}
+          <h1 class="page-header__title">{heading ?? title}</h1>
+          {intro && <p class="lead page-header__intro">{intro}</p>}
+          <slot name="header-extra" />
+        </div>
+        {
+          image && (
+            <PropertyImage
+              image={image}
+              ratio="4 / 3"
+              sizes={imageSizes}
+              priority
+              class="page-header__image"
+            />
+          )
+        }
       </div>
     </Container>
-
-    <WaveDivider tone="background" />
   </header>
 
   <slot />
 
-  {showCta && <BookingCTA topWaveTone={ctaTopWave} />}
+  {showCta && <BookingCTA />}
 </BaseLayout>
 
 <style>
-  /* Cabecera interior: mismo cielo del hero en clave suave, cerrada con la
-     curva de la marca para que todas las páginas abran igual. */
   .page-header {
-    position: relative;
-    padding-block: var(--space-xl) calc(var(--section-space-sm) + clamp(2rem, 4vw, 4rem));
-    overflow: hidden;
-    isolation: isolate;
-    background-image: linear-gradient(
-        170deg,
-        var(--sky-100) 0%,
-        var(--sky-50) 42%,
-        var(--color-background) 78%
-      ),
-      radial-gradient(60% 70% at 88% 0%, rgb(var(--sky-rgb) / 22%) 0%, transparent 60%);
-  }
-
-  .page-header__motif {
-    position: absolute;
-    inset-block-end: -18%;
-    inset-inline-end: -3%;
-    z-index: -1;
-    width: min(36%, 26rem);
-    height: auto;
-    color: rgb(var(--deep-rgb) / 7%);
+    padding-block: var(--space-xl) var(--section-space-sm);
+    border-block-end: 1px solid var(--color-border);
+    background-color: var(--color-background);
   }
 
   .page-header :global(.page-header__crumbs) {
     margin-block-end: var(--space-xl);
+  }
+
+  .page-header__layout {
+    display: grid;
+    gap: var(--space-2xl);
+    align-items: end;
   }
 
   .page-header__body {
@@ -124,11 +119,11 @@ const {
   }
 
   .page-header__title {
-    max-width: 18ch;
+    max-width: 16ch;
   }
 
   .page-header__intro {
-    max-width: 54ch;
+    max-width: 52ch;
   }
 
   @media (min-width: 64rem) {
@@ -138,6 +133,11 @@ const {
 
     .page-header__body {
       gap: var(--space-lg);
+    }
+
+    .page-header--media .page-header__layout {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 6fr);
+      gap: clamp(3rem, 6vw, 6rem);
     }
   }
 </style>

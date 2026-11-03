@@ -4,6 +4,8 @@
  * =============================================================================
  * Único punto donde se decide entre fotografía real y mockup:
  *
+ * - Si es una fotografía pregenerada (`widths` presente), se sirve el WebP de
+ *   `public/images/` con `srcset` y dimensiones intrínsecas.
  * - Si el archivo existe en `src/assets/property/`, se renderiza con
  *   `astro:assets` (formatos modernos, `srcset` y dimensiones explícitas).
  * - Si `src` es una URL absoluta (por ejemplo una imagen guardada en Supabase
@@ -15,7 +17,7 @@
  */
 import { Image } from 'astro:assets';
 import ImagePlaceholder from './ImagePlaceholder.astro';
-import { aspectRatios, resolvePropertyImage } from '../../lib/images.js';
+import { aspectRatios, resolvePropertyImage, responsiveSource } from '../../lib/images.js';
 import type { GalleryImage } from '../../types/content.js';
 
 interface Props {
@@ -53,14 +55,30 @@ const {
 
 /** Las imágenes remotas no pasan por el pipeline: no están en el proyecto. */
 const isRemote = /^https?:\/\//.test(image.src);
-const resolved = isRemote ? null : resolvePropertyImage(image.src);
+/** Fotografía pregenerada en WebP dentro de `public/images/`. */
+const pregenerated = responsiveSource(image);
+const resolved = isRemote || pregenerated ? null : resolvePropertyImage(image.src);
 const appliedRatio = ratio ?? aspectRatios[image.orientation];
 ---
 
 <Tag class:list={['frame', className]} style={`--frame-ratio:${appliedRatio}`} {...rest}>
   <div class="frame__media">
     {
-      resolved ? (
+      pregenerated ? (
+        <img
+          src={pregenerated.src}
+          srcset={pregenerated.srcset}
+          sizes={sizes}
+          alt={image.alt}
+          width={pregenerated.width}
+          height={pregenerated.height}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding={priority ? 'sync' : 'async'}
+          fetchpriority={priority ? 'high' : 'auto'}
+          class="frame__img"
+          style={image.focus ? `object-position:${image.focus}` : undefined}
+        />
+      ) : resolved ? (
         <Image
           src={resolved}
           alt={image.alt}
@@ -107,7 +125,7 @@ const appliedRatio = ratio ?? aspectRatios[image.orientation];
   .frame__media {
     position: relative;
     overflow: hidden;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-sm);
     background-color: var(--color-surface-soft);
   }
 

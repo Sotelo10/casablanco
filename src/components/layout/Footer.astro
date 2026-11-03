@@ -12,20 +12,18 @@
 import { bookingHref, bookingLabel, legalNav, mainNav, secondaryNav } from '../../config/navigation.js';
 import { formattedAddress, site } from '../../config/site.js';
 import { googleMapsLink } from '../../lib/utils/maps.js';
+import { withBase } from '../../lib/utils/url.js';
 import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
 import Button from '../ui/Button.astro';
 import Container from '../ui/Container.astro';
 import Icon from '../ui/Icon.astro';
-import PlaceholderValue from '../ui/PlaceholderValue.astro';
+import { socialProfiles } from '../../config/social.js';
 
 const year = new Date().getFullYear();
 const whatsapp = whatsAppUrl();
 const mapsUrl = googleMapsLink();
 
-const socialLinks = [
-  { key: 'instagram', label: 'Instagram', icon: 'instagram', href: site.social.instagram },
-  { key: 'facebook', label: 'Facebook', icon: 'facebook', href: site.social.facebook },
-].filter((link) => link.href.length > 0);
+const socialLinks = socialProfiles;
 ---
 
 <footer class="footer" id="footer">
@@ -33,7 +31,10 @@ const socialLinks = [
     <div class="footer__top">
       <div class="footer__brand">
         <p class="footer__name">{site.name}</p>
-        <p class="footer__tagline">{site.tagline}</p>
+        <p class="footer__tagline">
+          Casa vacacional en Ica, Perú. Piscina, jardín y una casa completa para tu grupo, cerca
+          del oasis de Huacachina.
+        </p>
       </div>
 
       <div class="footer__cta">
@@ -48,42 +49,41 @@ const socialLinks = [
       <nav class="footer__column" aria-labelledby="footer-explorar">
         <h2 class="footer__title" id="footer-explorar">Explorar</h2>
         <ul class="footer__list" role="list">
-          {mainNav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
-          {secondaryNav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          {mainNav.map((item) => <li><a href={withBase(item.href)}>{item.label}</a></li>)}
+          {secondaryNav.map((item) => <li><a href={withBase(item.href)}>{item.label}</a></li>)}
         </ul>
       </nav>
 
       <div class="footer__column">
         <h2 class="footer__title">Contacto</h2>
         <ul class="footer__list" role="list">
-          <li>
-            {
-              site.contact.phone ? (
+          {
+            site.contact.phone && (
+              <li>
                 <a href={`tel:${site.contact.phone.replace(/\s/g, '')}`}>{site.contact.phone}</a>
-              ) : (
-                <PlaceholderValue value={null} fallback="Teléfono por confirmar" />
-              )
-            }
-          </li>
-          <li>
-            {
-              site.contact.email ? (
+              </li>
+            )
+          }
+          {
+            site.contact.email && (
+              <li>
                 <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
-              ) : (
-                <PlaceholderValue value={null} fallback="Correo por confirmar" />
-              )
-            }
-          </li>
+              </li>
+            )
+          }
           {
             whatsapp && (
               <li>
                 <a href={whatsapp} target="_blank" rel="noopener noreferrer">
-                  WhatsApp
+                  Escribir por WhatsApp
                 </a>
               </li>
             )
           }
           {site.contact.hours && <li class="footer__muted">{site.contact.hours}</li>}
+          <li>
+            <a href={withBase(bookingHref)}>Solicitar reserva</a>
+          </li>
         </ul>
       </div>
 
@@ -107,7 +107,12 @@ const socialLinks = [
             <ul class="footer__social" role="list">
               {socialLinks.map((link) => (
                 <li>
-                  <a href={link.href} target="_blank" rel="noopener noreferrer" aria-label={link.label}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${link.network} de ${site.name} (se abre en una pestaña nueva)`}
+                  >
                     <Icon name={link.icon} size={18} />
                   </a>
                 </li>
@@ -119,13 +124,23 @@ const socialLinks = [
     </div>
 
     <div class="footer__bottom">
-      <p class="footer__copy">© {year} {site.name}. Todos los derechos reservados.</p>
+      <p class="footer__copy">
+        © <span data-current-year>{year}</span> {site.name} · Ica, Perú. Todos los derechos
+        reservados.
+      </p>
       <ul class="footer__legal" role="list">
-        {legalNav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        {legalNav.map((item) => <li><a href={withBase(item.href)}>{item.label}</a></li>)}
       </ul>
     </div>
   </Container>
 </footer>
+
+{/* El año se fija en el build; esto lo mantiene al día sin recompilar. */}
+<script is:inline>
+  document.querySelectorAll('[data-current-year]').forEach((el) => {
+    el.textContent = String(new Date().getFullYear());
+  });
+</script>
 
 <style>
   .footer {
@@ -147,14 +162,17 @@ const socialLinks = [
 
   .footer__name {
     font-family: var(--font-heading);
-    font-size: clamp(2rem, 1.5rem + 2vw, 3rem);
+    font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem);
+    font-weight: var(--weight-heading);
     line-height: 1;
     letter-spacing: var(--tracking-tight);
   }
 
   .footer__tagline {
-    margin-block-start: var(--space-xs);
+    margin-block-start: var(--space-sm);
+    max-width: 40ch;
     font-size: var(--text-body-sm);
+    line-height: var(--leading-normal);
     color: var(--color-text-inverse-muted);
   }
 

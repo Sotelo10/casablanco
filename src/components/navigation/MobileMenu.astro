@@ -11,8 +11,9 @@
  */
 import { bookingHref, bookingLabelLong, mainNav, secondaryNav } from '../../config/navigation.js';
 import { site } from '../../config/site.js';
-import { isActivePath } from '../../lib/utils/url.js';
+import { isActivePath, withBase } from '../../lib/utils/url.js';
 import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import { socialProfiles } from '../../config/social.js';
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
 
@@ -22,7 +23,7 @@ interface Props {
 
 const { currentPath } = Astro.props;
 const whatsapp = whatsAppUrl();
-const isCurrent = (href: string) => isActivePath(href, currentPath);
+const isCurrent = (href: string) => isActivePath(withBase(href), currentPath);
 ---
 
 <dialog id="mobile-menu" class="menu" aria-label="Menú de navegación">
@@ -43,7 +44,7 @@ const isCurrent = (href: string) => isActivePath(href, currentPath);
           mainNav.map((item, index) => (
             <li class="menu__item" style={`--i:${index}`}>
               <a
-                href={item.href}
+                href={withBase(item.href)}
                 class="menu__link"
                 aria-current={isCurrent(item.href) ? 'page' : undefined}
               >
@@ -66,7 +67,7 @@ const isCurrent = (href: string) => isActivePath(href, currentPath);
           secondaryNav.map((item) => (
             <li>
               <a
-                href={item.href}
+                href={withBase(item.href)}
                 class="menu__sublink"
                 aria-current={isCurrent(item.href) ? 'page' : undefined}
               >
@@ -104,11 +105,51 @@ const isCurrent = (href: string) => isActivePath(href, currentPath);
           </a>
         )
       }
+      <ul class="menu__social" role="list">
+        {
+          socialProfiles.map((profile) => (
+            <li>
+              <a
+                href={profile.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${profile.network} de ${site.name} (se abre en una pestaña nueva)`}
+              >
+                <Icon name={profile.icon} size={20} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </div>
 </dialog>
 
 <style>
+  .menu__social {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-xs);
+    padding: 0;
+    list-style: none;
+  }
+
+  .menu__social a {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-border-inverse);
+    border-radius: var(--radius-pill);
+    color: var(--color-text-inverse);
+  }
+
+  .menu__social a:hover {
+    border-color: var(--color-border-inverse-strong);
+    color: var(--color-accent-light);
+  }
+
   .menu {
     width: 100%;
     max-width: none;
@@ -162,7 +203,8 @@ const isCurrent = (href: string) => isActivePath(href, currentPath);
   }
 
   .menu__brand-place {
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
+    font-weight: var(--weight-semibold);
     font-size: var(--text-3xs);
     letter-spacing: var(--tracking-widest);
     text-transform: uppercase;

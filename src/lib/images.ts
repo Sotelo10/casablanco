@@ -7,7 +7,7 @@
  * responsivos y dimensiones explícitas para evitar CLS.
  */
 import type { ImageMetadata } from 'astro';
-import type { ImageOrientation } from '../types/content.js';
+import type { GalleryImage, ImageOrientation } from '../types/content.js';
 
 const propertyImages = import.meta.glob<{ default: ImageMetadata }>(
   '/src/assets/property/**/*.{jpeg,jpg,png,webp,avif,gif,tiff}',
@@ -22,6 +22,38 @@ export function resolvePropertyImage(src: string | undefined): ImageMetadata | n
   if (!src) return null;
   const key = `/src/assets/property/${src.replace(/^\/+/, '')}`;
   return propertyImages[key]?.default ?? null;
+}
+
+export interface ResponsiveSource {
+  src: string;
+  srcset: string;
+  width: number;
+  height: number;
+}
+
+/**
+ * Fotografías pregeneradas en `public/` (ver `scripts/optimize-media.mjs`):
+ * devuelve `src` (variante intermedia, para navegadores sin `srcset`), el
+ * `srcset` completo y las dimensiones intrínsecas. `null` si la imagen no es
+ * de ese tipo.
+ */
+export function responsiveSource(image: GalleryImage): ResponsiveSource | null {
+  const widths = image.widths;
+  if (!widths || widths.length === 0) return null;
+  const fallback = widths.includes(768) ? 768 : widths[widths.length - 1]!;
+  return {
+    src: `${image.src}-${fallback}.webp`,
+    srcset: widths.map((w) => `${image.src}-${w}.webp ${w}w`).join(', '),
+    width: image.width,
+    height: image.height,
+  };
+}
+
+/** Variante más grande: la que abre el lightbox. */
+export function largestSource(image: GalleryImage): string {
+  const widths = image.widths;
+  if (!widths || widths.length === 0) return image.src;
+  return `${image.src}-${widths[widths.length - 1]}.webp`;
 }
 
 /** Proporción CSS asociada a cada orientación de fotografía. */

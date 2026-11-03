@@ -1,9 +1,9 @@
 /**
  * QUÉ HAY CERCA — REGIÓN DE ICA
  * =============================================================================
- * Lugares reales de la zona. Las distancias y los tiempos quedan en `null` a
- * propósito: la interfaz muestra `[X min]` hasta que midas el trayecto real
- * desde la propiedad.
+ * Lugares reales de la región. Las distancias son aproximadas y se miden desde
+ * el CENTRO DE ICA, no desde la casa (su dirección exacta se comparte al
+ * reservar). Ninguno de estos lugares está dentro de la propiedad.
  *
  * Para añadir una fotografía, copia el archivo en `src/assets/property/` y
  * escribe su nombre en `image`.
@@ -43,7 +43,7 @@ export const nearbyPlaces: NearbyPlace[] = [
     name: 'Oasis de Huacachina',
     description:
       'Laguna natural rodeada de dunas y palmeras, uno de los paisajes más reconocibles del Perú.',
-    distance: null,
+    distance: 'A unos 5 km del centro de Ica',
     category: 'naturaleza',
     image: '',
     icon: 'palm',
@@ -53,7 +53,7 @@ export const nearbyPlaces: NearbyPlace[] = [
     name: 'Dunas y sandboarding',
     description:
       'Recorridos en areneros y descensos en tabla sobre las dunas que rodean la ciudad.',
-    distance: null,
+    distance: 'Alrededor de Huacachina',
     category: 'actividades',
     image: '',
     icon: 'compass',
@@ -63,7 +63,7 @@ export const nearbyPlaces: NearbyPlace[] = [
     name: 'Bodegas de pisco y vino',
     description:
       'Ica es una de las cunas del pisco. Varias bodegas de la zona ofrecen visitas y catas guiadas.',
-    distance: null,
+    distance: 'En los alrededores de la ciudad',
     category: 'gastronomia',
     image: '',
     icon: 'grape',
@@ -72,8 +72,8 @@ export const nearbyPlaces: NearbyPlace[] = [
     id: 'gastronomia-local',
     name: 'Cocina iqueña',
     description:
-      'Carapulcra con sopa seca, tejas y frejol colado forman parte de la mesa tradicional de la región.',
-    distance: null,
+      'Tejas, chocotejas, carapulcra con sopa seca y frejol colado: dulces y platos tradicionales de la región, para acompañar con pisco o vino iqueño.',
+    distance: 'En toda la región',
     category: 'gastronomia',
     image: '',
     icon: 'utensils',
@@ -83,7 +83,7 @@ export const nearbyPlaces: NearbyPlace[] = [
     name: 'Centro histórico de Ica',
     description:
       'La Plaza de Armas y su entorno concentran comercio, cafés y la vida diaria de la ciudad.',
-    distance: null,
+    distance: 'Centro de Ica',
     category: 'turismo',
     image: '',
     icon: 'landmark',
@@ -93,7 +93,7 @@ export const nearbyPlaces: NearbyPlace[] = [
     name: 'Museo Regional de Ica',
     description:
       'Colección arqueológica dedicada a las culturas Paracas, Nasca e Ica.',
-    distance: null,
+    distance: 'En la ciudad de Ica',
     category: 'turismo',
     image: '',
     icon: 'landmark',
@@ -103,7 +103,7 @@ export const nearbyPlaces: NearbyPlace[] = [
     name: 'Paracas e Islas Ballestas',
     description:
       'Reserva nacional en la costa, con recorridos en bote hasta las islas y su fauna marina.',
-    distance: null,
+    distance: 'A unos 75 km de Ica (1 h aprox.)',
     category: 'naturaleza',
     image: '',
     icon: 'wave',
@@ -113,7 +113,7 @@ export const nearbyPlaces: NearbyPlace[] = [
     name: 'Líneas de Nasca',
     description:
       'Geoglifos declarados Patrimonio de la Humanidad, al sur de la región.',
-    distance: null,
+    distance: 'A unos 140 km de Ica (2 h 30 aprox.)',
     category: 'turismo',
     image: '',
     icon: 'compass',

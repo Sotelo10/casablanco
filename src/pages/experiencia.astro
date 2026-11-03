@@ -1,27 +1,46 @@
 ---
 /**
- * EXPERIENCIA — Ica como destino, con Casa Blanco como punto de partida.
+ * EXPERIENCIA — Ica como destino, con Casa Leblanc como punto de partida.
+ *
+ * Página de contenido para búsquedas de turismo ("qué hacer en Ica", "dónde
+ * alojarse en Ica", "alojamiento cerca de Huacachina"). Sólo información
+ * general y comprobable de la región; ningún lugar se presenta como parte de
+ * la propiedad.
  */
-import NearbyPlaces from '../components/location/NearbyPlaces.astro';
-import Button from '../components/ui/Button.astro';
-import Card from '../components/ui/Card.astro';
+import ExperienceSection from '../components/sections/ExperienceSection.astro';
 import Chapter from '../components/ui/Chapter.astro';
 import Container from '../components/ui/Container.astro';
 import Icon from '../components/ui/Icon.astro';
-import PlaceholderNotice from '../components/ui/PlaceholderNotice.astro';
 import Section from '../components/ui/Section.astro';
-import { experienceCategories } from '../data/nearby.js';
+import { photoBySlug } from '../data/gallery.js';
 import PageLayout from '../layouts/PageLayout.astro';
 import { getNearbyPlaces } from '../lib/services/content.service.js';
+import { withBase } from '../lib/utils/url.js';
 
 const places = await getNearbyPlaces();
 
-const grouped = experienceCategories
-  .map((category) => ({
-    ...category,
-    places: places.filter((place) => place.category === category.id),
-  }))
-  .filter((category) => category.places.length > 0);
+const tips = [
+  {
+    icon: 'sun',
+    title: 'Clima',
+    text: 'Ica tiene clima desértico: seco y soleado la mayor parte del año. En verano (de diciembre a marzo) los días son calurosos; protector solar, sombrero y agua son imprescindibles para las dunas.',
+  },
+  {
+    icon: 'wine',
+    title: 'Vendimia',
+    text: 'En marzo, la ciudad celebra la Vendimia, la fiesta de la cosecha de la uva. Es una de las épocas más animadas del año y conviene consultar disponibilidad con tiempo.',
+  },
+  {
+    icon: 'compass',
+    title: 'Dunas al atardecer',
+    text: 'Los paseos en arenero y el sandboarding en Huacachina se contratan con operadores locales. Las salidas de la tarde permiten ver la puesta de sol sobre el desierto.',
+  },
+  {
+    icon: 'wave',
+    title: 'Excursiones de un día',
+    text: 'Paracas y las Islas Ballestas, al norte, y las Líneas de Nasca, al sur, se visitan en excursiones de un día y se vuelve a descansar a la casa.',
+  },
+];
 
 const breadcrumbs = [
   { name: 'Inicio', href: '/' },
@@ -30,145 +49,129 @@ const breadcrumbs = [
 ---
 
 <PageLayout
-  title="Experiencia en Ica"
-  description="Qué hacer cerca de Casa Blanco: el oasis de Huacachina, las dunas, las bodegas de pisco y vino, el centro histórico de Ica y la costa de Paracas."
-  heading="Ica, más allá de la casa"
+  title="Qué hacer en Ica: Huacachina, dunas y bodegas"
+  description="Guía para tu viaje a Ica: oasis de Huacachina, dunas y sandboarding, bodegas de pisco, gastronomía, Paracas y Nasca. Alójate en Casa Leblanc, casa vacacional en Ica."
+  heading="Qué hacer en Ica, con Casa Leblanc como base"
   eyebrow="Experiencia"
-  intro="El desierto, el oasis y los viñedos definen esta parte del Perú. Estas son las salidas que mejor combinan con una estancia tranquila."
+  intro="El oasis de Huacachina, las dunas, los viñedos y la mesa iqueña. Lo mejor de la región, a la salida de la casa."
   breadcrumbs={breadcrumbs}
-  ctaTopWave="soft"
+  image={photoBySlug('piscina-zona-comedor-exterior-casa-leblanc')}
 >
-  <Section tone="default" container="none" aria-labelledby="categorias-title">
+  <Section tone="default" container="none" aria-labelledby="alojarse-title">
+    <Container size="wide">
+      <div class="stay">
+        <Chapter
+          index="01"
+          eyebrow="Dónde alojarse en Ica"
+          title="Una casa vacacional cerca de Huacachina"
+          id="alojarse-title"
+          titleWidth="16ch"
+        />
+        <div class="prose stay__prose">
+          <p>
+            Quien viaja a Ica suele buscar dos cosas: estar cerca del oasis de Huacachina y las
+            dunas, y tener un lugar tranquilo donde descansar al volver. Una casa vacacional
+            resuelve ambas: espacio propio, cocina para el grupo y la libertad de llegar y salir
+            sin horarios de hotel.
+          </p>
+          <p>
+            <a href={withBase('/casa')}>Casa Leblanc</a> se reserva completa, con piscina iluminada, jardín y
+            terraza, y dormitorios con camas matrimoniales, camarotes y camas individuales. Es una
+            opción pensada para familias y grupos que quieren conocer Ica a su ritmo.
+          </p>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <ExperienceSection
+    places={places}
+    index="02"
+    title="Lugares para conocer en la región de Ica"
+    description="Del oasis a la costa de Paracas: estos son los imprescindibles de la región, con distancias aproximadas desde el centro de la ciudad."
+    actionHref="/ubicacion"
+    actionLabel="Cómo llegar a Ica"
+  />
+
+  <Section tone="sand" container="none" aria-labelledby="consejos-title">
     <Container size="wide">
       <Chapter
-        index="01"
-        eyebrow="Cómo se organiza el viaje"
-        title="Cuatro maneras de recorrer la región"
-        id="categorias-title"
-        titleWidth="18ch"
+        index="03"
+        eyebrow="Planifica tu viaje"
+        title="Consejos para tu estadía en Ica"
+        id="consejos-title"
+        titleWidth="16ch"
       />
 
-      <ul class="categories" role="list">
+      <ul class="tips" role="list">
         {
-          experienceCategories.map((category, index) => (
-            <li class="categories__item">
-              <Card tone="surface" padding="lg" class="category">
-                <span class="numeral category__index" aria-hidden="true">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <span class="category__icon">
-                  <Icon name={category.icon} size={20} />
-                </span>
-                <h3 class="category__title">{category.title}</h3>
-                <p class="category__text">{category.description}</p>
-              </Card>
+          tips.map((tip) => (
+            <li class="tip">
+              <Icon name={tip.icon} size={22} class="tip__icon" />
+              <h3 class="tip__title">{tip.title}</h3>
+              <p class="tip__text">{tip.text}</p>
             </li>
           ))
         }
       </ul>
     </Container>
   </Section>
-
-  {
-    grouped.map((category, index) => (
-      <Section
-        tone={index % 2 === 0 ? 'surface' : 'default'}
-        container="none"
-        aria-labelledby={`grupo-${category.id}`}
-      >
-        <Container size="wide">
-          <Chapter
-            index={String(index + 2).padStart(2, '0')}
-            eyebrow="Qué hacer"
-            title={category.title}
-            description={category.description}
-            id={`grupo-${category.id}`}
-            titleWidth="20ch"
-          />
-          <NearbyPlaces places={category.places} columns={category.places.length >= 3 ? 3 : 2} />
-        </Container>
-      </Section>
-    ))
-  }
-
-  <Section tone="muted" container="none" aria-labelledby="tiempos-title">
-    <Container size="wide">
-      <Chapter
-        index={String(grouped.length + 2).padStart(2, '0')}
-        eyebrow="Distancias"
-        title="Tiempos desde la propiedad"
-        description="Los trayectos se publican una vez medidos desde la dirección real de la casa. Hasta entonces aparecen como pendientes."
-        id="tiempos-title"
-        titleWidth="16ch"
-      />
-      <PlaceholderNotice text="Edita el campo distance de cada lugar en src/data/nearby.ts para publicar los tiempos reales." />
-      <div class="section-action">
-        <Button href="/ubicacion" variant="outline" icon="arrow-right">
-          Ver ubicación y accesos
-        </Button>
-      </div>
-    </Container>
-  </Section>
 </PageLayout>
 
 <style>
-  .categories {
+  .stay {
     display: grid;
-    gap: var(--space-md);
-    list-style: none;
-    margin: 0;
+    gap: var(--space-xl);
+  }
+
+  .stay__prose :global(p) {
+    font-size: var(--text-lead);
+    line-height: var(--leading-relaxed);
+  }
+
+  .tips {
+    display: grid;
+    gap: var(--space-2xl) var(--space-xl);
+    margin-block-start: var(--space-3xl);
     padding: 0;
+    list-style: none;
   }
 
-  .categories__item {
-    display: flex;
+  .tip {
+    padding-block-start: var(--space-lg);
+    border-block-start: 1px solid var(--color-border-strong);
   }
 
-  .category {
-    width: 100%;
-    gap: var(--space-2xs);
+  .tip :global(.tip__icon) {
+    color: var(--color-accent-strong);
   }
 
-  .category__index {
-    color: var(--color-primary);
-  }
-
-  .category__icon {
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    margin-block: var(--space-sm) var(--space-xs);
-    border-radius: var(--radius-pill);
-    background-color: var(--color-primary-soft);
-    color: var(--color-primary);
-  }
-
-  .category__title {
+  .tip__title {
+    margin-block-start: var(--space-md);
     font-size: var(--text-h3);
   }
 
-  .category__text {
+  .tip__text {
+    margin-block-start: var(--space-sm);
     font-size: var(--text-body-sm);
     line-height: var(--leading-relaxed);
     color: var(--color-text-muted);
   }
 
-  .section-action {
-    display: flex;
-    justify-content: center;
-    margin-block-start: var(--space-xl);
-  }
-
-  @media (min-width: 40rem) {
-    .categories {
+  @media (min-width: 48rem) {
+    .tips {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--space-lg);
     }
   }
 
   @media (min-width: 64rem) {
-    .categories {
+    .stay {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(3rem, 7vw, 7rem);
+      align-items: start;
+    }
+
+    .tips {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }

@@ -8,18 +8,15 @@ export interface NavItem {
 }
 
 export const mainNav: NavItem[] = [
-  { label: 'Inicio', href: '/', description: 'Casa Blanco de un vistazo' },
-  { label: 'La casa', href: '/casa', description: 'Espacios, capacidad y servicios' },
-  { label: 'Galería', href: '/galeria', description: 'Fotografías de la propiedad' },
-  { label: 'Experiencia', href: '/experiencia', description: 'Qué hacer en Ica' },
-  { label: 'Reseñas', href: '/resenas', description: 'Opiniones de huéspedes' },
-  { label: 'Ubicación', href: '/ubicacion', description: 'Cómo llegar y qué hay cerca' },
+  { label: 'Inicio', href: '/', description: 'Casa Leblanc de un vistazo' },
+  { label: 'La casa', href: '/casa', description: 'Espacios, dormitorios y exteriores' },
+  { label: 'Galería', href: '/galeria', description: 'Fotografías reales de la casa' },
+  { label: 'Experiencia', href: '/experiencia', description: 'Qué hacer en Ica y Huacachina' },
+  { label: 'Ubicación', href: '/ubicacion', description: 'Cómo llegar a Ica' },
+  { label: 'Contacto', href: '/contacto', description: 'Consulta disponibilidad' },
 ];
 
-export const secondaryNav: NavItem[] = [
-  { label: 'Preguntas frecuentes', href: '/faq' },
-  { label: 'Contacto', href: '/contacto' },
-];
+export const secondaryNav: NavItem[] = [{ label: 'Preguntas frecuentes', href: '/faq' }];
 
 export const legalNav: NavItem[] = [
   { label: 'Política de privacidad', href: '/politica-privacidad' },
@@ -35,4 +32,4 @@ export const bookingHref = '/contacto';
 export const bookingLabel = 'Reservar estadía';
 export const bookingLabelLong = 'Reservar tu estadía';
 export const exploreHref = '/casa';
-export const exploreLabel = 'Explorar Casa Blanco';
+export const exploreLabel = 'Descubrir la casa';

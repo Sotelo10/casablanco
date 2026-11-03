@@ -41,11 +41,11 @@
   align-items: center;
   gap: 0.9em;
   font-family: var(--font-body);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  letter-spacing: var(--tracking-wider);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--color-accent-strong);
 }
 
 .eyebrow::after {
@@ -60,10 +60,11 @@
   display: none;
 }
 
-/* Firma manuscrita: acentos de marca muy puntuales. */
+/* Acento editorial: cursiva de la serif, en detalles muy puntuales. */
 .script {
   font-family: var(--font-script);
-  font-weight: var(--weight-regular);
+  font-style: italic;
+  font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-normal);
   text-transform: none;
   line-height: 1.2;
@@ -98,8 +99,9 @@
 
 /* Numeración editorial de capítulos y listas */
 .numeral {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
+  font-family: var(--font-body);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-wide);
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;

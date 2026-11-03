@@ -3,97 +3,103 @@
  * PORTADA
  * -----------------------------------------------------------------------------
  * Recorrido en capítulos numerados. Cada uno responde una pregunta concreta del
- * visitante y cambia de tono visual, de modo que el scroll tenga ritmo:
+ * visitante y alterna fondo, de modo que el scroll tenga ritmo:
  *
- *   Hero → datos → 01 la casa → 02 servicios → 03 galería (tinta) →
- *   04 entorno → 05 reseñas → 06 ubicación → 07 preguntas → cierre (tinta)
+ *   Hero (vídeo) → 01 la casa → 02 espacios (arena) → 03 galería (azul) →
+ *   04 Ica (azul) → redes → 05 ubicación → 06 preguntas → cierre (foto)
+ *
+ * Las reseñas sólo aparecen cuando existan reseñas reales: no se publican
+ * opiniones de ejemplo.
  */
 import BookingCTA from '../components/booking/BookingCTA.astro';
 import Hero from '../components/hero/Hero.astro';
-import FeatureStrip from '../components/sections/FeatureStrip.astro';
-import AmenitiesSection from '../components/sections/AmenitiesSection.astro';
 import ExperienceSection from '../components/sections/ExperienceSection.astro';
 import FaqSection from '../components/sections/FaqSection.astro';
 import GallerySection from '../components/sections/GallerySection.astro';
 import IntroSection from '../components/sections/IntroSection.astro';
 import LocationSection from '../components/sections/LocationSection.astro';
 import ReviewsSection from '../components/sections/ReviewsSection.astro';
-import { heroImage, introImage, gallery } from '../data/gallery.js';
+import SocialSection from '../components/sections/SocialSection.astro';
+import SpacesSection from '../components/sections/SpacesSection.astro';
+import { heroVideo, introImage, photoBySlug } from '../data/gallery.js';
 import { homeIntroParagraphs, stayHighlights } from '../data/property.js';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {
   getFaqs,
-  getFeaturedAmenities,
   getFeaturedGallery,
   getNearbyPlaces,
 } from '../lib/services/content.service.js';
 import { getReviews, summarize } from '../lib/services/reviews.service.js';
 
-const [featuredImages, featuredAmenities, nearbyPlaces, reviews] = await Promise.all([
+const [featuredImages, nearbyPlaces, reviews] = await Promise.all([
   getFeaturedGallery(5),
-  getFeaturedAmenities(),
   getNearbyPlaces(),
   getReviews(),
 ]);
 
 const reviewSummary = summarize(reviews);
-const highlightedPlaces = nearbyPlaces.slice(0, 3);
-const homeFaqs = getFaqs().slice(0, 4);
+const hasRealReviews = reviews.length > 0 && !reviewSummary.isDemo;
+const highlightedPlaces = nearbyPlaces.filter((place) =>
+  ['huacachina', 'dunas', 'bodegas', 'gastronomia-local', 'paracas'].includes(place.id),
+);
+const homeFaqs = getFaqs().slice(0, 5);
 
-/** Segunda imagen de la composición editorial: un ambiente interior distinto. */
-const secondaryIntroImage = gallery.find((image) => image.category === 'terraza') ?? gallery[1]!;
-
-/**
- * Beneficios del hero. Son afirmaciones estructurales del alquiler (casa
- * completa, trato directo) y del destino, no características del inmueble sin
- * confirmar.
- */
-const heroBenefits = [
-  { icon: 'users', title: 'Casa completa', detail: 'Sólo para tu grupo' },
-  { icon: 'palm', title: 'Desierto y viñedos', detail: 'El entorno de Ica' },
-  { icon: 'shield', title: 'Trato directo', detail: 'Con el propietario' },
+/** Rasgos reales de la casa, todos visibles en el vídeo y las fotografías. */
+const heroFeatures = [
+  { icon: 'pool', label: 'Piscina iluminada' },
+  { icon: 'leaf', label: 'Jardín y terraza' },
+  { icon: 'home', label: 'Casa completa' },
+  { icon: 'users', label: 'Ideal para grupos' },
 ];
 
+const title = 'Casa Leblanc | Casa vacacional y alojamiento en Ica, Perú';
 const description =
-  'Casa Blanco es una casa vacacional en Ica, Perú: se alquila completa para un solo grupo, con espacios amplios y privacidad total. Consulta disponibilidad para tus fechas.';
+  'Casa Leblanc, casa vacacional en Ica cerca de Huacachina: casa completa con piscina, jardín y dormitorios para familias y grupos. Reserva por WhatsApp.';
 ---
 
 <BaseLayout
-  title="Inicio"
+  title={title}
   description={description}
   isHome
   headerVariant="transparent"
   reviewSummary={reviewSummary}
+  preloadImage={heroVideo
+    ? {
+        href: `${heroVideo.poster}-${heroVideo.posterWidths.at(-1)}.webp`,
+        srcset: heroVideo.posterWidths.map((w) => `${heroVideo.poster}-${w}.webp ${w}w`).join(', '),
+        sizes: '(min-width: 64rem) 46vw, 100vw',
+      }
+    : undefined}
 >
   <Hero
-    image={heroImage}
-    reviewSummary={reviewSummary}
-    claim="Tu escape perfecto en Ica"
-    lead="Una casa vacacional completa para descansar entre viñedos y dunas. Se reserva entera, para un solo grupo, con trato directo del propietario."
-    benefits={heroBenefits}
+    video={heroVideo}
+    posterAlt="Piscina iluminada de Casa Leblanc con apliques de luz en el muro, de noche"
+    claim="Casa vacacional en Ica, cerca de Huacachina"
+    lead="Una casa completa para tu grupo, con piscina iluminada, jardín y terraza. Descansa a tu ritmo y sal a descubrir las dunas, las bodegas y el oasis."
+    features={heroFeatures}
   />
-
-  <FeatureStrip />
 
   <IntroSection
     primaryImage={introImage}
-    secondaryImage={secondaryIntroImage}
+    secondaryImage={photoBySlug('terraza-deck-piscina-casa-leblanc')}
+    title="Un alojamiento en Ica pensado para descansar en privado"
     highlights={stayHighlights}
     paragraphs={homeIntroParagraphs}
-    reviewSummary={reviewSummary}
   />
 
-  <AmenitiesSection amenities={featuredAmenities} />
+  <SpacesSection />
 
   <GallerySection images={featuredImages} />
 
   <ExperienceSection places={highlightedPlaces} />
 
-  <ReviewsSection reviews={reviews} summary={reviewSummary} />
+  {hasRealReviews && <ReviewsSection reviews={reviews} summary={reviewSummary} />}
 
-  <LocationSection />
+  <SocialSection />
 
-  <FaqSection faqs={homeFaqs} actionHref="/faq" actionLabel="Ver todas las preguntas" />
+  <LocationSection index="05" />
+
+  <FaqSection faqs={homeFaqs} index="06" actionHref="/faq" actionLabel="Ver todas las preguntas" />
 
   <BookingCTA />
 </BaseLayout>

@@ -8,10 +8,13 @@ import Card from '../components/ui/Card.astro';
 import Chapter from '../components/ui/Chapter.astro';
 import Container from '../components/ui/Container.astro';
 import Icon from '../components/ui/Icon.astro';
-import PlaceholderValue from '../components/ui/PlaceholderValue.astro';
 import Section from '../components/ui/Section.astro';
 import { formattedAddress, site } from '../config/site.js';
 import PageLayout from '../layouts/PageLayout.astro';
+import { socialProfiles } from '../config/social.js';
+import { whatsAppUrl } from '../lib/utils/whatsapp.js';
+
+const whatsapp = whatsAppUrl();
 
 const breadcrumbs = [
   { name: 'Inicio', href: '/' },
@@ -22,7 +25,7 @@ const trust = [
   {
     icon: 'shield',
     title: 'Reserva directa',
-    text: 'Escribes al propietario, sin intermediarios ni comisiones de plataforma.',
+    text: 'Escribes directamente al anfitrión, sin intermediarios.',
   },
   {
     icon: 'key',
@@ -38,11 +41,11 @@ const trust = [
 ---
 
 <PageLayout
-  title="Reservar estadía"
-  description="Solicita la reserva de Casa Blanco en Ica: envía tus fechas y el número de huéspedes y te respondemos con disponibilidad, tarifa y condiciones."
-  heading="Reserva tu estadía en Casa Blanco"
+  title="Reservar estadía y consultar disponibilidad"
+  description="Reserva Casa Leblanc, casa vacacional en Ica: consulta disponibilidad y tarifa por WhatsApp al +51 948 898 400 o con el formulario de reserva."
+  heading="Reserva tu estadía en Casa Leblanc"
   eyebrow="Disponibilidad"
-  intro="Escríbenos con tus fechas y el tamaño del grupo. Te respondemos con la disponibilidad, la tarifa y las condiciones de la estancia."
+  intro="Cuéntanos tus fechas y cuántas personas viajan. Te respondemos por WhatsApp con la disponibilidad, la tarifa y las condiciones."
   breadcrumbs={breadcrumbs}
   showCta={false}
   showMobileBar={false}
@@ -67,30 +70,38 @@ const trust = [
             <h2 id="contacto-directo" class="contact__title">Contacto directo</h2>
 
             <ul class="contact__list" role="list">
-              <li class="contact__item">
-                <span class="contact__icon"><Icon name="whatsapp" size={16} /></span>
-                <div>
-                  <p class="contact__label">WhatsApp</p>
-                  <p class="contact__value">
-                    <PlaceholderValue value={site.contact.phone} fallback="Número por confirmar" />
-                  </p>
-                </div>
-              </li>
-              <li class="contact__item">
-                <span class="contact__icon"><Icon name="mail" size={16} /></span>
-                <div>
-                  <p class="contact__label">Correo</p>
-                  <p class="contact__value">
-                    {
-                      site.contact.email ? (
+              {
+                site.contact.phone && (
+                  <li class="contact__item">
+                    <span class="contact__icon"><Icon name="whatsapp" size={16} /></span>
+                    <div>
+                      <p class="contact__label">WhatsApp y teléfono</p>
+                      <p class="contact__value">
+                        {whatsapp ? (
+                          <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+                            {site.contact.phone}
+                          </a>
+                        ) : (
+                          <a href={`tel:${site.contact.phone.replace(/\s/g, '')}`}>{site.contact.phone}</a>
+                        )}
+                      </p>
+                    </div>
+                  </li>
+                )
+              }
+              {
+                site.contact.email && (
+                  <li class="contact__item">
+                    <span class="contact__icon"><Icon name="mail" size={16} /></span>
+                    <div>
+                      <p class="contact__label">Correo</p>
+                      <p class="contact__value">
                         <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
-                      ) : (
-                        <PlaceholderValue value={null} fallback="Correo por confirmar" />
-                      )
-                    }
-                  </p>
-                </div>
-              </li>
+                      </p>
+                    </div>
+                  </li>
+                )
+              }
               <li class="contact__item">
                 <span class="contact__icon"><Icon name="map-pin" size={16} /></span>
                 <div>
@@ -98,16 +109,33 @@ const trust = [
                   <p class="contact__value">{formattedAddress()}</p>
                 </div>
               </li>
+              {
+                site.contact.hours && (
+                  <li class="contact__item">
+                    <span class="contact__icon"><Icon name="clock" size={16} /></span>
+                    <div>
+                      <p class="contact__label">Atención</p>
+                      <p class="contact__value">{site.contact.hours}</p>
+                    </div>
+                  </li>
+                )
+              }
               <li class="contact__item">
-                <span class="contact__icon"><Icon name="clock" size={16} /></span>
+                <span class="contact__icon"><Icon name="instagram" size={16} /></span>
                 <div>
-                  <p class="contact__label">Atención</p>
-                  <p class="contact__value">{site.contact.hours}</p>
+                  <p class="contact__label">Redes oficiales</p>
+                  <p class="contact__value contact__social">
+                    {socialProfiles.map((profile) => (
+                      <a href={profile.url} target="_blank" rel="noopener noreferrer">
+                        {profile.network}
+                      </a>
+                    ))}
+                  </p>
                 </div>
               </li>
             </ul>
 
-            <WhatsAppButton variant="outline" size="md" block class="contact__whatsapp" />
+            <WhatsAppButton variant="primary" size="md" block class="contact__whatsapp" />
           </Card>
 
           <ul class="trust" role="list">
@@ -133,6 +161,12 @@ const trust = [
   .contact {
     display: grid;
     gap: var(--space-xl);
+  }
+
+  .contact__social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-md);
   }
 
   .contact__chapter {

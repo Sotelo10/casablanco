@@ -6,11 +6,14 @@
  * (`PUBLIC_GOOGLE_MAPS_API_KEY`) y coordenadas o dirección en la configuración.
  * La clave nunca se escribe en el código: se lee de las variables de entorno.
  *
- * Sin configuración se muestra una placa con el mismo lenguaje visual que las
- * fotografías pendientes, de modo que la página nunca enseña un hueco roto.
+ * Mientras no haya dirección exacta, se muestra una fotografía real de la casa
+ * con la ZONA publicada (Huacachina · Ica) y un enlace a esa zona en Google
+ * Maps, rotulado como aproximado. Nunca se señala un punto inventado.
  */
 import { formattedCity, site } from '../../config/site.js';
-import { googleMapsEmbedUrl, googleMapsLink } from '../../lib/utils/maps.js';
+import { photoBySlug } from '../../data/gallery.js';
+import { responsiveSource } from '../../lib/images.js';
+import { googleMapsEmbedUrl, googleMapsLink, googleMapsZoneLink } from '../../lib/utils/maps.js';
 import Icon from '../ui/Icon.astro';
 
 interface Props {
@@ -25,6 +28,9 @@ interface Props {
 const { class: className, ratio, ...rest } = Astro.props;
 const embedUrl = googleMapsEmbedUrl();
 const mapsUrl = googleMapsLink();
+const zoneUrl = googleMapsZoneLink();
+const zone = [site.location.area, formattedCity()].filter(Boolean).join(' · ');
+const photo = responsiveSource(photoBySlug('casa-leblanc-ica-fachada-piscina-noche'));
 ---
 
 <div
@@ -44,31 +50,35 @@ const mapsUrl = googleMapsLink();
       />
     ) : (
       <div class="map__fallback">
-        <svg class="map__motif" viewBox="0 0 200 160" aria-hidden="true" focusable="false">
-          <path
-            d="M55 160V78a45 45 0 0 1 90 0v82"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.25"
+        {photo && (
+          <img
+            class="map__photo"
+            src={photo.src}
+            srcset={photo.srcset}
+            sizes="(min-width: 64rem) 50vw, 100vw"
+            width={photo.width}
+            height={photo.height}
+            alt=""
+            loading="lazy"
+            decoding="async"
           />
-        </svg>
-
+        )}
         <span class="map__pin">
           <Icon name="map-pin" size={22} />
         </span>
-        <p class="map__title">{formattedCity(' · ')}</p>
-        <p class="map__hint">
-          El mapa se activa al configurar <code>PUBLIC_GOOGLE_MAPS_API_KEY</code> y las coordenadas
-          de la propiedad.
-        </p>
-        {
-          mapsUrl && (
-            <a class="map__link" href={mapsUrl} target="_blank" rel="noopener noreferrer">
-              Abrir en Google Maps
-              <Icon name="arrow-up-right" size={15} />
-            </a>
-          )
-        }
+        <p class="map__title">{zone}</p>
+        <p class="map__hint">Ubicación exacta al confirmar la reserva.</p>
+        {(mapsUrl ?? zoneUrl) && (
+          <a
+            class="map__link"
+            href={mapsUrl ?? zoneUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {mapsUrl ? 'Abrir en Google Maps' : 'Ver la zona en Google Maps'}
+            <Icon name="arrow-up-right" size={15} />
+          </a>
+        )}
       </div>
     )
   }
@@ -79,8 +89,7 @@ const mapsUrl = googleMapsLink();
     position: relative;
     aspect-ratio: var(--map-ratio, 4 / 3);
     overflow: hidden;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-sm);
     background-color: var(--color-surface-soft);
   }
 
@@ -100,12 +109,8 @@ const mapsUrl = googleMapsLink();
     height: 100%;
     padding: var(--space-xl);
     text-align: center;
-    background-image: radial-gradient(
-        110% 80% at 50% 0%,
-        rgb(var(--white-rgb) / 65%) 0%,
-        transparent 55%
-      ),
-      linear-gradient(165deg, var(--color-surface-soft) 0%, var(--sky-200) 100%);
+    color: var(--color-text-inverse);
+    background-color: var(--color-surface-deep);
     isolation: isolate;
   }
 
@@ -113,22 +118,18 @@ const mapsUrl = googleMapsLink();
     content: '';
     position: absolute;
     inset: 0;
-    background-image: repeating-linear-gradient(
-      -45deg,
-      rgb(var(--deep-rgb) / 3.5%) 0 1px,
-      transparent 1px 14px
-    );
+    z-index: -1;
+    background-color: rgb(var(--veil-rgb) / 72%);
   }
 
-  .map__motif {
+  .map__photo {
     position: absolute;
-    inset-block-end: 0;
-    inset-inline: 0;
-    z-index: -1;
-    width: min(50%, 18rem);
-    height: auto;
-    margin-inline: auto;
-    color: rgb(var(--deep-rgb) / 10%);
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 45%;
   }
 
   .map__pin {
@@ -136,39 +137,39 @@ const mapsUrl = googleMapsLink();
     place-items: center;
     width: 3rem;
     height: 3rem;
+    border: 1px solid var(--color-border-inverse-strong);
     border-radius: var(--radius-pill);
-    background-color: var(--color-surface);
-    color: var(--color-primary);
-    box-shadow: var(--shadow-sm);
+    color: var(--color-text-inverse);
   }
 
   .map__title {
     margin-block-start: var(--space-xs);
     font-family: var(--font-heading);
     font-size: var(--text-h3);
+    font-weight: var(--weight-heading);
   }
 
   .map__hint {
     max-width: 40ch;
     font-size: var(--text-sm);
-    color: var(--color-text-muted);
-  }
-
-  .map__hint code {
-    padding: 0.1em 0.4em;
-    border-radius: var(--radius-xs);
-    background-color: var(--color-surface);
-    font-size: 0.9em;
+    color: var(--color-text-inverse-muted);
   }
 
   .map__link {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    min-height: 2.75rem;
     margin-block-start: var(--space-sm);
-    padding-block: 0.5rem;
-    font-size: var(--text-body-sm);
-    font-weight: var(--weight-medium);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-inverse);
+  }
+
+  .map__link:hover {
+    color: var(--color-accent-light);
   }
 
   @media (min-width: 48rem) {
