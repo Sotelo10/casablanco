@@ -25,6 +25,7 @@ export const icons: Record<string, string> = {
   bed: '<path d="M3 19V6"/><path d="M3 12h12a5 5 0 0 1 5 5v2"/><path d="M3 19h18"/><circle cx="7.2" cy="9.4" r="1.8"/>',
   bath: '<path d="M4.5 12V6.6A2.1 2.1 0 0 1 8.4 5.5"/><path d="M7.4 8.6h3.2"/><path d="M2.8 12h18.4v2.2a5 5 0 0 1-5 5H7.8a5 5 0 0 1-5-5z"/><path d="M6.5 19.2 5.5 21"/><path d="M17.5 19.2 18.5 21"/>',
   home: '<path d="M4 10.4 12 4l8 6.4V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/><path d="M9.6 20.5v-6h4.8v6"/>',
+  mic: '<rect x="9" y="2.75" width="6" height="11.5" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5v3.75"/><path d="M8.75 21.25h6.5"/>',
   wifi: '<path d="M2.6 9.4C6.2 5.9 17.8 5.9 21.4 9.4"/><path d="M6 12.9c2.6-2.4 9.4-2.4 12 0"/><path d="M9.3 16.3c1.6-1.4 3.8-1.4 5.4 0"/><circle cx="12" cy="19.6" r="1.1"/>',
   droplet: '<path d="M12 3.4c3.6 4.3 5.6 7.2 5.6 9.6a5.6 5.6 0 0 1-11.2 0c0-2.4 2-5.3 5.6-9.6z"/>',
   snowflake:

@@ -42,7 +42,7 @@ export const faqs: FaqItem[] = [
   },
   {
     id: 'capacidad',
-    question: '¿Cuántas personas pueden alojarse?',
+    question: '¿Cuál es la capacidad máxima?',
     answer:
       'La casa está pensada para familias y grupos. Indícanos cuántas personas viajan y te confirmamos si la distribución de camas se ajusta a tu grupo.',
     isPlaceholder: true,
@@ -75,10 +75,53 @@ export const faqs: FaqItem[] = [
     isPlaceholder: true,
   },
   {
+    id: 'visitas',
+    question: '¿Se permiten visitas?',
+    /* TODO: política real de visitas del propietario. */
+    answer:
+      'Las visitas de personas que no se alojan en la casa se coordinan con el anfitrión antes de la reserva. Consúltanos y te confirmamos las condiciones.',
+    isPlaceholder: true,
+  },
+  {
+    id: 'celebraciones',
+    question: '¿Se permiten celebraciones?',
+    /* TODO: condiciones reales (número de invitados, horarios, música, garantía). */
+    answer:
+      'Cumpleaños y reuniones pequeñas están siempre sujetos a las condiciones de la propiedad. Cuéntanos qué tienes en mente antes de reservar y te confirmamos si es posible y en qué condiciones.',
+    isPlaceholder: true,
+  },
+  {
+    id: 'condiciones',
+    question: '¿Cuáles son las condiciones de reserva?',
+    /* TODO: adelanto, garantía, documentos, normas de la casa. */
+    answer:
+      'Las condiciones de reserva (adelanto, garantía y normas de la casa) se envían por WhatsApp junto con la disponibilidad, antes de confirmar cualquier fecha.',
+    isPlaceholder: true,
+  },
+  {
+    id: 'cancelacion',
+    question: '¿Cuáles son las políticas de cancelación?',
+    /* TODO: política de cancelación real. */
+    answer:
+      'La política de cancelación se detalla al confirmar la reserva. Pregúntanos por ella antes de pagar cualquier adelanto.',
+    isPlaceholder: true,
+  },
+  {
     id: 'pago',
     question: '¿Cómo se realiza el pago?',
     answer:
       'Los medios de pago y las condiciones de reserva se detallan por WhatsApp antes de confirmar cualquier fecha.',
     isPlaceholder: true,
   },
+];
+
+/** Preguntas de la portada, en este orden. */
+export const homeFaqIds = [
+  'capacidad',
+  'horarios',
+  'mascotas',
+  'visitas',
+  'celebraciones',
+  'condiciones',
+  'cancelacion',
 ];

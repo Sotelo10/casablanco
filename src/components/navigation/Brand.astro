@@ -6,6 +6,7 @@
  * Garamond y la localización en Manrope, como una firma de arquitectura. Cuando exista
  * un logotipo bastará con sustituir este componente.
  */
+import { brand } from '../../config/brand.js';
 import { site } from '../../config/site.js';
 import { withBase } from '../../lib/utils/url.js';
 
@@ -36,9 +37,7 @@ const {
   <span class="brand__name">{site.name}</span>
   {
     showLocation && (
-      <span class="brand__location">
-        {site.location.city} · {site.location.country}
-      </span>
+      <span class="brand__location">{brand.locationLine}</span>
     )
   }
 </a>

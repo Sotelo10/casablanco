@@ -1,0 +1,45 @@
+---
+/**
+ * RESERVAS — consulta de disponibilidad.
+ *
+ * Sin motor de reservas: el formulario abre WhatsApp con fechas, huéspedes y
+ * experiencia ya redactados (o los guarda en Supabase si está configurado).
+ * Tarifas, paquetes y calendario aparecen solos al completarse
+ * `src/data/rates.ts`.
+ */
+import BookingSection from '../components/sections/BookingSection.astro';
+import FaqSection from '../components/sections/FaqSection.astro';
+import PageLayout from '../layouts/PageLayout.astro';
+import { getFaqs } from '../lib/services/content.service.js';
+
+const bookingFaqIds = ['reserva', 'condiciones', 'cancelacion', 'horarios', 'pago', 'capacidad'];
+const faqs = bookingFaqIds
+  .map((id) => getFaqs().find((faq) => faq.id === id))
+  .filter((faq): faq is NonNullable<typeof faq> => Boolean(faq));
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Reservas', href: '/reservas' },
+];
+---
+
+<PageLayout
+  title="Reservas y disponibilidad · Casa vacacional en Ica"
+  description="Consulta disponibilidad en Casa Leblanc, casa privada con piscina cerca de Huacachina, Ica. Elige fechas, huéspedes y experiencia, y te respondemos por WhatsApp."
+  heading="Reserva tu estadía en Casa Leblanc"
+  eyebrow="Reservas"
+  intro="Indica tus fechas, cuántas personas viajan y qué tipo de experiencia buscas. Te respondemos con la disponibilidad, la tarifa y las condiciones."
+  breadcrumbs={breadcrumbs}
+  showCta={false}
+  showMobileBar={false}
+>
+  <BookingSection index="01" title="Consulta disponibilidad sin compromiso" id="consulta" />
+
+  <FaqSection
+    faqs={faqs}
+    index="02"
+    title="Antes de reservar"
+    actionHref="/faq"
+    actionLabel="Ver todas las preguntas"
+  />
+</PageLayout>

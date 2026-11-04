@@ -20,6 +20,7 @@
  */
 import { isSupabaseConfigured } from '../../config/env.js';
 import { site } from '../../config/site.js';
+import { experienceOptions } from '../../data/experiences.js';
 import { limits, NOT_CONNECTED_MESSAGE } from '../../lib/services/booking.service.js';
 import { withBase } from '../../lib/utils/url.js';
 import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
@@ -118,7 +119,7 @@ const whatsappMode = !connected && Boolean(whatsapp);
       <p class="field__error" id="booking-checkout-error" hidden></p>
     </div>
 
-    <div class="field field--full">
+    <div class="field">
       <label class="field__label" for="booking-guests">
         Huéspedes <span class="field__required" aria-hidden="true">*</span>
       </label>
@@ -143,6 +144,14 @@ const whatsappMode = !connected && Boolean(whatsapp);
           <p class="field__hint">Capacidad máxima de la casa: {maxGuests} huéspedes.</p>
         )
       }
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="booking-experience">Tipo de experiencia</label>
+      <select class="field__input" id="booking-experience" name="experience">
+        <option value="">Sin preferencia</option>
+        {experienceOptions.map((option) => <option value={option.id}>{option.label}</option>)}
+      </select>
     </div>
 
     <div class="field field--full">
@@ -445,6 +454,20 @@ const whatsappMode = !connected && Boolean(whatsapp);
       if (checkIn.value) checkOut?.setAttribute('min', checkIn.value);
     });
 
+    // Preselección desde los enlaces de experiencias (`/reservas?experiencia=familiar`).
+    const experienceSelect = document.getElementById('booking-experience') as HTMLSelectElement | null;
+    const requested = new URLSearchParams(window.location.search).get('experiencia');
+    if (experienceSelect && requested) {
+      const match = Array.from(experienceSelect.options).find((option) => option.value === requested);
+      if (match) experienceSelect.value = requested;
+    }
+
+    /** Nombre visible de la experiencia elegida, o cadena vacía. */
+    const selectedExperience = (): string => {
+      if (!experienceSelect || !experienceSelect.value) return '';
+      return experienceSelect.selectedOptions[0]?.textContent?.trim() ?? '';
+    };
+
     const readForm = (): BookingInquiry => {
       const data = new FormData(form);
       return {
@@ -454,7 +477,12 @@ const whatsappMode = !connected && Boolean(whatsapp);
         checkIn: String(data.get('checkIn') ?? ''),
         checkOut: String(data.get('checkOut') ?? ''),
         guests: Number(data.get('guests') ?? 0),
-        message: String(data.get('message') ?? ''),
+        message: [
+          selectedExperience() && `Experiencia: ${selectedExperience()}.`,
+          String(data.get('message') ?? ''),
+        ]
+          .filter(Boolean)
+          .join('\n'),
       };
     };
 
@@ -508,6 +536,7 @@ const whatsappMode = !connected && Boolean(whatsapp);
         checkIn: inquiry.checkIn,
         checkOut: inquiry.checkOut,
         guests: inquiry.guests,
+        experience: selectedExperience() || undefined,
       });
 
       if (!url || !whatsappLink || !fallback) return;
@@ -550,7 +579,8 @@ const whatsappMode = !connected && Boolean(whatsapp);
           checkIn: inquiry.checkIn,
           checkOut: inquiry.checkOut,
           guests: inquiry.guests || undefined,
-          note: inquiry.message.trim() || undefined,
+          experience: selectedExperience() || undefined,
+          note: String(new FormData(form).get('message') ?? '').trim() || undefined,
         });
         if (url) {
           window.open(url, '_blank', 'noopener,noreferrer');

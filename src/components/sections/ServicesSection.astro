@@ -1,0 +1,157 @@
+---
+/**
+ * SERVICIOS Y COMODIDADES (portada)
+ * =============================================================================
+ * Sólo se muestran servicios confirmados (`confirmed: true` en
+ * `src/data/amenities.ts`). Los pendientes no aparecen aquí: la nota final
+ * invita a preguntar en lugar de prometer algo sin verificar.
+ *
+ * Composición: titular a la izquierda y una rejilla de iconos con filetes a
+ * la derecha, sin tarjetas.
+ */
+import { amenities, highlightedAmenityIds } from '../../data/amenities.js';
+import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import Button from '../ui/Button.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  index?: string;
+  limit?: number;
+}
+
+const { index = '04', limit = 8 } = Astro.props;
+
+const confirmed = highlightedAmenityIds
+  .map((id) => amenities.find((amenity) => amenity.id === id))
+  .filter((amenity): amenity is NonNullable<typeof amenity> => Boolean(amenity?.confirmed))
+  .slice(0, limit);
+
+const askUrl = whatsAppUrl({
+  message: 'Hola, quisiera consultar por los servicios y el equipamiento de Casa Leblanc.',
+});
+---
+
+<Section id="servicios" tone="default" container="none" aria-labelledby="servicios-title">
+  <Container size="wide">
+    <div class="services">
+      <div class="services__lead">
+        <Chapter
+          index={index}
+          eyebrow="Servicios y comodidades"
+          title="Todo listo para que sólo pienses en disfrutar"
+          id="servicios-title"
+          titleWidth="15ch"
+        />
+        <p class="services__note">
+          Mostramos únicamente lo que está verificado en la casa. Si necesitas algo concreto
+          —conexión WiFi, estacionamiento o equipamiento para tu grupo—, pregúntanos y te lo
+          confirmamos.
+        </p>
+        <div class="services__actions">
+          <Button href="/casa#equipamiento" variant="outline" icon="arrow-right">
+            Ver el equipamiento
+          </Button>
+          {
+            askUrl && (
+              <Button href={askUrl} variant="link" leadingIcon="whatsapp" external>
+                Consultar un servicio
+              </Button>
+            )
+          }
+        </div>
+      </div>
+
+      <ul class="services__grid" role="list">
+        {
+          confirmed.map((amenity) => (
+            <li class="service">
+              <span class="service__icon">
+                <Icon name={amenity.icon} size={26} strokeWidth={1.25} />
+              </span>
+              <span class="service__name">{amenity.name}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .services {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .services__note {
+    margin-block-start: var(--space-lg);
+    max-width: 44ch;
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .services__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm) var(--space-lg);
+    margin-block-start: var(--space-xl);
+  }
+
+  .services__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-block-start: 1px solid var(--color-border);
+    border-inline-start: 1px solid var(--color-border);
+  }
+
+  .service {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    padding: var(--space-lg) var(--space-md);
+    border-block-end: 1px solid var(--color-border);
+    border-inline-end: 1px solid var(--color-border);
+    transition: background-color var(--transition-base);
+  }
+
+  .service:hover {
+    background-color: var(--color-surface-mist);
+  }
+
+  .service__icon {
+    color: var(--color-primary);
+  }
+
+  .service__name {
+    font-size: var(--text-body-sm);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-snug);
+  }
+
+  @media (min-width: 48rem) {
+    .services__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .service {
+      padding: var(--space-xl) var(--space-lg);
+      min-height: 10rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .services {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--space-4xl);
+      align-items: center;
+    }
+  }
+</style>

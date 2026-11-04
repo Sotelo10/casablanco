@@ -10,6 +10,7 @@
  * esté configurado.
  */
 import { bookingHref, bookingLabel, legalNav, mainNav, secondaryNav } from '../../config/navigation.js';
+import { brand } from '../../config/brand.js';
 import { formattedAddress, site } from '../../config/site.js';
 import { googleMapsLink } from '../../lib/utils/maps.js';
 import { withBase } from '../../lib/utils/url.js';
@@ -31,10 +32,8 @@ const socialLinks = socialProfiles;
     <div class="footer__top">
       <div class="footer__brand">
         <p class="footer__name">{site.name}</p>
-        <p class="footer__tagline">
-          Casa vacacional en Ica, Perú. Piscina, jardín y una casa completa para tu grupo, cerca
-          del oasis de Huacachina.
-        </p>
+        <p class="footer__location">{brand.locationLine}</p>
+        <p class="footer__motto">{brand.motto}</p>
       </div>
 
       <div class="footer__cta">
@@ -125,8 +124,8 @@ const socialLinks = socialProfiles;
 
     <div class="footer__bottom">
       <p class="footer__copy">
-        © <span data-current-year>{year}</span> {site.name} · Ica, Perú. Todos los derechos
-        reservados.
+        © <span data-current-year>{year}</span> {site.name} · {brand.locationLine}. Todos los
+        derechos reservados.
       </p>
       <ul class="footer__legal" role="list">
         {legalNav.map((item) => <li><a href={withBase(item.href)}>{item.label}</a></li>)}
@@ -162,17 +161,27 @@ const socialLinks = socialProfiles;
 
   .footer__name {
     font-family: var(--font-heading);
-    font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem);
-    font-weight: var(--weight-heading);
+    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+    font-weight: var(--weight-semibold);
     line-height: 1;
-    letter-spacing: var(--tracking-tight);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
   }
 
-  .footer__tagline {
+  .footer__location {
     margin-block-start: var(--space-sm);
-    max-width: 40ch;
-    font-size: var(--text-body-sm);
-    line-height: var(--leading-normal);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-accent-light);
+  }
+
+  .footer__motto {
+    margin-block-start: var(--space-md);
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.625rem);
+    font-style: italic;
     color: var(--color-text-inverse-muted);
   }
 

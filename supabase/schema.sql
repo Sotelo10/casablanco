@@ -35,7 +35,7 @@ create table if not exists public.gallery_images (
   id           uuid primary key default gen_random_uuid(),
   storage_path text    not null,
   alt          text    not null,
-  category     text    not null,   -- exterior | sala | comedor | cocina | ...
+  category     text    not null,   -- piscina | dormitorios | interiores | terraza | comunes | experiencias
   width        integer,
   height       integer,
   orientation  text    not null default 'landscape',  -- landscape|portrait|square

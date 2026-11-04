@@ -8,6 +8,7 @@
  * la propiedad.
  */
 import ExperienceSection from '../components/sections/ExperienceSection.astro';
+import StayExperiencesSection from '../components/sections/StayExperiencesSection.astro';
 import Chapter from '../components/ui/Chapter.astro';
 import Container from '../components/ui/Container.astro';
 import Icon from '../components/ui/Icon.astro';
@@ -44,24 +45,26 @@ const tips = [
 
 const breadcrumbs = [
   { name: 'Inicio', href: '/' },
-  { name: 'Experiencia', href: '/experiencia' },
+  { name: 'Experiencias', href: '/experiencia' },
 ];
 ---
 
 <PageLayout
-  title="Qué hacer en Ica: Huacachina, dunas y bodegas"
-  description="Guía para tu viaje a Ica: oasis de Huacachina, dunas y sandboarding, bodegas de pisco, gastronomía, Paracas y Nasca. Alójate en Casa Leblanc, casa vacacional en Ica."
-  heading="Qué hacer en Ica, con Casa Leblanc como base"
-  eyebrow="Experiencia"
-  intro="El oasis de Huacachina, las dunas, los viñedos y la mesa iqueña. Lo mejor de la región, a la salida de la casa."
+  title="Experiencias en Casa Leblanc y qué hacer en Ica"
+  description="Escapadas familiares, momentos románticos y reuniones en una casa privada con piscina cerca de Huacachina. Además: dunas, bodegas, Paracas y Nasca desde Ica."
+  heading="Experiencias en Casa Leblanc"
+  eyebrow="Experiencias"
+  intro="Una casa, infinitas experiencias: descanso en familia, noches en pareja, reuniones entre amigos y, a la salida, el oasis de Huacachina, las dunas y los viñedos de Ica."
   breadcrumbs={breadcrumbs}
   image={photoBySlug('piscina-zona-comedor-exterior-casa-leblanc')}
 >
-  <Section tone="default" container="none" aria-labelledby="alojarse-title">
+  <StayExperiencesSection index="01" tone="default" />
+
+  <Section tone="sand" container="none" aria-labelledby="alojarse-title">
     <Container size="wide">
       <div class="stay">
         <Chapter
-          index="01"
+          index="02"
           eyebrow="Dónde alojarse en Ica"
           title="Una casa vacacional cerca de Huacachina"
           id="alojarse-title"
@@ -86,17 +89,17 @@ const breadcrumbs = [
 
   <ExperienceSection
     places={places}
-    index="02"
+    index="03"
     title="Lugares para conocer en la región de Ica"
     description="Del oasis a la costa de Paracas: estos son los imprescindibles de la región, con distancias aproximadas desde el centro de la ciudad."
     actionHref="/ubicacion"
     actionLabel="Cómo llegar a Ica"
   />
 
-  <Section tone="sand" container="none" aria-labelledby="consejos-title">
+  <Section tone="default" container="none" aria-labelledby="consejos-title">
     <Container size="wide">
       <Chapter
-        index="03"
+        index="04"
         eyebrow="Planifica tu viaje"
         title="Consejos para tu estadía en Ica"
         id="consejos-title"

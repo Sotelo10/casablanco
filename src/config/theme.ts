@@ -7,7 +7,7 @@
  */
 export const theme = {
   /** Igual que `--color-surface-deep`. */
-  themeColor: '#00509D',
+  themeColor: '#003566',
   /** Igual que `--color-background`. */
-  backgroundColor: '#fafaf7',
+  backgroundColor: '#ffffff',
 } as const;

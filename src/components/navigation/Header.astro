@@ -9,7 +9,7 @@
  * En móvil el CTA vive en la barra inferior fija, así que aquí sólo quedan la
  * marca y el botón de menú, ambos con área táctil amplia.
  */
-import { bookingHref, bookingLabel, mainNav } from '../../config/navigation.js';
+import { bookingHref, bookingLabelShort, mainNav } from '../../config/navigation.js';
 import { isActivePath, withBase } from '../../lib/utils/url.js';
 import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
 import Button from '../ui/Button.astro';
@@ -72,7 +72,7 @@ const whatsapp = whatsAppUrl();
         icon="arrow-right"
         class="header__cta"
       >
-        {bookingLabel}
+        {bookingLabelShort}
       </Button>
 
       <button
@@ -288,16 +288,18 @@ const whatsapp = whatsAppUrl();
       display: block;
     }
 
+    .header__toggle {
+      display: none;
+    }
+  }
+
+  @media (min-width: 76rem) {
     .header__cta {
       display: inline-flex;
     }
 
     .header__whatsapp {
       display: grid;
-    }
-
-    .header__toggle {
-      display: none;
     }
   }
 </style>

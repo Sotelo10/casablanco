@@ -5,8 +5,9 @@
  * Mapa (o su marcador) junto a los datos de acceso. Refuerza la confianza:
  * el visitante ve dónde está la casa y cómo llegar antes de escribir.
  */
-import { formattedAddress } from '../../config/site.js';
-import { googleDirectionsLink } from '../../lib/utils/maps.js';
+import { brand } from '../../config/brand.js';
+import { nearbyPlaces } from '../../data/nearby.js';
+import { googleDirectionsLink, googleMapsZoneLink } from '../../lib/utils/maps.js';
 import LocationMap from '../location/LocationMap.astro';
 import Button from '../ui/Button.astro';
 import Chapter from '../ui/Chapter.astro';
@@ -17,10 +18,26 @@ import Section from '../ui/Section.astro';
 interface Props {
   index?: string;
   tone?: 'default' | 'surface' | 'muted';
+  title?: string;
+  /** Muestra las referencias turísticas cercanas. */
+  showReferences?: boolean;
 }
 
-const { index = '06', tone = 'default' } = Astro.props;
+const {
+  index = '06',
+  tone = 'default',
+  title = 'Tu próxima experiencia comienza aquí.',
+  showReferences = true,
+} = Astro.props;
+/** Indicaciones hasta la casa: sólo existe con dirección o coordenadas reales. */
 const directions = googleDirectionsLink();
+/** Mientras tanto, la zona de Huacachina (rotulada como tal). */
+const zone = googleMapsZoneLink();
+
+/** Referencias turísticas reales de la región, sin distancias desde la casa. */
+const references = nearbyPlaces.filter((place) =>
+  ['huacachina', 'dunas', 'bodegas', 'plaza-de-armas', 'paracas', 'nasca'].includes(place.id),
+);
 
 const points = [
   {
@@ -46,7 +63,7 @@ const points = [
     <Chapter
       index={index}
       eyebrow="Ubicación"
-      title="En Ica, con el oasis a un trayecto corto"
+      title={title}
       id="ubicacion-title"
       actionHref="/ubicacion"
       actionLabel="Ver ubicación y accesos"
@@ -59,7 +76,7 @@ const points = [
       <div class="location__body">
         <p class="location__address">
           <Icon name="map-pin" size={18} />
-          {formattedAddress()}
+          {brand.locationLine.replace(/ · /g, ', ')}
         </p>
         <p class="location__note">
           La dirección exacta y las referencias para llegar se comparten al confirmar la reserva.
@@ -81,15 +98,37 @@ const points = [
           }
         </ul>
 
+        {
+          showReferences && (
+            <div class="location__refs">
+              <h3 class="location__refs-title">Referencias cercanas</h3>
+              <ul class="location__refs-list" role="list">
+                {references.map((place) => (
+                  <li>
+                    <Icon name={place.icon} size={15} />
+                    {place.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+
         <div class="location__actions">
-          <Button href="/ubicacion" variant="outline" icon="arrow-right">Cómo llegar</Button>
           {
-            directions && (
-              <Button href={directions} variant="link" icon="arrow-up-right" external>
-                Abrir en Google Maps
+            directions ? (
+              <Button href={directions} variant="primary" leadingIcon="map-pin" external>
+                Obtener indicaciones
               </Button>
+            ) : (
+              zone && (
+                <Button href={zone} variant="primary" leadingIcon="map-pin" external>
+                  Ver Huacachina en el mapa
+                </Button>
+              )
             )
           }
+          <Button href="/ubicacion" variant="link" icon="arrow-right">Cómo llegar</Button>
         </div>
       </div>
     </div>
@@ -166,6 +205,43 @@ const points = [
     font-size: var(--text-body-sm);
     line-height: var(--leading-relaxed);
     color: var(--color-text-muted);
+  }
+
+  .location__refs {
+    margin-block-start: var(--space-xl);
+  }
+
+  .location__refs-title {
+    font-family: var(--font-body);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .location__refs-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-block-start: var(--space-sm);
+    padding: 0;
+    list-style: none;
+  }
+
+  .location__refs-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-sm);
+    color: var(--color-text-soft);
+  }
+
+  .location__refs-list :global(svg) {
+    color: var(--color-primary);
   }
 
   .location__actions {

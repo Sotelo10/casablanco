@@ -24,16 +24,12 @@ import type { AmenityRow, GalleryImageRow, NearbyPlaceRow } from '../supabase/ty
 import { logWarning } from '../utils/logger.js';
 
 const galleryCategoryValues: GalleryCategory[] = [
-  'exterior',
-  'sala',
-  'comedor',
-  'cocina',
-  'habitaciones',
-  'banos',
-  'terraza',
-  'jardin',
   'piscina',
+  'dormitorios',
+  'interiores',
+  'terraza',
   'comunes',
+  'experiencias',
 ];
 
 const orientationValues: ImageOrientation[] = ['landscape', 'portrait', 'square'];

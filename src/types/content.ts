@@ -8,16 +8,12 @@
 
 /** Categorías usadas para agrupar y filtrar la galería. */
 export type GalleryCategory =
-  | 'exterior'
-  | 'sala'
-  | 'comedor'
-  | 'cocina'
-  | 'habitaciones'
-  | 'banos'
-  | 'terraza'
-  | 'jardin'
   | 'piscina'
-  | 'comunes';
+  | 'dormitorios'
+  | 'interiores'
+  | 'terraza'
+  | 'comunes'
+  | 'experiencias';
 
 /** Orientación esperada de la fotografía. Define la caja del placeholder. */
 export type ImageOrientation = 'landscape' | 'portrait' | 'square';
@@ -168,4 +164,37 @@ export interface ExperienceCategory {
   title: string;
   description: string;
   icon: string;
+}
+
+/**
+ * Espacio de la casa mostrado en "Conoce nuestra casa".
+ * `confirmed: false` = el espacio todavía no está verificado con fotografías o
+ * con el propietario: la UI lo presenta como "por confirmar".
+ */
+export interface HouseSpace {
+  id: string;
+  name: string;
+  /** Descripción breve. Vacía mientras no haya información real. */
+  description: string;
+  icon: string;
+  /** Fotografía real del espacio, o `null` si aún no existe. */
+  image: GalleryImage | null;
+  confirmed: boolean;
+}
+
+/** Experiencia de estancia (escapada familiar, romántica, etc.). */
+export interface StayExperience {
+  id: string;
+  title: string;
+  /** Frase breve bajo el título. */
+  summary: string;
+  description: string;
+  image: GalleryImage;
+  /**
+   * Servicios incluidos CONFIRMADOS por el propietario. Vacío mientras no lo
+   * estén: la UI no muestra ninguna lista inventada.
+   */
+  includes: string[];
+  /** Condición visible (p. ej. "sujeto a las condiciones de la propiedad"). */
+  condition?: string;
 }

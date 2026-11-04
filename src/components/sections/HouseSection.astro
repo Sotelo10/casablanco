@@ -1,0 +1,250 @@
+---
+/**
+ * CONOCE NUESTRA CASA
+ * =============================================================================
+ * Ocho espacios en una rejilla editorial de doce columnas con tres ritmos de
+ * fila (7+5 · 4+4+4 · 6+3+3). En cada fila, la proporción de cada fotografía
+ * se calcula a partir de su ancho y de una altura común, de modo que las
+ * piezas de una misma fila miden lo mismo de alto.
+ *
+ * Los espacios sin confirmar (`confirmed: false`) no tienen fotografía ni
+ * descripción inventada: se muestran como una ficha tipográfica "por
+ * confirmar", lista para completar desde `src/data/property.ts`.
+ */
+import { houseSpaces } from '../../data/property.js';
+import PropertyImage from '../media/PropertyImage.astro';
+import Button from '../ui/Button.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  index?: string;
+  title?: string;
+  description?: string;
+  showAction?: boolean;
+  id?: string;
+}
+
+const {
+  index = '01',
+  title = 'Un espacio diseñado para disfrutar.',
+  description = 'Descubre cada rincón de CASA LEBLANC y disfruta de una experiencia privada donde la comodidad y los buenos momentos son protagonistas.',
+  showAction = true,
+  id = 'la-casa',
+} = Astro.props;
+
+/** Ritmo de la rejilla: columnas de cada pieza y altura común de su fila. */
+const layout: { span: number; height: number }[] = [
+  { span: 7, height: 5 },
+  { span: 5, height: 5 },
+  { span: 4, height: 4.6 },
+  { span: 4, height: 4.6 },
+  { span: 4, height: 4.6 },
+  { span: 6, height: 4.4 },
+  { span: 3, height: 4.4 },
+  { span: 3, height: 4.4 },
+];
+---
+
+<Section id={id} tone="default" container="none" aria-labelledby="casa-title">
+  <Container size="wide">
+    <Chapter
+      index={index}
+      eyebrow="Conoce nuestra casa"
+      title={title}
+      description={description}
+      id="casa-title"
+      titleWidth="16ch"
+      actionHref={showAction ? '/casa' : undefined}
+      actionLabel={showAction ? 'Ver la casa en detalle' : undefined}
+    />
+
+    <ul class="house" role="list">
+      {
+        houseSpaces.map((space, i) => {
+          const cell = layout[i % layout.length]!;
+          const style = `--span:${cell.span};--row:${cell.height}`;
+          return space.image && space.confirmed ? (
+            <li class="house__item reveal" style={style}>
+              <PropertyImage
+                image={space.image}
+                ratio="var(--card-ratio-active, 4 / 3)"
+                sizes={`(min-width: 64rem) ${Math.round((cell.span / 12) * 100)}vw, (min-width: 40rem) 50vw, 100vw`}
+                class="house__image"
+              />
+              <div class="house__body">
+                <span class="house__icon">
+                  <Icon name={space.icon} size={18} />
+                </span>
+                <div>
+                  <h3 class="house__name">{space.name}</h3>
+                  <p class="house__text">{space.description}</p>
+                </div>
+              </div>
+            </li>
+          ) : (
+            <li class="house__item house__item--pending reveal" style={style}>
+              <div class="pending" aria-hidden="true">
+                <Icon name={space.icon} size={34} strokeWidth={1.1} />
+                <span class="pending__badge">Por confirmar</span>
+              </div>
+              <div class="house__body">
+                <span class="house__icon">
+                  <Icon name={space.icon} size={18} />
+                </span>
+                <div>
+                  <h3 class="house__name">{space.name}</h3>
+                  <p class="house__text">
+                    {space.description ||
+                      'Información en preparación. Consúltanos y te confirmamos los detalles.'}
+                  </p>
+                </div>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    {
+      showAction && (
+        <div class="house__action">
+          <Button href="/casa" variant="outline" icon="arrow-right">
+            Ver la casa en detalle
+          </Button>
+        </div>
+      )
+    }
+  </Container>
+</Section>
+
+<style>
+  .house {
+    display: grid;
+    gap: var(--space-2xl) var(--space-lg);
+    margin-block-start: var(--space-3xl);
+    padding: 0;
+    list-style: none;
+  }
+
+  .house__item {
+    --card-ratio-active: 4 / 3;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .house__item :global(.frame__media) {
+    border-radius: var(--radius-md);
+  }
+
+  .house__item :global(.frame__img) {
+    transition: transform 900ms var(--ease-emphasis);
+  }
+
+  .house__item:hover :global(.frame__img) {
+    transform: scale(1.03);
+  }
+
+  .house__body {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-md);
+    align-items: start;
+    margin-block-start: var(--space-md);
+  }
+
+  .house__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    color: var(--color-primary);
+  }
+
+  .house__name {
+    font-family: var(--font-heading);
+    font-size: clamp(1.375rem, 1.2rem + 0.5vw, 1.75rem);
+    font-weight: var(--weight-heading);
+    line-height: 1.15;
+  }
+
+  .house__text {
+    margin-block-start: var(--space-2xs);
+    max-width: 44ch;
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-muted);
+  }
+
+  /* ── Espacios por confirmar ──────────────────────────────────────────── */
+  /* Ocupa el lugar de la fotografía, con su misma proporción. */
+  .pending {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    aspect-ratio: var(--card-ratio-active);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background:
+      radial-gradient(circle at 50% 45%, var(--color-surface) 0%, transparent 60%),
+      var(--color-surface-sand);
+    color: var(--color-accent);
+  }
+
+  .pending__badge {
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-surface);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-soft);
+  }
+
+  .house__action {
+    display: flex;
+    justify-content: center;
+    margin-block-start: var(--space-3xl);
+  }
+
+  @media (min-width: 40rem) {
+    .house {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    /* Altura de fila común calculada sobre el ancho real de una columna
+       (unidades de contenedor), así todas las piezas de la fila miden igual
+       aunque los huecos entre columnas no escalen con su ancho. */
+    .house {
+      --gap: var(--space-lg);
+      container-type: inline-size;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: var(--space-3xl) var(--gap);
+    }
+
+    .house__item {
+      grid-column: span var(--span);
+    }
+
+    .house__item :global(.frame__img),
+    .house__item .pending {
+      aspect-ratio: auto;
+      height: calc((100cqi - 11 * var(--gap)) / 12 * var(--row));
+    }
+
+    .house__action {
+      display: none;
+    }
+  }
+</style>

@@ -54,6 +54,11 @@ npm run check             # comprueba tipos y plantillas (astro check)
 | Lugares cercanos y categorías de experiencia   | `src/data/nearby.ts`           |
 | Reseñas                                        | `src/data/reviews.ts`          |
 | Preguntas frecuentes                           | `src/data/faq.ts`              |
+| Lema y línea de localización                   | `src/config/brand.ts`          |
+| Espacios de "Conoce nuestra casa"              | `src/data/property.ts` (`houseSpaces`) |
+| Experiencias (familiar, romántica, etc.)       | `src/data/experiences.ts`      |
+| Tarifas, paquetes, calendario, reserva directa | `src/data/rates.ts`            |
+| Vídeo y póster del hero                        | `src/data/hero.ts`             |
 | Paleta, tipografía y espaciado                 | `src/styles/tokens.css`        |
 
 **`src/config/site.ts` es el archivo principal.** Los campos vacíos (`''`) o
@@ -99,6 +104,21 @@ Cada foto se genera en 480, 768 y 1200 px (sin ampliar nunca el original;
 si el original mide menos, su ancho nativo es la última variante) con WebP
 calidad 82. El vídeo se recodifica sin audio y su bucle empieza en la piscina
 (`video.loopStart`).
+
+### Vídeo del hero
+
+El fondo de la portada es un vídeo generado a partir de
+`public/ChatGPT Image 3 nov 2026, 08_32_35 a.m.png` con un movimiento de
+cámara lento (Ken Burns, bucle continuo de 14 s, sin movimiento inventado):
+
+```bash
+FFMPEG_PATH=/ruta/a/ffmpeg node scripts/generate-hero-video.mjs
+```
+
+Genera `public/videos/casa-leblanc-hero{,-960}.{mp4,webm}` y los pósters en
+`public/images/casa-leblanc/hero/`. El navegador elige WebM (VP9) o MP4 (H.264)
+y la versión de 960 px en móviles. Sin JavaScript, con "reducir movimiento" o
+con ahorro de datos se muestra sólo el póster.
 
 **Para añadir una foto:** cópiala en `media/originales/`, añádela al manifiesto
 con su carpeta y un slug descriptivo, ejecuta el script y crea su entrada en

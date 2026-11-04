@@ -25,9 +25,9 @@ const pendingNames = (await getAmenities())
   .filter((amenity) => !amenity.confirmed)
   .map((amenity) => amenity.name.toLowerCase());
 
-/** Interiores para el cierre: dormitorios y baños. */
+/** Interiores para el cierre: dormitorios, cocina y baños. */
 const interiors = gallery.filter(
-  (image) => image.category === 'habitaciones' || image.category === 'banos',
+  (image) => image.category === 'dormitorios' || image.category === 'interiores',
 );
 
 /** Condiciones: se muestra el dato si existe; si no, cómo se confirma. */
@@ -105,7 +105,7 @@ const breadcrumbs = [
     showAction={false}
   />
 
-  <Section tone="default" container="none" aria-labelledby="amenities-title">
+  <Section id="equipamiento" tone="default" container="none" aria-labelledby="amenities-title">
     <Container size="wide">
       <Chapter
         index="03"

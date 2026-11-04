@@ -1,0 +1,241 @@
+---
+/**
+ * CONTACTO
+ * =============================================================================
+ * Canales directos (WhatsApp Business, Instagram, Facebook, TikTok y
+ * ubicación) junto a un formulario de consultas. Cada canal sale de
+ * `src/config/site.ts`: si un dato no está configurado, no se muestra.
+ */
+import { brand } from '../../config/brand.js';
+import { site } from '../../config/site.js';
+import { socialProfiles } from '../../config/social.js';
+import { googleMapsZoneLink } from '../../lib/utils/maps.js';
+import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import ContactForm from '../contact/ContactForm.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  index?: string;
+  headingLevel?: 'h1' | 'h2';
+  title?: string;
+  tone?: 'default' | 'sand';
+}
+
+const {
+  index = '09',
+  headingLevel = 'h2',
+  title = 'Hablemos de tu próxima estadía',
+  tone = 'sand',
+} = Astro.props;
+
+const whatsapp = whatsAppUrl();
+const zoneUrl = googleMapsZoneLink();
+
+const channels = [
+  whatsapp && {
+    icon: 'whatsapp',
+    label: 'WhatsApp Business',
+    value: site.contact.phone,
+    href: whatsapp,
+    external: true,
+  },
+  site.contact.email && {
+    icon: 'mail',
+    label: 'Correo',
+    value: site.contact.email,
+    href: `mailto:${site.contact.email}`,
+    external: false,
+  },
+  ...socialProfiles.map((profile) => ({
+    icon: profile.icon,
+    label: profile.network,
+    value: profile.handle,
+    href: profile.url,
+    external: true,
+  })),
+  {
+    icon: 'map-pin',
+    label: 'Ubicación',
+    value: brand.locationLine.replace(/ · /g, ', '),
+    href: zoneUrl,
+    external: true,
+  },
+].filter(Boolean) as {
+  icon: string;
+  label: string;
+  value: string;
+  href: string | null;
+  external: boolean;
+}[];
+---
+
+<Section id="contacto" tone={tone} container="none" aria-labelledby="contacto-title">
+  <Container size="wide">
+    <div class="contact">
+      <div class="contact__info">
+        <Chapter
+          index={index}
+          eyebrow="Contacto"
+          title={title}
+          id="contacto-title"
+          level={headingLevel}
+          titleWidth="14ch"
+        />
+        <p class="contact__lead">
+          Escríbenos por el canal que prefieras. Respondemos personalmente cada consulta.
+        </p>
+
+        <ul class="channels" role="list">
+          {
+            channels.map((channel) => {
+              const Tag = channel.href ? 'a' : 'div';
+              return (
+                <li>
+                  <Tag
+                    class="channel"
+                    href={channel.href ?? undefined}
+                    target={channel.href && channel.external ? '_blank' : undefined}
+                    rel={channel.href && channel.external ? 'noopener noreferrer' : undefined}
+                  >
+                    <span class="channel__icon">
+                      <Icon name={channel.icon} size={18} />
+                    </span>
+                    <span class="channel__body">
+                      <span class="channel__label">{channel.label}</span>
+                      <span class="channel__value">{channel.value}</span>
+                    </span>
+                    {channel.href && <Icon name="arrow-up-right" size={16} class="channel__arrow" />}
+                  </Tag>
+                </li>
+              );
+            })
+          }
+        </ul>
+        {
+          zoneUrl && (
+            <p class="contact__fine">
+              El enlace de ubicación muestra la zona de Huacachina. La dirección exacta se comparte
+              al confirmar la reserva.
+            </p>
+          )
+        }
+      </div>
+
+      <div class="contact__sheet">
+        <p class="contact__sheet-title">Envíanos una consulta</p>
+        <ContactForm />
+      </div>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .contact {
+    display: grid;
+    gap: var(--space-3xl);
+  }
+
+  .contact__lead {
+    margin-block-start: var(--space-lg);
+    max-width: 42ch;
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .channels {
+    display: grid;
+    margin-block-start: var(--space-xl);
+    padding: 0;
+    list-style: none;
+    border-block-start: 1px solid var(--color-border-strong);
+  }
+
+  .channel {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-md);
+    align-items: center;
+    min-height: 4.25rem;
+    padding-block: var(--space-sm);
+    border-block-end: 1px solid var(--color-border-strong);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  a.channel:hover .channel__value {
+    color: var(--color-primary);
+  }
+
+  a.channel:hover :global(.channel__arrow) {
+    transform: translate(2px, -2px);
+    color: var(--color-primary);
+  }
+
+  .channel__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+  }
+
+  .channel__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .channel__label {
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .channel__value {
+    overflow-wrap: anywhere;
+    font-weight: var(--weight-medium);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .channel :global(.channel__arrow) {
+    color: var(--color-text-muted);
+    transition: transform var(--transition-base), color var(--transition-base);
+  }
+
+  .contact__fine {
+    margin-block-start: var(--space-md);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .contact__sheet {
+    padding: clamp(1.5rem, 1rem + 2.5vw, 3rem);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-md);
+  }
+
+  .contact__sheet-title {
+    margin-block-end: var(--space-xl);
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+    font-weight: var(--weight-heading);
+    line-height: 1.1;
+  }
+
+  @media (min-width: 64rem) {
+    .contact {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: clamp(3rem, 6vw, 6rem);
+      align-items: start;
+    }
+  }
+</style>

@@ -1,0 +1,404 @@
+---
+/**
+ * RESERVAS Y TARIFAS
+ * =============================================================================
+ * Sobre azul profundo: a la izquierda cómo funciona la reserva y las tarifas
+ * (o "a consultar" mientras no existan); a la derecha el formulario sobre una
+ * hoja blanca. Sin backend, el formulario abre WhatsApp con los datos ya
+ * redactados (ver `BookingForm.astro`).
+ *
+ * Tarifas, paquetes, calendario y plataformas externas salen de
+ * `src/data/rates.ts` y `src/config/site.ts`: cada bloque aparece solo cuando
+ * tiene datos reales.
+ */
+import { site } from '../../config/site.js';
+import { availability, nightlyRates, packages } from '../../data/rates.js';
+import BookingForm from '../booking/BookingForm.astro';
+import Button from '../ui/Button.astro';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  index?: string;
+  /** Nivel del titular (h1 cuando la sección encabeza su propia página). */
+  headingLevel?: 'h1' | 'h2';
+  title?: string;
+  id?: string;
+}
+
+const {
+  index = '05',
+  headingLevel: Heading = 'h2',
+  title = 'Reserva tu estadía',
+  id = 'reservas',
+} = Astro.props;
+
+const currency = new Intl.NumberFormat('es-PE', {
+  style: 'currency',
+  currency: site.booking.currency,
+  maximumFractionDigits: 0,
+});
+
+const steps = [
+  { title: 'Elige tus fechas', text: 'Indica llegada, salida, huéspedes y el tipo de experiencia.' },
+  { title: 'Te respondemos', text: 'El anfitrión te confirma disponibilidad, tarifa y condiciones.' },
+  { title: 'Confirmas tu reserva', text: 'La reserva queda confirmada cuando el anfitrión te lo indica.' },
+];
+
+const platforms = [
+  { name: 'Airbnb', url: site.social.airbnb },
+  { name: 'Booking', url: site.social.booking },
+].filter((platform) => platform.url.trim().length > 0);
+
+const schedule = [
+  site.booking.checkIn && { label: 'Ingreso', value: site.booking.checkIn },
+  site.booking.checkOut && { label: 'Salida', value: site.booking.checkOut },
+  site.booking.minNights && { label: 'Estancia mínima', value: `${site.booking.minNights} noches` },
+].filter(Boolean) as { label: string; value: string }[];
+---
+
+<Section id={id} tone="deep" container="none" aria-labelledby={`${id}-title`} class="booking">
+  <Container size="wide">
+    <div class="booking__layout">
+      <div class="booking__info">
+        <p class="booking__meta">
+          <span class="numeral" aria-hidden="true">{index}</span>
+          <span class="eyebrow eyebrow--plain">Reservas</span>
+        </p>
+        <Heading id={`${id}-title`} class="booking__title">{title}</Heading>
+        <p class="booking__lead">
+          Consulta disponibilidad sin compromiso. Trato directo con el anfitrión, sin
+          intermediarios.
+        </p>
+
+        <ol class="steps" role="list">
+          {
+            steps.map((step, i) => (
+              <li class="step">
+                <span class="step__number" aria-hidden="true">{i + 1}</span>
+                <div>
+                  <p class="step__title">{step.title}</p>
+                  <p class="step__text">{step.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+
+        <div class="rates">
+          <h3 class="rates__title">Tarifas</h3>
+          {
+            nightlyRates.length > 0 ? (
+              <table class="rates__table">
+                <caption class="visually-hidden">Tarifas por noche</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Temporada</th>
+                    <th scope="col">Por noche</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {nightlyRates.map((rate) => (
+                    <tr>
+                      <th scope="row">
+                        {rate.season}
+                        <span class="rates__period">{rate.period}</span>
+                      </th>
+                      <td>{currency.format(rate.pricePerNight)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p class="rates__empty">
+                <Icon name="info" size={16} />
+                <span>
+                  La tarifa depende de las fechas, la temporada y el número de huéspedes. Te la
+                  enviamos junto con la disponibilidad.
+                </span>
+              </p>
+            )
+          }
+
+          {
+            packages.length > 0 && (
+              <ul class="packages" role="list">
+                {packages.map((item) => (
+                  <li class="package">
+                    <p class="package__name">{item.name}</p>
+                    <p class="package__text">{item.description}</p>
+                    <p class="package__price">
+                      {item.price !== null ? currency.format(item.price) : 'Precio a consultar'}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+
+          {
+            schedule.length > 0 && (
+              <dl class="schedule">
+                {schedule.map((row) => (
+                  <div>
+                    <dt>{row.label}</dt>
+                    <dd>{row.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )
+          }
+
+          {
+            (availability.calendarUrl || platforms.length > 0) && (
+              <div class="rates__links">
+                {availability.calendarUrl && (
+                  <Button href={availability.calendarUrl} variant="outline-light" size="sm" leadingIcon="calendar" external>
+                    Ver calendario
+                  </Button>
+                )}
+                {platforms.map((platform) => (
+                  <Button href={platform.url} variant="outline-light" size="sm" icon="arrow-up-right" external>
+                    {platform.name}
+                  </Button>
+                ))}
+              </div>
+            )
+          }
+        </div>
+      </div>
+
+      <div class="booking__sheet">
+        <p class="booking__sheet-title">Consultar disponibilidad</p>
+        <BookingForm />
+      </div>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .booking__layout {
+    display: grid;
+    gap: var(--space-3xl);
+  }
+
+  .booking__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .booking__meta .numeral {
+    color: var(--color-text-inverse-muted);
+  }
+
+  .booking__meta .eyebrow {
+    color: var(--color-accent-light);
+  }
+
+  .booking__title {
+    margin-block-start: var(--space-md);
+    max-width: 14ch;
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: var(--weight-heading);
+    line-height: var(--leading-tight);
+    color: var(--color-text-inverse);
+  }
+
+  .booking__lead {
+    margin-block-start: var(--space-lg);
+    max-width: 42ch;
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-inverse-muted);
+  }
+
+  /* ── Pasos ───────────────────────────────────────────────────────────── */
+  .steps {
+    display: grid;
+    gap: var(--space-lg);
+    margin-block-start: var(--space-2xl);
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    gap: var(--space-md);
+    align-items: start;
+  }
+
+  .step__number {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--color-border-inverse-strong);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    font-style: italic;
+    color: var(--color-text-inverse);
+  }
+
+  .step__title {
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-inverse);
+  }
+
+  .step__text {
+    margin-block-start: var(--space-3xs);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-inverse-muted);
+  }
+
+  /* ── Tarifas ─────────────────────────────────────────────────────────── */
+  .rates {
+    margin-block-start: var(--space-2xl);
+    padding-block-start: var(--space-xl);
+    border-block-start: 1px solid var(--color-border-inverse);
+  }
+
+  .rates__title {
+    font-family: var(--font-body);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-accent-light);
+  }
+
+  .rates__empty {
+    display: flex;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-md);
+    max-width: 46ch;
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .rates__empty :global(svg) {
+    flex-shrink: 0;
+    margin-block-start: 0.2rem;
+    color: var(--color-accent-light);
+  }
+
+  .rates__table {
+    width: 100%;
+    margin-block-start: var(--space-md);
+    border-collapse: collapse;
+    font-size: var(--text-body-sm);
+    color: var(--color-text-inverse);
+  }
+
+  .rates__table th,
+  .rates__table td {
+    padding: var(--space-sm) 0;
+    border-block-end: 1px solid var(--color-border-inverse);
+    text-align: start;
+  }
+
+  .rates__table thead th {
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-inverse-muted);
+  }
+
+  .rates__table td {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rates__period {
+    display: block;
+    font-weight: var(--weight-regular);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .packages {
+    display: grid;
+    gap: var(--space-md);
+    margin-block-start: var(--space-lg);
+    padding: 0;
+    list-style: none;
+  }
+
+  .package {
+    padding: var(--space-md);
+    border: 1px solid var(--color-border-inverse);
+    border-radius: var(--radius-md);
+  }
+
+  .package__name {
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-inverse);
+  }
+
+  .package__text,
+  .package__price {
+    margin-block-start: var(--space-3xs);
+    font-size: var(--text-body-sm);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .schedule {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md) var(--space-2xl);
+    margin-block-start: var(--space-lg);
+    font-size: var(--text-body-sm);
+  }
+
+  .schedule dt {
+    color: var(--color-text-inverse-muted);
+  }
+
+  .schedule dd {
+    margin: 0;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-inverse);
+  }
+
+  .rates__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-lg);
+  }
+
+  /* ── Hoja del formulario ─────────────────────────────────────────────── */
+  .booking__sheet {
+    padding: clamp(1.5rem, 1rem + 2.5vw, 3rem);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .booking__sheet-title {
+    margin-block-end: var(--space-xl);
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+    font-weight: var(--weight-heading);
+    line-height: 1.1;
+  }
+
+  @media (min-width: 64rem) {
+    .booking__layout {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: clamp(3rem, 6vw, 6rem);
+      align-items: start;
+    }
+
+    .booking__info {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-xl));
+    }
+  }
+</style>

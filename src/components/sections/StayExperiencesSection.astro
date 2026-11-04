@@ -1,0 +1,305 @@
+---
+/**
+ * EXPERIENCIAS
+ * =============================================================================
+ * Cuatro formas de vivir la casa, en piezas verticales con fotografía real.
+ * Cada una abre WhatsApp con la consulta ya redactada para esa experiencia.
+ *
+ * En móvil se recorren con desplazamiento horizontal (scroll-snap), dejando
+ * asomar la siguiente pieza para invitar al gesto.
+ */
+import { site } from '../../config/site.js';
+import { stayExperiences } from '../../data/experiences.js';
+import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import PropertyImage from '../media/PropertyImage.astro';
+import Chapter from '../ui/Chapter.astro';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import Section from '../ui/Section.astro';
+import { withBase } from '../../lib/utils/url.js';
+
+interface Props {
+  index?: string;
+  title?: string;
+  description?: string;
+  tone?: 'default' | 'sand';
+}
+
+const {
+  index = '02',
+  title = 'Elige cómo quieres vivir la casa',
+  description = 'Cada estadía es distinta. Cuéntanos qué tienes en mente y te ayudamos a prepararla.',
+  tone = 'sand',
+} = Astro.props;
+
+const items = stayExperiences.map((experience) => ({
+  ...experience,
+  href:
+    whatsAppUrl({
+      message: `Hola, quisiera consultar por la experiencia "${experience.title}" en ${site.name}.`,
+    }) ?? withBase(`/reservas?experiencia=${experience.id}`),
+  external: Boolean(whatsAppUrl()),
+}));
+---
+
+<Section id="experiencias" tone={tone} container="none" aria-labelledby="experiencias-title">
+  <Container size="wide">
+    <Chapter
+      index={index}
+      eyebrow="Experiencias"
+      title={title}
+      description={description}
+      id="experiencias-title"
+      titleWidth="16ch"
+    />
+  </Container>
+
+  <div class="experiences-scroller">
+    <ul class="experiences" role="list">
+      {
+        items.map((item, i) => (
+          <li class="experience reveal">
+            <div class="experience__media">
+              <PropertyImage
+                image={item.image}
+                ratio="3 / 4"
+                sizes="(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 80vw"
+                class="experience__image"
+              />
+              <span class="experience__number" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+            </div>
+
+            <div class="experience__body">
+              <h3 class="experience__title">{item.title}</h3>
+              <p class="experience__summary">{item.summary}</p>
+              <p class="experience__text">{item.description}</p>
+
+              {item.includes.length > 0 && (
+                <ul class="experience__includes" role="list" aria-label={`Incluye en ${item.title}`}>
+                  {item.includes.map((service) => (
+                    <li>
+                      <Icon name="check" size={14} />
+                      {service}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {item.condition && (
+                <p class="experience__condition">
+                  <Icon name="info" size={14} />
+                  <span>{item.condition}</span>
+                </p>
+              )}
+
+              <a
+                class="experience__cta"
+                href={item.href}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noopener noreferrer' : undefined}
+              >
+                Consultar
+                <span class="visually-hidden"> por {item.title}</span>
+                <Icon name="arrow-right" size={16} />
+              </a>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Section>
+
+<style>
+  .experiences-scroller {
+    max-width: var(--container-wide);
+    margin-inline: auto;
+    margin-block-start: var(--space-3xl);
+    padding-inline: var(--gutter);
+  }
+
+  .experiences {
+    display: grid;
+    gap: var(--space-2xl) var(--space-lg);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .experience {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .experience__media {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+
+  .experience__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(var(--veil-rgb) / 35%), transparent 40%);
+    pointer-events: none;
+  }
+
+  .experience__media :global(.frame__img) {
+    transition: transform 1000ms var(--ease-emphasis);
+  }
+
+  .experience:hover .experience__media :global(.frame__img) {
+    transform: scale(1.04);
+  }
+
+  .experience__number {
+    position: absolute;
+    inset-block-end: var(--space-md);
+    inset-inline-start: var(--space-md);
+    z-index: 1;
+    font-family: var(--font-heading);
+    font-size: 2.25rem;
+    font-style: italic;
+    line-height: 1;
+    color: var(--color-text-inverse);
+  }
+
+  .experience__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding-block-start: var(--space-lg);
+  }
+
+  .experience__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+    font-weight: var(--weight-heading);
+    line-height: 1.1;
+  }
+
+  .experience__summary {
+    margin-block-start: var(--space-xs);
+    font-size: var(--text-body-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-primary);
+  }
+
+  .experience__text {
+    margin-block-start: var(--space-sm);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-muted);
+  }
+
+  .experience__includes {
+    display: grid;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-md);
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-sm);
+  }
+
+  .experience__includes li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .experience__includes :global(svg) {
+    color: var(--color-primary);
+  }
+
+  .experience__condition {
+    display: flex;
+    gap: var(--space-xs);
+    margin-block-start: var(--space-md);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-soft);
+  }
+
+  .experience__condition :global(svg) {
+    flex-shrink: 0;
+    margin-block-start: 0.2rem;
+    color: var(--color-primary);
+  }
+
+  .experience__cta {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: var(--space-xs);
+    min-height: 2.75rem;
+    margin-block-start: auto;
+    padding-block-start: var(--space-lg);
+    font-size: var(--text-body-sm);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.01em;
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .experience__cta :global(svg) {
+    transition: transform var(--transition-base);
+  }
+
+  .experience__cta:hover {
+    color: var(--color-primary-hover);
+  }
+
+  .experience__cta:hover :global(svg) {
+    transform: translateX(4px);
+  }
+
+  /* ── Móvil: carrusel con scroll-snap ─────────────────────────────────── */
+  @media (max-width: 39.99rem) {
+    .experiences-scroller {
+      padding-inline: 0;
+      overflow-x: auto;
+      /* Sin esto, Chrome en móvil suma el ancho del carrusel al viewport de
+         diseño y la página entera se aleja (zoom out). */
+      contain: paint;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--gutter);
+      scrollbar-width: none;
+    }
+
+    .experiences-scroller::-webkit-scrollbar {
+      display: none;
+    }
+
+    .experiences {
+      grid-auto-flow: column;
+      grid-auto-columns: 80%;
+      padding-inline: var(--gutter);
+    }
+
+    .experience {
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (min-width: 40rem) {
+    .experiences {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .experiences {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    /* Ritmo escalonado: las piezas pares bajan, como en una maqueta editorial. */
+    .experience:nth-child(even) {
+      margin-block-start: var(--space-3xl);
+    }
+  }
+</style>

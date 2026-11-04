@@ -2,141 +2,104 @@
 /**
  * HERO CINEMATOGRÁFICO
  * =============================================================================
- * El vídeo real de la casa (recorrido nocturno por el patio, la piscina y la
- * fachada) es vertical, así que la composición se adapta a él:
+ * Vídeo apaisado a sangre (movimiento de cámara lento sobre la fotografía
+ * nocturna de la casa) con un velo azul noche que garantiza la legibilidad.
+ * La composición es centrada y sobria: marca, localización, lema, promesa y
+ * dos acciones.
  *
- * - Móvil y tablet: vídeo a sangre detrás del texto, con velo de contraste.
- * - Escritorio: composición editorial partida. Texto sobre azul profundo a la
- *   izquierda y el vídeo en un gran panel vertical a la derecha, sin ampliarlo
- *   más de lo que su resolución permite.
- *
- * RENDIMIENTO
- * El LCP es el póster (`<img>` WebP con prioridad alta). El vídeo no lleva
- * `src` en el HTML: un script mínimo lo carga cuando la página ya está
- * inactiva, y sólo si el visitante no pidió movimiento reducido ni ahorro de
- * datos. Sin JavaScript, o en conexiones lentas, queda el póster.
+ * RENDIMIENTO Y ACCESIBILIDAD
+ * - El LCP es el póster (`<picture>` WebP + JPG, prioridad alta). Es el primer
+ *   fotograma del vídeo, así que el fundido al empezar a reproducir no se nota.
+ * - El vídeo no lleva `src` en el HTML: un script mínimo lo asigna cuando la
+ *   página ya cargó, eligiendo la versión 960 px en pantallas pequeñas.
+ * - No se carga con `prefers-reduced-motion: reduce` ni con ahorro de datos;
+ *   se pausa fuera de pantalla y con la pestaña oculta.
+ * - Sin JavaScript, sin vídeo o si falla la carga, queda la fotografía.
  */
-import { bookingHref, bookingLabel, exploreHref } from '../../config/navigation.js';
-import { formattedCity, site } from '../../config/site.js';
-import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import { brand } from '../../config/brand.js';
+import { bookingHref, bookingLabel, exploreLabel } from '../../config/navigation.js';
+import { site } from '../../config/site.js';
+import { heroMedia, heroPosterSrcset } from '../../data/hero.js';
 import Button from '../ui/Button.astro';
-import Icon from '../ui/Icon.astro';
 
 interface Props {
-  video: {
-    mp4: string;
-    webm: string;
-    poster: string;
-    posterWidths: number[];
-    width: number;
-    height: number;
-  } | null;
-  posterAlt: string;
-  eyebrow?: string;
-  claim: string;
-  lead: string;
-  /** Características reales, visibles en las fotografías. */
-  features: { icon: string; label: string }[];
+  /** Destino de "Explorar la casa": un ancla de la portada o una página. */
+  exploreHref?: string;
+  /** Ancla del botón de desplazamiento. */
+  scrollTarget?: string;
 }
 
-const { video, posterAlt, eyebrow = 'Casa vacacional · Ica, Perú', claim, lead, features } =
-  Astro.props;
-
-const whatsapp = whatsAppUrl();
-const place = [site.location.area, formattedCity()].filter(Boolean).join(' · ');
-const posterSrcset = video
-  ? video.posterWidths.map((w) => `${video.poster}-${w}.webp ${w}w`).join(', ')
-  : '';
-const posterSrc = video ? `${video.poster}-${video.posterWidths.at(-1)}.webp` : '';
+const { exploreHref = '#la-casa', scrollTarget = '#la-casa' } = Astro.props;
+const { video, poster } = heroMedia;
 ---
 
 <section class="hero" aria-labelledby="hero-title">
-  <div class="hero__media">
+  <div class="hero__media" aria-hidden="true">
+    <picture>
+      <source type="image/webp" srcset={heroPosterSrcset} sizes="100vw" />
+      <img
+        class="hero__poster"
+        src={poster.fallback}
+        width={poster.width}
+        height={poster.height}
+        alt=""
+        fetchpriority="high"
+        decoding="async"
+      />
+    </picture>
     {
       video && (
-        <>
-          <img
-            class="hero__poster"
-            src={posterSrc}
-            srcset={posterSrcset}
-            sizes="(min-width: 64rem) 46vw, 100vw"
-            width={video.width}
-            height={video.height}
-            alt={posterAlt}
-            fetchpriority="high"
-            decoding="async"
-          />
-          <video
-            class="hero__video"
-            data-hero-video
-            data-mp4={video.mp4}
-            data-webm={video.webm}
-            width={video.width}
-            height={video.height}
-            muted
-            loop
-            playsinline
-            preload="none"
-            aria-hidden="true"
-            tabindex="-1"
-          />
-        </>
+        <video
+          class="hero__video"
+          data-hero-video
+          data-desktop-webm={video.desktop.webm}
+          data-desktop-mp4={video.desktop.mp4}
+          data-mobile-webm={video.mobile.webm}
+          data-mobile-mp4={video.mobile.mp4}
+          width={poster.width}
+          height={poster.height}
+          muted
+          loop
+          playsinline
+          disablepictureinpicture
+          preload="none"
+          tabindex="-1"
+        />
       )
     }
-    <div class="hero__scrim" aria-hidden="true"></div>
+    <div class="hero__veil"></div>
   </div>
 
-  <div class="hero__inner">
-    <div class="hero__content">
-      <p class="eyebrow hero__eyebrow">{eyebrow}</p>
+  {/* La fotografía es decorativa para el lector de pantalla: se describe aquí. */}
+  <p class="visually-hidden">{poster.alt}</p>
 
-      <h1 class="hero__title" id="hero-title">
-        <span class="hero__name">{site.name}</span>
-        <span class="hero__claim">{claim}</span>
-      </h1>
+  <div class="hero__content">
+    <h1 class="hero__heading" id="hero-title">
+      <span class="hero__brand">{site.name}</span>
+      <span class="hero__location">
+        <span class="hero__rule" aria-hidden="true"></span>
+        <span>{brand.locationLine}</span>
+        <span class="hero__rule" aria-hidden="true"></span>
+      </span>
+      <span class="hero__title">
+        <span>Una casa.</span> <em>Infinitas experiencias.</em>
+      </span>
+    </h1>
 
-      <p class="hero__lead">{lead}</p>
+    <p class="hero__lead">{brand.promise}</p>
 
-      <div class="hero__actions">
-        <Button href={bookingHref} variant="light" size="lg" leadingIcon="calendar">
-          {bookingLabel}
-        </Button>
-        <Button href={exploreHref} variant="glass" size="lg" icon="arrow-right">
-          Descubrir la casa
-        </Button>
-      </div>
-
-      <ul class="hero__features" role="list" aria-label="Características de la casa">
-        {
-          features.map((feature) => (
-            <li class="hero__feature">
-              <Icon name={feature.icon} size={18} />
-              <span>{feature.label}</span>
-            </li>
-          ))
-        }
-      </ul>
-
-      <div class="hero__meta">
-        <p class="hero__place">
-          <Icon name="map-pin" size={16} />
-          <span>{place}</span>
-        </p>
-        {
-          whatsapp && (
-            <a class="hero__whatsapp" href={whatsapp} target="_blank" rel="noopener noreferrer">
-              <Icon name="whatsapp" size={16} />
-              <span>
-                WhatsApp <span class="hero__phone">{site.contact.phone}</span>
-              </span>
-            </a>
-          )
-        }
-      </div>
+    <div class="hero__actions">
+      <Button href={exploreHref} variant="glass" size="lg" icon="arrow-right" class="hero__btn">
+        {exploreLabel}
+      </Button>
+      <Button href={bookingHref} variant="primary" size="lg" leadingIcon="calendar" class="hero__btn hero__btn--primary">
+        {bookingLabel}
+      </Button>
     </div>
   </div>
 
-  <a class="hero__scroll" href="#la-casa" aria-label="Ir a la presentación de la casa">
+  <a class="hero__scroll" href={scrollTarget}>
+    <span class="hero__scroll-label">Descubre</span>
     <span class="hero__scroll-line" aria-hidden="true"></span>
   </a>
 </section>
@@ -148,56 +111,93 @@ const posterSrc = video ? `${video.poster}-${video.posterWidths.at(-1)}.webp` : 
     const connection = (
       navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }
     ).connection;
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const slow = connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType ?? '');
 
-    if (!reducedMotion && !slow) {
-      const start = () => {
-        const sources: [string | undefined, string][] = [
-          [video.dataset.webm, 'video/webm'],
-          [video.dataset.mp4, 'video/mp4'],
-        ];
-        for (const [src, type] of sources) {
-          if (!src) continue;
-          const source = document.createElement('source');
-          source.src = src;
-          source.type = type;
-          video.append(source);
-        }
-        video.addEventListener('playing', () => video.classList.add('is-playing'), { once: true });
-        video.load();
-        video.play().catch(() => {
-          /* Autoplay bloqueado (p. ej. modo de bajo consumo en iOS): queda el póster. */
-        });
-      };
+    let started = false;
+    let visible = true;
 
+    const play = () => {
+      if (!started || motionQuery.matches || document.hidden || !visible) return;
+      video.play().catch(() => {
+        /* Autoplay bloqueado (p. ej. modo de bajo consumo en iOS): queda el póster. */
+      });
+    };
+
+    const start = () => {
+      if (started || motionQuery.matches) return;
+      started = true;
+      const size = window.matchMedia('(min-width: 48rem)').matches ? 'desktop' : 'mobile';
+      const webm = video.canPlayType('video/webm; codecs="vp9"') !== '';
+      const mp4 = video.canPlayType('video/mp4; codecs="avc1.640028"') !== '';
+      const src = webm
+        ? video.dataset[`${size}Webm`]
+        : mp4
+          ? video.dataset[`${size}Mp4`]
+          : undefined;
+      if (!src) return;
+
+      video.addEventListener('playing', () => video.classList.add('is-playing'), { once: true });
+      video.addEventListener('error', () => video.remove(), { once: true });
+      video.src = src;
+      play();
+    };
+
+    if (!slow) {
       const idle = (window as Window & { requestIdleCallback?: (cb: () => void) => void })
         .requestIdleCallback;
       const schedule = () => (idle ? idle(start) : setTimeout(start, 200));
       if (document.readyState === 'complete') schedule();
       else window.addEventListener('load', schedule, { once: true });
     }
+
+    // Ahorro de batería: sólo se reproduce mientras el hero está a la vista.
+    new IntersectionObserver(([entry]) => {
+      visible = Boolean(entry?.isIntersecting);
+      if (visible) play();
+      else video.pause();
+    }).observe(video);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) video.pause();
+      else play();
+    });
+
+    // Si el visitante activa "reducir movimiento" con la página abierta.
+    motionQuery.addEventListener('change', () => {
+      if (motionQuery.matches) {
+        video.pause();
+        video.classList.remove('is-playing');
+      } else if (started) {
+        video.classList.add('is-playing');
+        play();
+      } else {
+        start();
+      }
+    });
   }
 </script>
 
 <style>
   .hero {
     position: relative;
-    display: flex;
-    align-items: flex-end;
-    min-height: max(36rem, 100svh);
-    padding-block: calc(var(--header-height) + var(--space-2xl)) var(--space-3xl);
+    display: grid;
+    place-items: center;
+    min-height: max(34rem, 100svh);
+    padding-block: calc(var(--header-height) + var(--space-2xl)) calc(var(--space-4xl) + var(--space-lg));
+    padding-inline: var(--gutter);
     overflow: hidden;
     color: var(--color-text-inverse);
-    background-color: var(--color-surface-deep);
+    text-align: center;
+    background-color: rgb(var(--veil-rgb));
     isolation: isolate;
   }
 
+  /* ── Medios ──────────────────────────────────────────────────────────── */
   .hero__media {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background-color: var(--color-surface-deep);
   }
 
   .hero__poster,
@@ -207,195 +207,221 @@ const posterSrc = video ? `${video.poster}-${video.posterWidths.at(-1)}.webp` : 
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 60%;
+    /* En vertical se recorta hacia la sala y la piscina, el corazón de la casa. */
+    object-position: 62% 55%;
   }
 
   .hero__video {
     opacity: 0;
-    transition: opacity 900ms var(--ease-out);
+    transition: opacity 1200ms var(--ease-out);
   }
 
   .hero__video.is-playing {
     opacity: 1;
   }
 
-  /* Velo: oscurece la parte baja, donde vive el texto, y la franja superior
-     de la cabecera; el centro del vídeo respira. */
-  .hero__scrim {
+  /* Velo: oscurece de forma pareja el centro (donde vive el texto), refuerza
+     la franja superior bajo la cabecera y funde la base hacia la página. */
+  .hero__veil {
     position: absolute;
     inset: 0;
     background:
+      radial-gradient(
+        ellipse 70% 60% at 50% 52%,
+        rgb(var(--veil-rgb) / 52%) 0%,
+        rgb(var(--veil-rgb) / 30%) 70%,
+        rgb(var(--veil-rgb) / 18%) 100%
+      ),
       linear-gradient(
-        to top,
-        rgb(var(--veil-rgb) / 96%) 0%,
-        rgb(var(--veil-rgb) / 82%) 42%,
-        rgb(var(--veil-rgb) / 40%) 72%,
-        rgb(var(--veil-rgb) / 55%) 100%
+        to bottom,
+        rgb(var(--veil-rgb) / 62%) 0%,
+        rgb(var(--veil-rgb) / 10%) 26%,
+        rgb(var(--veil-rgb) / 6%) 58%,
+        rgb(var(--veil-rgb) / 78%) 100%
       );
   }
 
-  .hero__inner {
-    width: 100%;
-    max-width: var(--container-full);
-    margin-inline: auto;
-    padding-inline: var(--gutter);
-  }
-
+  /* ── Contenido ───────────────────────────────────────────────────────── */
   .hero__content {
-    max-width: 38rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 62rem;
+    text-shadow: 0 1px 24px rgb(var(--veil-rgb) / 45%);
   }
 
-  .hero__eyebrow {
-    color: var(--color-accent-light);
+  .hero__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: var(--weight-heading);
+  }
+
+  .hero__brand {
+    font-family: var(--font-heading);
+    font-size: clamp(1.375rem, 1rem + 1.6vw, 2.25rem);
+    font-weight: var(--weight-semibold);
+    line-height: 1;
+    letter-spacing: 0.34em;
+    /* Compensa el espaciado final para que el centrado óptico sea exacto. */
+    margin-inline-end: -0.34em;
+    text-transform: uppercase;
+  }
+
+  .hero__location {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-md);
+    font-family: var(--font-body);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    line-height: 1;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: rgb(var(--white-rgb) / 86%);
+  }
+
+  .hero__rule {
+    display: block;
+    width: clamp(1.5rem, 4vw, 3rem);
+    height: 1px;
+    background-color: rgb(var(--white-rgb) / 55%);
   }
 
   .hero__title {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-    margin-block-start: var(--space-md);
-  }
-
-  .hero__name {
-    font-size: var(--text-display);
-    font-weight: var(--weight-heading);
-    line-height: 0.9;
-    letter-spacing: var(--tracking-tighter);
-  }
-
-  .hero__claim {
+    display: block;
+    margin-block-start: clamp(1.5rem, 1rem + 2vw, 2.5rem);
     font-family: var(--font-heading);
-    font-size: clamp(1.375rem, 1.05rem + 1.4vw, 2.25rem);
-    font-style: italic;
+    font-size: clamp(2.75rem, 1.4rem + 5.6vw, 6.5rem);
     font-weight: var(--weight-heading);
-    line-height: 1.2;
-    letter-spacing: 0;
-    color: rgb(var(--white-rgb) / 90%);
+    line-height: 0.98;
+    letter-spacing: var(--tracking-tighter);
+    text-wrap: balance;
+  }
+
+  .hero__title > * {
+    display: block;
+  }
+
+  .hero__title em {
+    font-style: italic;
+    color: rgb(var(--white-rgb) / 94%);
   }
 
   .hero__lead {
     margin-block-start: var(--space-lg);
-    max-width: 44ch;
-    font-size: var(--text-body);
-    line-height: var(--leading-relaxed);
-    color: rgb(var(--white-rgb) / 84%);
+    max-width: 40ch;
+    font-size: var(--text-lead);
+    line-height: var(--leading-normal);
+    color: rgb(var(--white-rgb) / 88%);
+    text-wrap: balance;
   }
 
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: var(--space-sm);
-    margin-block-start: var(--space-xl);
+    margin-block-start: var(--space-2xl);
+    text-shadow: none;
   }
 
-  .hero__features {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-sm) var(--space-lg);
-    margin-block-start: var(--space-xl);
-    padding: var(--space-lg) 0 0;
-    border-block-start: 1px solid rgb(var(--white-rgb) / 18%);
-    list-style: none;
-  }
-
-  .hero__feature {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-xs);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-medium);
-    color: rgb(var(--white-rgb) / 90%);
-  }
-
-  .hero__feature :global(svg) {
-    color: var(--color-accent-light);
-  }
-
-  .hero__meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-xs) var(--space-lg);
-    margin-block-start: var(--space-lg);
-    font-size: var(--text-sm);
-    color: rgb(var(--white-rgb) / 76%);
-  }
-
-  .hero__place,
-  .hero__whatsapp {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-xs);
-  }
-
-  .hero__whatsapp {
-    min-height: 2.75rem;
-    color: var(--color-text-inverse);
-    text-decoration: none;
-  }
-
-  .hero__whatsapp:hover {
-    color: var(--color-accent-light);
-  }
-
-  .hero__phone {
-    font-variant-numeric: tabular-nums;
-    color: rgb(var(--white-rgb) / 76%);
-  }
-
+  /* ── Indicador de desplazamiento ─────────────────────────────────────── */
   .hero__scroll {
-    display: none;
+    position: absolute;
+    inset-block-end: var(--space-lg);
+    inset-inline-start: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    min-width: 2.75rem;
+    padding: var(--space-xs);
+    font-size: var(--text-3xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    text-decoration: none;
+    color: rgb(var(--white-rgb) / 78%);
+    transform: translateX(-50%);
   }
 
-  /* ── Escritorio: composición partida ─────────────────────────────────── */
+  .hero__scroll:hover {
+    color: var(--color-text-inverse);
+  }
+
+  .hero__scroll-line {
+    display: block;
+    width: 1px;
+    height: 2.75rem;
+    background: linear-gradient(to bottom, rgb(var(--white-rgb) / 80%), transparent);
+  }
+
+  /* ── Móvil: botones a todo el ancho, ritmo más compacto ─────────────── */
+  @media (max-width: 29.99rem) {
+    .hero__actions {
+      flex-direction: column;
+      align-self: stretch;
+    }
+
+    .hero__actions :global(.hero__btn) {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .hero__location {
+      letter-spacing: var(--tracking-wider);
+    }
+  }
+
   @media (min-width: 64rem) {
     .hero {
-      align-items: center;
-      min-height: max(40rem, min(100svh, 62rem));
-      padding-block: calc(var(--header-height) + var(--space-2xl)) var(--space-4xl);
-    }
-
-    .hero__media {
-      inset: 0 0 0 auto;
-      width: 46%;
-    }
-
-    .hero__scrim {
-      background: linear-gradient(
-        to right,
-        var(--color-surface-deep) 0%,
-        rgb(var(--veil-rgb) / 30%) 14%,
-        rgb(var(--veil-rgb) / 0%) 40%
-      ),
-      linear-gradient(to bottom, rgb(var(--veil-rgb) / 40%) 0%, transparent 22%);
-    }
-
-    .hero__content {
-      max-width: min(40rem, 50%);
-    }
-
-    .hero__scroll {
-      position: absolute;
-      inset-block-end: var(--space-xl);
-      inset-inline-start: var(--gutter);
-      display: grid;
-      place-items: center;
-      width: 2.75rem;
-      height: 3.5rem;
-    }
-
-    .hero__scroll-line {
-      display: block;
-      width: 1px;
-      height: 100%;
-      background: linear-gradient(to bottom, rgb(var(--white-rgb) / 70%), transparent);
+      min-height: max(40rem, min(100svh, 68rem));
     }
   }
 
-  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+  /* ── Entrada: aparición escalonada y discreta ────────────────────────── */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__brand,
+    .hero__location,
+    .hero__title,
+    .hero__lead,
+    .hero__actions {
+      animation: hero-in 1100ms var(--ease-emphasis) both;
+    }
+
+    .hero__location {
+      animation-delay: 120ms;
+    }
+
+    .hero__title {
+      animation-delay: 240ms;
+    }
+
+    .hero__lead {
+      animation-delay: 380ms;
+    }
+
+    .hero__actions {
+      animation-delay: 500ms;
+    }
+
     .hero__scroll-line {
-      animation: scroll-hint 2.4s var(--ease-in-out) infinite;
+      animation: scroll-hint 2.6s var(--ease-in-out) infinite;
       transform-origin: top;
+    }
+
+    @keyframes hero-in {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
     }
 
     @keyframes scroll-hint {
@@ -411,12 +437,6 @@ const posterSrc = video ? `${video.poster}-${video.posterWidths.at(-1)}.webp` : 
         transform: scaleY(1);
         opacity: 0;
       }
-    }
-  }
-
-  @media (min-width: 90rem) {
-    .hero__media {
-      width: 44%;
     }
   }
 </style>

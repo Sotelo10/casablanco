@@ -1,18 +1,28 @@
 ---
 /**
- * GALERÍA — mosaico editorial sobre tinta, con lightbox.
+ * GALERÍA — fotografías reales organizadas por categoría.
+ *
+ * Un mosaico editorial por categoría (Piscina, Dormitorios, Interiores,
+ * Terraza, Áreas comunes, Experiencias) y un único lightbox para toda la
+ * página: desde cualquier foto se puede recorrer la galería completa.
+ * Las categorías sin fotografías no se muestran.
  */
-import GallerySection from '../components/sections/GallerySection.astro';
-import Badge from '../components/ui/Badge.astro';
+import GalleryGrid from '../components/gallery/GalleryGrid.astro';
+import GalleryLightbox from '../components/gallery/GalleryLightbox.astro';
+import Container from '../components/ui/Container.astro';
+import Section from '../components/ui/Section.astro';
 import { galleryCategories } from '../data/gallery.js';
 import PageLayout from '../layouts/PageLayout.astro';
 import { getGallery } from '../lib/services/content.service.js';
 
 const images = await getGallery();
 
-const availableCategories = galleryCategories.filter((category) =>
-  images.some((image) => image.category === category.id),
-);
+const groups = galleryCategories
+  .map((category) => ({
+    ...category,
+    images: images.filter((image) => image.category === category.id),
+  }))
+  .filter((group) => group.images.length > 0);
 
 const breadcrumbs = [
   { name: 'Inicio', href: '/' },
@@ -21,41 +31,137 @@ const breadcrumbs = [
 ---
 
 <PageLayout
-  title="Galería de fotos de la casa vacacional en Ica"
-  description="Fotos reales de Casa Leblanc en Ica: piscina iluminada, jardín, terraza, sala, cocina, dormitorios y baños de esta casa vacacional cerca de Huacachina."
+  title="Galería de fotos · Casa vacacional con piscina en Ica"
+  description="Fotos reales de Casa Leblanc, cerca de Huacachina: piscina iluminada, dormitorios, cocina, baños, terraza y áreas comunes de esta casa vacacional en Ica."
   heading="Galería de Casa Leblanc"
   eyebrow="Galería"
-  intro="Fotografías reales de la casa: exteriores, piscina, zonas comunes, dormitorios y baños. Pulsa cualquier imagen para verla a pantalla completa."
+  intro={`${images.length} fotografías reales de la casa, organizadas por espacios. Pulsa cualquier imagen para verla a pantalla completa.`}
   breadcrumbs={breadcrumbs}
 >
-  <ul class="categories" role="list" slot="header-extra">
-    {
-      availableCategories.map((category) => (
-        <li>
-          <Badge>{category.label}</Badge>
-        </li>
-      ))
-    }
-  </ul>
+  <nav class="gallery-nav" aria-label="Categorías de la galería">
+    <Container size="wide">
+      <ul class="gallery-nav__list" role="list">
+        {
+          groups.map((group) => (
+            <li>
+              <a class="gallery-nav__link" href={`#${group.id}`}>
+                {group.label}
+                <span class="gallery-nav__count">{group.images.length}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </nav>
 
-  <GallerySection
-    images={images}
-    index="01"
-    title="Recorrido completo por la casa"
-    description={`${images.length} fotografías de los exteriores, la piscina, las zonas comunes, los dormitorios y los baños.`}
-    actionHref={null}
-    actionLabel={null}
-    priorityCount={2}
-  />
+  <Section tone="deep" container="none" class="gallery-page" aria-label="Fotografías por categoría">
+    <Container size="wide">
+      {
+        groups.map((group, i) => (
+          <section class="gallery-group" id={group.id} aria-labelledby={`${group.id}-title`}>
+            <header class="gallery-group__head">
+              <span class="gallery-group__index" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h2 class="gallery-group__title" id={`${group.id}-title`}>
+                {group.label}
+              </h2>
+              <p class="gallery-group__text">{group.description}</p>
+            </header>
+            <GalleryGrid images={group.images} priorityCount={i === 0 ? 2 : 0} />
+          </section>
+        ))
+      }
+    </Container>
+  </Section>
+
+  <GalleryLightbox />
 </PageLayout>
 
 <style>
-  .categories {
+  .gallery-nav {
+    position: sticky;
+    top: var(--header-height);
+    z-index: var(--z-sticky);
+    border-block-end: 1px solid var(--color-border);
+    background-color: rgb(var(--white-rgb) / 94%);
+    backdrop-filter: blur(12px);
+  }
+
+  .gallery-nav__list {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs);
-    margin-block-start: var(--space-md);
+    gap: var(--space-xs);
+    margin: 0;
+    padding: var(--space-sm) 0;
+    overflow-x: auto;
     list-style: none;
-    padding: 0;
+    scrollbar-width: none;
+  }
+
+  .gallery-nav__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gallery-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.5rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: border-color var(--transition-fast), color var(--transition-fast),
+      background-color var(--transition-fast);
+  }
+
+  .gallery-nav__link:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .gallery-nav__count {
+    font-size: var(--text-2xs);
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .gallery-group {
+    scroll-margin-top: calc(var(--header-height) + 4.5rem);
+  }
+
+  .gallery-group + .gallery-group {
+    margin-block-start: var(--space-4xl);
+  }
+
+  .gallery-group__head {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-2xs) var(--space-md);
+    align-items: baseline;
+    margin-block-end: var(--space-xl);
+  }
+
+  .gallery-group__index {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-style: italic;
+    color: var(--color-accent-light);
+  }
+
+  .gallery-group__title {
+    font-size: var(--text-h3);
+    color: var(--color-text-inverse);
+  }
+
+  .gallery-group__text {
+    grid-column: 2;
+    font-size: var(--text-body-sm);
+    color: var(--color-text-inverse-muted);
   }
 </style>

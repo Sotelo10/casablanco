@@ -10,8 +10,7 @@
  * dormitorios con cama matrimonial, camarotes y camas individuales, baños con
  * ducha de mampara). Nada de capacidades, metros ni servicios no verificados.
  */
-import type { PropertySpace } from '../types/content.js';
-import type { GalleryImage } from '../types/content.js';
+import type { GalleryImage, HouseSpace, PropertySpace } from '../types/content.js';
 import { photoBySlug } from './gallery.js';
 
 /** Bloques de texto de la página "La casa". */
@@ -90,5 +89,83 @@ export const stayHighlights = [
     title: 'Trato directo',
     description: 'Consultas y reservas con el anfitrión, por WhatsApp, sin intermediarios.',
     icon: 'whatsapp',
+  },
+];
+
+/**
+ * "CONOCE NUESTRA CASA" — los ocho espacios de la portada.
+ * -----------------------------------------------------------------------------
+ * Las descripciones sólo cuentan lo que se ve en las fotografías reales.
+ * Estacionamiento y áreas de entretenimiento no aparecen en ninguna fotografía
+ * ni están confirmados: se muestran como "por confirmar" hasta que el
+ * propietario aporte la información (y, si existe, una fotografía).
+ */
+export const houseSpaces: HouseSpace[] = [
+  {
+    id: 'dormitorios',
+    name: 'Dormitorios',
+    description:
+      'Dormitorios con cama matrimonial y clóset, una habitación con camarotes y otras con camas individuales.',
+    icon: 'bed',
+    image: photoBySlug('dormitorio-cama-matrimonial-casa-leblanc'),
+    confirmed: true,
+  },
+  {
+    id: 'sala',
+    name: 'Sala de estar',
+    description: 'Sofá seccional y ventanales corredizos que se abren a la terraza y la piscina.',
+    icon: 'sofa',
+    image: photoBySlug('sala-de-estar-casa-leblanc'),
+    confirmed: true,
+  },
+  {
+    id: 'cocina',
+    name: 'Cocina',
+    description: 'Refrigeradora, cocina con horno y muebles de madera para preparar las comidas del grupo.',
+    icon: 'kitchen',
+    image: photoBySlug('cocina-equipada-casa-leblanc-ica'),
+    confirmed: true,
+  },
+  {
+    id: 'banos',
+    name: 'Baños',
+    description: 'Duchas con mampara de vidrio, espejo iluminado y acabados en madera.',
+    icon: 'bath',
+    image: photoBySlug('bano-ducha-vidrio-casa-leblanc'),
+    confirmed: true,
+  },
+  {
+    id: 'piscina',
+    name: 'Piscina',
+    description: 'Piscina con iluminación, rodeada de jardín y terraza: para el sol de Ica y las noches templadas.',
+    icon: 'pool',
+    image: photoBySlug('piscina-iluminada-casa-vacacional-ica'),
+    confirmed: true,
+  },
+  {
+    id: 'terraza',
+    name: 'Terraza',
+    description: 'Terraza con piso de madera junto a la piscina, mesa exterior con sombrilla y patio techado con luces.',
+    icon: 'sun',
+    image: photoBySlug('terraza-deck-piscina-casa-leblanc'),
+    confirmed: true,
+  },
+  {
+    id: 'estacionamiento',
+    name: 'Estacionamiento',
+    /** TODO: confirmar con el propietario si existe, cuántos vehículos y si es techado. */
+    description: '',
+    icon: 'car',
+    image: null,
+    confirmed: false,
+  },
+  {
+    id: 'entretenimiento',
+    name: 'Áreas de entretenimiento',
+    /** TODO: confirmar con el propietario qué equipamiento existe (karaoke, juegos, etc.). */
+    description: '',
+    icon: 'sparkles',
+    image: null,
+    confirmed: false,
   },
 ];

@@ -1,274 +1,59 @@
 ---
 /**
- * RESERVA — solicitud de disponibilidad.
+ * CONTACTO — canales directos, formulario de consultas y ubicación.
+ * Las consultas de fechas se derivan a /reservas.
  */
-import BookingForm from '../components/booking/BookingForm.astro';
-import WhatsAppButton from '../components/booking/WhatsAppButton.astro';
-import Card from '../components/ui/Card.astro';
-import Chapter from '../components/ui/Chapter.astro';
+import ContactSection from '../components/sections/ContactSection.astro';
+import LocationSection from '../components/sections/LocationSection.astro';
+import Button from '../components/ui/Button.astro';
 import Container from '../components/ui/Container.astro';
-import Icon from '../components/ui/Icon.astro';
 import Section from '../components/ui/Section.astro';
-import { formattedAddress, site } from '../config/site.js';
+import { bookingHref } from '../config/navigation.js';
 import PageLayout from '../layouts/PageLayout.astro';
-import { socialProfiles } from '../config/social.js';
-import { whatsAppUrl } from '../lib/utils/whatsapp.js';
-
-const whatsapp = whatsAppUrl();
 
 const breadcrumbs = [
   { name: 'Inicio', href: '/' },
-  { name: 'Reservar', href: '/contacto' },
-];
-
-const trust = [
-  {
-    icon: 'shield',
-    title: 'Reserva directa',
-    text: 'Escribes directamente al anfitrión, sin intermediarios.',
-  },
-  {
-    icon: 'key',
-    title: 'Una sola reserva a la vez',
-    text: 'La casa se alquila completa: si está disponible, es para tu grupo.',
-  },
-  {
-    icon: 'info',
-    title: 'Sin compromiso',
-    text: 'Consultar disponibilidad no reserva nada: primero te confirmamos condiciones.',
-  },
+  { name: 'Contacto', href: '/contacto' },
 ];
 ---
 
 <PageLayout
-  title="Reservar estadía y consultar disponibilidad"
-  description="Reserva Casa Leblanc, casa vacacional en Ica: consulta disponibilidad y tarifa por WhatsApp al +51 948 898 400 o con el formulario de reserva."
-  heading="Reserva tu estadía en Casa Leblanc"
-  eyebrow="Disponibilidad"
-  intro="Cuéntanos tus fechas y cuántas personas viajan. Te respondemos por WhatsApp con la disponibilidad, la tarifa y las condiciones."
+  title="Contacto · Casa Leblanc, Huacachina, Ica"
+  description="Contacta con Casa Leblanc, casa vacacional cerca de Huacachina, Ica: WhatsApp Business, Instagram, Facebook y formulario de consultas."
+  heading="Contacto"
+  eyebrow="Casa Leblanc"
+  intro="WhatsApp, redes sociales o el formulario: escríbenos por el canal que prefieras y te respondemos personalmente."
   breadcrumbs={breadcrumbs}
   showCta={false}
-  showMobileBar={false}
 >
-  <Section tone="default" container="none" aria-labelledby="formulario-title">
+  <ContactSection index="01" tone="default" />
+
+  <Section tone="sand" size="compact" container="none" aria-label="Reservas">
     <Container size="wide">
-      <div class="contact">
-        <Card tone="surface" padding="lg" class="contact__form-card">
-          <Chapter
-            index="01"
-            eyebrow="Formulario"
-            title="Cuéntanos sobre tu viaje"
-            id="formulario-title"
-            titleWidth="18ch"
-            class="contact__chapter"
-          />
-          <BookingForm />
-        </Card>
-
-        <aside class="contact__aside" aria-labelledby="contacto-directo">
-          <Card tone="muted" padding="lg" class="contact__panel">
-            <h2 id="contacto-directo" class="contact__title">Contacto directo</h2>
-
-            <ul class="contact__list" role="list">
-              {
-                site.contact.phone && (
-                  <li class="contact__item">
-                    <span class="contact__icon"><Icon name="whatsapp" size={16} /></span>
-                    <div>
-                      <p class="contact__label">WhatsApp y teléfono</p>
-                      <p class="contact__value">
-                        {whatsapp ? (
-                          <a href={whatsapp} target="_blank" rel="noopener noreferrer">
-                            {site.contact.phone}
-                          </a>
-                        ) : (
-                          <a href={`tel:${site.contact.phone.replace(/\s/g, '')}`}>{site.contact.phone}</a>
-                        )}
-                      </p>
-                    </div>
-                  </li>
-                )
-              }
-              {
-                site.contact.email && (
-                  <li class="contact__item">
-                    <span class="contact__icon"><Icon name="mail" size={16} /></span>
-                    <div>
-                      <p class="contact__label">Correo</p>
-                      <p class="contact__value">
-                        <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
-                      </p>
-                    </div>
-                  </li>
-                )
-              }
-              <li class="contact__item">
-                <span class="contact__icon"><Icon name="map-pin" size={16} /></span>
-                <div>
-                  <p class="contact__label">Ubicación</p>
-                  <p class="contact__value">{formattedAddress()}</p>
-                </div>
-              </li>
-              {
-                site.contact.hours && (
-                  <li class="contact__item">
-                    <span class="contact__icon"><Icon name="clock" size={16} /></span>
-                    <div>
-                      <p class="contact__label">Atención</p>
-                      <p class="contact__value">{site.contact.hours}</p>
-                    </div>
-                  </li>
-                )
-              }
-              <li class="contact__item">
-                <span class="contact__icon"><Icon name="instagram" size={16} /></span>
-                <div>
-                  <p class="contact__label">Redes oficiales</p>
-                  <p class="contact__value contact__social">
-                    {socialProfiles.map((profile) => (
-                      <a href={profile.url} target="_blank" rel="noopener noreferrer">
-                        {profile.network}
-                      </a>
-                    ))}
-                  </p>
-                </div>
-              </li>
-            </ul>
-
-            <WhatsAppButton variant="primary" size="md" block class="contact__whatsapp" />
-          </Card>
-
-          <ul class="trust" role="list">
-            {
-              trust.map((item) => (
-                <li class="trust__item">
-                  <span class="trust__icon"><Icon name={item.icon} size={16} /></span>
-                  <div>
-                    <h3 class="trust__title">{item.title}</h3>
-                    <p class="trust__text">{item.text}</p>
-                  </div>
-                </li>
-              ))
-            }
-          </ul>
-        </aside>
+      <div class="booking-note">
+        <p>¿Ya tienes fechas? Consulta la disponibilidad directamente.</p>
+        <Button href={bookingHref} variant="primary" leadingIcon="calendar" icon="arrow-right">
+          Ir a reservas
+        </Button>
       </div>
     </Container>
   </Section>
+
+  <LocationSection index="02" />
 </PageLayout>
 
 <style>
-  .contact {
-    display: grid;
-    gap: var(--space-xl);
-  }
-
-  .contact__social {
+  .booking-note {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2xs) var(--space-md);
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md) var(--space-xl);
   }
 
-  .contact__chapter {
-    margin-block-end: var(--space-xl);
-  }
-
-  .contact__title {
-    font-family: var(--font-body);
-    font-size: var(--text-2xs);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-widest);
-    text-transform: uppercase;
-    color: var(--color-text-muted);
-  }
-
-  .contact__list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
-    margin-block: var(--space-lg);
-    list-style: none;
-    padding: 0;
-  }
-
-  .contact__item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-sm);
-  }
-
-  .contact__icon {
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: var(--radius-pill);
-    background-color: var(--color-surface);
-    color: var(--color-primary);
-  }
-
-  .contact__label {
-    font-size: var(--text-2xs);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    color: var(--color-text-muted);
-  }
-
-  .contact__value {
-    margin-block-start: 0.15rem;
-    font-size: var(--text-body-sm);
-  }
-
-  .trust {
-    display: grid;
-    gap: var(--space-lg);
-    margin-block-start: var(--space-xl);
-    list-style: none;
-    padding: 0;
-  }
-
-  .trust__item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-sm);
-  }
-
-  .trust__icon {
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    width: 2rem;
-    height: 2rem;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-pill);
-    color: var(--color-primary);
-  }
-
-  .trust__title {
-    font-family: var(--font-body);
-    font-size: var(--text-body-sm);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-normal);
-  }
-
-  .trust__text {
-    margin-block-start: 0.15rem;
-    font-size: var(--text-sm);
-    line-height: var(--leading-relaxed);
-    color: var(--color-text-muted);
-  }
-
-  @media (min-width: 64rem) {
-    .contact {
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.85fr);
-      gap: var(--space-2xl);
-      align-items: start;
-    }
-
-    .contact__aside {
-      position: sticky;
-      top: calc(var(--header-height) + var(--space-lg));
-    }
+  .booking-note p {
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+    line-height: 1.2;
   }
 </style>

@@ -1,0 +1,235 @@
+---
+/**
+ * FORMULARIO DE CONSULTAS
+ * =============================================================================
+ * Consulta general (no de fechas: para eso está el formulario de reservas).
+ * No hay backend de mensajería: al validar, abre WhatsApp con la consulta ya
+ * redactada. Nada finge que el mensaje se haya enviado.
+ *
+ * Si no hay número de WhatsApp configurado, el formulario no se muestra y en
+ * su lugar se ofrece el correo (si existe).
+ */
+import { site } from '../../config/site.js';
+import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+import Button from '../ui/Button.astro';
+
+interface Props {
+  id?: string;
+}
+
+const { id = 'contact-form' } = Astro.props;
+const enabled = Boolean(whatsAppUrl());
+
+const topics = ['Consulta general', 'Reservas y disponibilidad', 'Experiencias', 'Otro'];
+---
+
+{
+  enabled ? (
+    <form class="cform" id={id} novalidate data-contact-form data-property={site.name}>
+      <div class="cform__grid">
+        <div class="cfield">
+          <label class="cfield__label" for={`${id}-name`}>
+            Nombre <span aria-hidden="true">*</span>
+          </label>
+          <input
+            class="cfield__input"
+            id={`${id}-name`}
+            name="name"
+            type="text"
+            autocomplete="name"
+            maxlength="120"
+            required
+            aria-describedby={`${id}-name-error`}
+          />
+          <p class="cfield__error" id={`${id}-name-error`} hidden></p>
+        </div>
+
+        <div class="cfield">
+          <label class="cfield__label" for={`${id}-topic`}>Motivo</label>
+          <select class="cfield__input" id={`${id}-topic`} name="topic">
+            {topics.map((topic) => <option value={topic}>{topic}</option>)}
+          </select>
+        </div>
+
+        <div class="cfield cfield--full">
+          <label class="cfield__label" for={`${id}-message`}>
+            Mensaje <span aria-hidden="true">*</span>
+          </label>
+          <textarea
+            class="cfield__input cfield__input--area"
+            id={`${id}-message`}
+            name="message"
+            rows="4"
+            maxlength="1500"
+            required
+            placeholder="¿En qué podemos ayudarte?"
+            aria-describedby={`${id}-message-error`}
+          />
+          <p class="cfield__error" id={`${id}-message-error`} hidden></p>
+        </div>
+      </div>
+
+      <div class="cform__actions">
+        <Button type="submit" variant="primary" icon="whatsapp">Enviar por WhatsApp</Button>
+        <p class="cform__note" data-contact-status role="status" aria-live="polite">
+          Se abrirá WhatsApp con tu mensaje ya escrito: sólo tienes que enviarlo.
+        </p>
+      </div>
+    </form>
+  ) : (
+    site.contact.email && (
+      <p class="cform__note">
+        Escríbenos a <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.
+      </p>
+    )
+  )
+}
+
+<style>
+  .cform {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .cform__grid {
+    display: grid;
+    gap: var(--space-lg);
+  }
+
+  .cfield {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .cfield__label {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+  }
+
+  .cfield__label span {
+    color: var(--color-primary);
+  }
+
+  .cfield__input {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--text-body-sm);
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .cfield__input:hover {
+    border-color: var(--color-text-muted);
+  }
+
+  .cfield__input:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 1px;
+    border-color: transparent;
+  }
+
+  .cfield__input--area {
+    min-height: 7.5rem;
+    resize: vertical;
+  }
+
+  .cfield__input[aria-invalid='true'] {
+    border-color: var(--color-danger);
+  }
+
+  .cfield__error {
+    font-size: var(--text-sm);
+    color: var(--color-danger);
+  }
+
+  .cform__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .cform__note {
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 40rem) {
+    .cform__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cfield--full {
+      grid-column: 1 / -1;
+    }
+
+    .cform__actions {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-lg);
+    }
+  }
+</style>
+
+<script>
+  import { whatsAppUrl } from '../../lib/utils/whatsapp.js';
+
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach((form) => {
+    const status = form.querySelector<HTMLElement>('[data-contact-status]');
+
+    const setError = (field: HTMLElement | null, message: string) => {
+      if (!field) return;
+      const error = document.getElementById(`${field.id}-error`);
+      if (message) field.setAttribute('aria-invalid', 'true');
+      else field.removeAttribute('aria-invalid');
+      if (error) {
+        error.textContent = message;
+        error.hidden = !message;
+      }
+    };
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const name = String(data.get('name') ?? '').trim();
+      const topic = String(data.get('topic') ?? '').trim();
+      const message = String(data.get('message') ?? '').trim();
+
+      const nameField = form.querySelector<HTMLElement>('[name="name"]');
+      const messageField = form.querySelector<HTMLElement>('[name="message"]');
+      const nameError = name.length < 2 ? 'Escribe tu nombre.' : '';
+      const messageError = message.length < 5 ? 'Escribe tu consulta.' : '';
+      setError(nameField, nameError);
+      setError(messageField, messageError);
+
+      if (nameError || messageError) {
+        (nameError ? nameField : messageField)?.focus();
+        return;
+      }
+
+      const url = whatsAppUrl({
+        message: `Hola, soy ${name}. Te escribo desde la web de ${form.dataset.property}.\n\nMotivo: ${topic}\n\n${message}`,
+      });
+      if (!url) return;
+
+      window.open(url, '_blank', 'noopener,noreferrer');
+      if (status) {
+        status.innerHTML = '';
+        status.append('Abrimos WhatsApp con tu mensaje. Si no se abrió, ');
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'pulsa aquí';
+        status.append(link, '.');
+      }
+    });
+  });
+</script>

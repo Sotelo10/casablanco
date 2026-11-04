@@ -2,59 +2,51 @@
 /**
  * PORTADA
  * -----------------------------------------------------------------------------
- * Recorrido en capítulos numerados. Cada uno responde una pregunta concreta del
- * visitante y alterna fondo, de modo que el scroll tenga ritmo:
+ * Recorrido en capítulos numerados que alternan fondo para dar ritmo al scroll:
  *
- *   Hero (vídeo) → 01 la casa → 02 espacios (arena) → 03 galería (azul) →
- *   04 Ica (azul) → redes → 05 ubicación → 06 preguntas → cierre (foto)
+ *   Hero (vídeo) → 01 la casa → 02 experiencias (arena) → 03 galería (azul) →
+ *   04 servicios → 05 reservas (azul) → 06 ubicación → [opiniones] →
+ *   preguntas → contacto (arena)
  *
- * Las reseñas sólo aparecen cuando existan reseñas reales: no se publican
- * opiniones de ejemplo.
+ * Las opiniones sólo aparecen cuando existan reseñas reales: no se publican
+ * opiniones de ejemplo. La numeración se ajusta sola.
  */
-import BookingCTA from '../components/booking/BookingCTA.astro';
 import Hero from '../components/hero/Hero.astro';
-import ExperienceSection from '../components/sections/ExperienceSection.astro';
+import BookingSection from '../components/sections/BookingSection.astro';
+import ContactSection from '../components/sections/ContactSection.astro';
 import FaqSection from '../components/sections/FaqSection.astro';
 import GallerySection from '../components/sections/GallerySection.astro';
-import IntroSection from '../components/sections/IntroSection.astro';
+import HouseSection from '../components/sections/HouseSection.astro';
 import LocationSection from '../components/sections/LocationSection.astro';
 import ReviewsSection from '../components/sections/ReviewsSection.astro';
-import SocialSection from '../components/sections/SocialSection.astro';
-import SpacesSection from '../components/sections/SpacesSection.astro';
-import { heroVideo, introImage, photoBySlug } from '../data/gallery.js';
-import { homeIntroParagraphs, stayHighlights } from '../data/property.js';
+import ServicesSection from '../components/sections/ServicesSection.astro';
+import StayExperiencesSection from '../components/sections/StayExperiencesSection.astro';
+import { homeFaqIds } from '../data/faq.js';
+import { heroPosterSrc, heroPosterSrcset } from '../data/hero.js';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import {
-  getFaqs,
-  getFeaturedGallery,
-  getNearbyPlaces,
-} from '../lib/services/content.service.js';
+import { getFaqs, getFeaturedGallery } from '../lib/services/content.service.js';
 import { getReviews, summarize } from '../lib/services/reviews.service.js';
 
-const [featuredImages, nearbyPlaces, reviews] = await Promise.all([
-  getFeaturedGallery(5),
-  getNearbyPlaces(),
-  getReviews(),
-]);
+const [featuredImages, reviews] = await Promise.all([getFeaturedGallery(5), getReviews()]);
 
 const reviewSummary = summarize(reviews);
 const hasRealReviews = reviews.length > 0 && !reviewSummary.isDemo;
-const highlightedPlaces = nearbyPlaces.filter((place) =>
-  ['huacachina', 'dunas', 'bodegas', 'gastronomia-local', 'paracas'].includes(place.id),
-);
-const homeFaqs = getFaqs().slice(0, 5);
 
-/** Rasgos reales de la casa, todos visibles en el vídeo y las fotografías. */
-const heroFeatures = [
-  { icon: 'pool', label: 'Piscina iluminada' },
-  { icon: 'leaf', label: 'Jardín y terraza' },
-  { icon: 'home', label: 'Casa completa' },
-  { icon: 'users', label: 'Ideal para grupos' },
-];
+const allFaqs = getFaqs();
+const homeFaqs = homeFaqIds
+  .map((id) => allFaqs.find((faq) => faq.id === id))
+  .filter((faq): faq is NonNullable<typeof faq> => Boolean(faq));
 
-const title = 'Casa Leblanc | Casa vacacional y alojamiento en Ica, Perú';
+/** Numeración de capítulos: las opiniones sólo cuentan si se muestran. */
+const chapter = (() => {
+  let n = 6;
+  const next = () => String(++n).padStart(2, '0');
+  return { reviews: hasRealReviews ? next() : '', faq: next(), contact: next() };
+})();
+
+const title = 'Casa Leblanc | Casa vacacional con piscina cerca de Huacachina, Ica';
 const description =
-  'Casa Leblanc, casa vacacional en Ica cerca de Huacachina: casa completa con piscina, jardín y dormitorios para familias y grupos. Reserva por WhatsApp.';
+  'Casa vacacional privada con piscina cerca de Huacachina, Ica. Alojamiento completo para familias, parejas y grupos. Consulta disponibilidad por WhatsApp.';
 ---
 
 <BaseLayout
@@ -63,43 +55,35 @@ const description =
   isHome
   headerVariant="transparent"
   reviewSummary={reviewSummary}
-  preloadImage={heroVideo
-    ? {
-        href: `${heroVideo.poster}-${heroVideo.posterWidths.at(-1)}.webp`,
-        srcset: heroVideo.posterWidths.map((w) => `${heroVideo.poster}-${w}.webp ${w}w`).join(', '),
-        sizes: '(min-width: 64rem) 46vw, 100vw',
-      }
-    : undefined}
+  preloadImage={{ href: heroPosterSrc, srcset: heroPosterSrcset, sizes: '100vw' }}
 >
-  <Hero
-    video={heroVideo}
-    posterAlt="Piscina iluminada de Casa Leblanc con apliques de luz en el muro, de noche"
-    claim="Casa vacacional en Ica, cerca de Huacachina"
-    lead="Una casa completa para tu grupo, con piscina iluminada, jardín y terraza. Descansa a tu ritmo y sal a descubrir las dunas, las bodegas y el oasis."
-    features={heroFeatures}
+  <Hero />
+
+  <HouseSection index="01" />
+
+  <StayExperiencesSection index="02" />
+
+  <GallerySection
+    images={featuredImages}
+    index="03"
+    title="Cada rincón, tal como es"
+    description="Fotografías reales de la casa. Pulsa cualquier imagen para verla a pantalla completa."
   />
 
-  <IntroSection
-    primaryImage={introImage}
-    secondaryImage={photoBySlug('terraza-deck-piscina-casa-leblanc')}
-    title="Un alojamiento en Ica pensado para descansar en privado"
-    highlights={stayHighlights}
-    paragraphs={homeIntroParagraphs}
+  <ServicesSection index="04" />
+
+  <BookingSection index="05" />
+
+  <LocationSection index="06" />
+
+  {hasRealReviews && <ReviewsSection reviews={reviews} summary={reviewSummary} index={chapter.reviews} />}
+
+  <FaqSection
+    faqs={homeFaqs}
+    index={chapter.faq}
+    actionHref="/faq"
+    actionLabel="Ver todas las preguntas"
   />
 
-  <SpacesSection />
-
-  <GallerySection images={featuredImages} />
-
-  <ExperienceSection places={highlightedPlaces} />
-
-  {hasRealReviews && <ReviewsSection reviews={reviews} summary={reviewSummary} />}
-
-  <SocialSection />
-
-  <LocationSection index="05" />
-
-  <FaqSection faqs={homeFaqs} index="06" actionHref="/faq" actionLabel="Ver todas las preguntas" />
-
-  <BookingCTA />
+  <ContactSection index={chapter.contact} />
 </BaseLayout>

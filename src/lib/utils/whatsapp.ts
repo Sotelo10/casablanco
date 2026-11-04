@@ -10,6 +10,8 @@ export interface WhatsAppMessageOptions {
   checkIn?: string;
   checkOut?: string;
   guests?: number | string;
+  /** Tipo de experiencia elegido en el formulario. */
+  experience?: string;
   /** Nombre de quien escribe. */
   name?: string;
   /** Comentario libre que se añade al final del mensaje. */
@@ -29,20 +31,28 @@ function formatDate(value: string): string {
   return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
 }
 
-/** Mensaje prellenado. Sólo incluye los datos que existen. */
+/**
+ * Mensaje prellenado. Sólo incluye los datos que existen; los datos de la
+ * estancia van en líneas separadas para que el anfitrión los lea de un vistazo.
+ */
 export function buildWhatsAppMessage(options: WhatsAppMessageOptions = {}): string {
   if (options.message) return options.message;
 
   const propertyName = site.name;
   const greeting = options.name ? `Hola, soy ${options.name}.` : 'Hola,';
-  const parts = [`${greeting} Quisiera consultar disponibilidad en ${propertyName}.`];
+  const lines = [`${greeting} Quisiera consultar disponibilidad en ${propertyName}.`];
 
-  if (options.checkIn) parts.push(`Llegada: ${formatDate(options.checkIn)}.`);
-  if (options.checkOut) parts.push(`Salida: ${formatDate(options.checkOut)}.`);
-  if (options.guests) parts.push(`Huéspedes: ${options.guests}.`);
-  if (options.note) parts.push(options.note);
+  const details = [
+    options.checkIn && `• Llegada: ${formatDate(options.checkIn)}`,
+    options.checkOut && `• Salida: ${formatDate(options.checkOut)}`,
+    options.guests && `• Huéspedes: ${options.guests}`,
+    options.experience && `• Experiencia: ${options.experience}`,
+  ].filter(Boolean) as string[];
 
-  return parts.join(' ');
+  if (details.length > 0) lines.push('', ...details);
+  if (options.note) lines.push('', options.note);
+
+  return lines.join('\n');
 }
 
 /**

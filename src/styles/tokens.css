@@ -7,11 +7,13 @@
  * Toda la identidad del sitio se cambia desde aquí. Ningún componente define un
  * color, una sombra, un radio o una familia tipográfica por su cuenta.
  *
- * Dirección de arte: arquitectura blanca, noche azul y arena del desierto.
- * Azul profundo #153B56 y secundario #285F7D para texto y acción; blanco
- * cálido #FAFAF7 y arena #E9E0D3 para superficies. Las fotografías llevan el
- * color: la interfaz se mantiene sobria. Todos los pares texto/fondo cumplen
- * WCAG AA.
+ * Dirección de arte: lujo discreto. Arquitectura blanca, noche azul y arena
+ * del desierto. El azul #00509D es la identidad de Casa Leblanc y se reserva
+ * para acción, navegación, iconografía destacada y detalles; #003566 ancla las
+ * bandas profundas y #0A66A8 acompaña como secundario. Blanco #FFFFFF, arena
+ * #F4F0E8 y beige #E9E1D5 para superficies; texto #17212B. Las fotografías
+ * llevan el color: la interfaz se mantiene sobria. Todos los pares texto/fondo
+ * cumplen WCAG AA.
  */
 
 :root {
@@ -20,77 +22,82 @@
    /* ═══ CANALES BASE ════════════════════════════════════════════════════ */
    /* Velos, sombras y degradados se componen desde estos valores: cambiarlos
      recalcula toda la profundidad del sitio. */
-   --sky-rgb: 40 95 125;
-   --deep-rgb: 21 59 86;
+   --sky-rgb: 0 80 157;          /* #00509D — azul de marca */
+   --deep-rgb: 0 53 102;         /* #003566 — azul oscuro */
    --white-rgb: 255 255 255;
-   --accent-rgb: 233 224 211;
-   /* Velo nocturno de las fotografías (= --color-surface-deep). */
-   --veil-rgb: 16 47 69;
+   --accent-rgb: 233 225 213;    /* #E9E1D5 — beige claro */
+   /* Velo nocturno de fotografía y vídeo: azul noche casi negro, para que el
+     texto blanco se lea sobre cualquier fotograma sin teñir la imagen. */
+   --veil-rgb: 4 22 41;
+   --ink-rgb: 23 33 43;          /* #17212B — texto principal */
 
    /* ═══ ESCALA DE AZUL ══════════════════════════════════════════════════ */
-   /* Construida alrededor de los dos azules de marca: 600 = #285F7D
-     (secundario) y 800 = #153B56 (profundo). */
-   --sky-50: #f4f7f9;
-   --sky-100: #e8eef2;
-   --sky-200: #cfdce5;
-   --sky-300: #a9c0cf;
-   --sky-400: #6f93aa;
-   --sky-500: #3e7192;
-   --sky-600: #285f7d;
-   --sky-700: #1e4d69;
-   --sky-800: #153b56;
-   --sky-900: #0e2a3e;
+   /* Construida alrededor de la identidad: 500 = #0A66A8 (secundario),
+     600 = #00509D (principal) y 800 = #003566 (oscuro). */
+   --sky-50: #f2f7fc;
+   --sky-100: #e4eef8;
+   --sky-200: #c4daef;
+   --sky-300: #93badf;
+   --sky-400: #4f8ec8;
+   --sky-500: #0a66a8;
+   --sky-600: #00509d;
+   --sky-700: #004282;
+   --sky-800: #003566;
+   --sky-900: #002448;
 
    /* ═══ COLOR SEMÁNTICO ═════════════════════════════════════════════════ */
 
-   /* Superficies: blanco cálido, blanco y arena */
-   --color-background: #fafaf7;
+   /* Superficies: blanco, arena y beige claro */
+   --color-background: #ffffff;
    --color-surface: #ffffff;
    --color-surface-elevated: #ffffff;
-   --color-surface-soft: #f3efe8;
-   --color-surface-mist: #f6f4ef;
-   --color-surface-sand: #f3eee6;
-   --color-surface-sand-deep: #e9e0d3;
+   --color-surface-soft: #f4f0e8;
+   --color-surface-mist: #f9f7f2;
+   --color-surface-sand: #f4f0e8;
+   --color-surface-sand-deep: #e9e1d5;
 
-   /* Anclaje profundo: pie de página y bandas de cierre */
-   --color-surface-deep: #00509D;
-   --color-surface-deep-soft: #153b56;
-   --color-surface-deep-raised: #1e4d69;
+   /* Anclaje profundo: galería, pie de página y bandas de cierre */
+   --color-surface-deep: #003566;
+   --color-surface-deep-soft: #002b55;
+   --color-surface-deep-raised: #0a447c;
 
    /* Texto */
-   --color-text: #153b56;
-   --color-text-soft: #2b4a60;
-   --color-text-muted: #5b6b7f;
-   /* #64748B oscurecido lo justo para AA sobre arena */
+   --color-text: #17212b;
+   --color-text-soft: #334155;
+   /* #64748B oscurecido lo justo para cumplir AA también sobre arena (#F4F0E8). */
+   --color-text-muted: #5b6a7e;
    --color-text-inverse: #ffffff;
-   --color-text-inverse-muted: #c9d6e0;
+   --color-text-inverse-muted: #c8d6e5;
 
-   /* Acción principal: azul profundo sobre claro, blanco sobre foto */
-   --color-primary: #153b56;
-   --color-primary-dark: #0e2a3e;
-   --color-primary-light: var(--sky-400);
+   /* Acción principal: el azul de marca #00509D */
+   --color-primary: #00509d;
+   --color-primary-dark: #003566;
+   /* Azul claro para acentos sobre fondos profundos (AA sobre #003566). */
+   --color-primary-light: var(--sky-300);
+   /* Azul secundario de marca. */
+   --color-secondary: #0a66a8;
    --color-primary-soft: var(--sky-100);
-   --color-primary-hover: #285f7d;
+   --color-primary-hover: #003566;
    --color-primary-contrast: #ffffff;
 
-   /* Acento: el azul secundario y la arena. Sin dorados. `accent-strong` cumple
-     AA sobre claro; `accent-light` sobre fondo profundo. */
-   --color-accent: #c8b9a3;
-   --color-accent-strong: #285f7d;
-   --color-accent-light: #e9e0d3;
-   --color-accent-hover: #1e4d69;
-   --color-accent-soft: #f3eee6;
+   /* Acento: azul secundario y arena. Sin dorados. `accent-strong` cumple AA
+     sobre claro; `accent-light` sobre fondo profundo. */
+   --color-accent: #bfae94;
+   --color-accent-strong: #0a66a8;
+   --color-accent-light: #e9e1d5;
+   --color-accent-hover: #00509d;
+   --color-accent-soft: #f4f0e8;
 
    /* Bordes y separadores */
-   --color-border: #e6e1d8;
-   --color-border-strong: #d2c9bb;
+   --color-border: #e7e1d6;
+   --color-border-strong: #d4c9b6;
    --color-border-input: #7a8798;
    /* controles: contraste ≥ 3:1 (WCAG 1.4.11) */
    --color-border-inverse: rgb(var(--white-rgb) / 20%);
    --color-border-inverse-strong: rgb(var(--white-rgb) / 45%);
 
    /* Velos */
-   --color-overlay: rgb(var(--deep-rgb) / 45%);
+   --color-overlay: rgb(var(--veil-rgb) / 45%);
    --color-overlay-soft: rgb(var(--deep-rgb) / 12%);
    --color-veil: rgb(var(--white-rgb) / 10%);
    --color-veil-strong: rgb(var(--white-rgb) / 18%);
@@ -99,7 +106,7 @@
    --glass-border: rgb(var(--white-rgb) / 32%);
    --glass-blur: 14px;
 
-   --color-focus: #285f7d;
+   --color-focus: #0a66a8;
    --color-danger: #a8402f;
    --color-success: #1f6f55;
 
